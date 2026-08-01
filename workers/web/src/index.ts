@@ -6,6 +6,8 @@ export interface Env {
   API_DEV_ORIGIN?: string;
   // Optional: explicit API origin for non-development environments
   API_ORIGIN?: string;
+  // Server-only credential for API worker authentication; never accept this from clients.
+  INTERNAL_API_TOKEN?: string;
 }
 
 const corsHeaders = {
@@ -71,30 +73,19 @@ export default {
       pathname.startsWith('/v1/') ||
       pathname.startsWith('/api/');
 
-    // Debug logging
-    console.log('API Debug:', {
-      pathname,
-      isApiPath,
-      apiBase,
-      isDev,
-      environment: env.ENVIRONMENT,
-    });
-
     if (isApiPath && apiBase) {
       const forwardUrl = `${apiBase}${pathname}${url.search}`;
-      console.log('Proxying request:', {
-        forwardUrl,
-        method: request.method,
-        headers: Object.fromEntries(request.headers.entries()),
-      });
+      const forwardHeaders = new Headers(request.headers);
+      // Never relay a client-supplied internal credential or marker.
+      forwardHeaders.delete('x-internal-api-token');
+      forwardHeaders.delete('x-internal-request');
+      if (env.INTERNAL_API_TOKEN) {
+        forwardHeaders.set('x-internal-api-token', env.INTERNAL_API_TOKEN);
+      }
 
       const apiReq = new Request(forwardUrl, {
         method: request.method,
-        headers: {
-          ...Object.fromEntries(request.headers.entries()),
-          'x-internal-request': 'true',
-          origin: 'https://fanalyx.com',
-        },
+        headers: forwardHeaders,
         body: request.body,
         // Required for Node.js environments (tests) when body is present
         duplex: 'half',
@@ -102,12 +93,6 @@ export default {
 
       try {
         const apiRes = await fetch(apiReq);
-        console.log('API response:', {
-          status: apiRes.status,
-          statusText: apiRes.statusText,
-          headers: Object.fromEntries(apiRes.headers.entries()),
-          bodyUsed: apiRes.bodyUsed,
-        });
 
         const isWebSocketUpgrade = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
         if (isWebSocketUpgrade || apiRes.status === 101) {

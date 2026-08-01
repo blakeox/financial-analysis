@@ -184,6 +184,94 @@ function hasControlChars(s: string): boolean {
   return false;
 }
 
+async function readJsonBodyWithinLimit(
+  request: Request,
+  env: Env
+): Promise<{ body?: unknown; error?: Response }> {
+  const maxBytes = getMaxJsonBytes(env);
+  const contentLengthHeader = request.headers.get('content-length');
+  const contentLength = contentLengthHeader === null ? Number.NaN : Number(contentLengthHeader);
+
+  if (Number.isFinite(contentLength) && contentLength > maxBytes) {
+    return {
+      error: new Response(
+        JSON.stringify({
+          error: {
+            message: `Request body too large. Maximum size is ${maxBytes} bytes`,
+            code: 'BODY_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      ),
+    };
+  }
+
+  const rawBody = await request.text();
+  if (new TextEncoder().encode(rawBody).byteLength > maxBytes) {
+    return {
+      error: new Response(
+        JSON.stringify({
+          error: {
+            message: `Request body too large. Maximum size is ${maxBytes} bytes`,
+            code: 'BODY_TOO_LARGE',
+          },
+        }),
+        { status: 413, headers: buildDefaultHeaders(env) }
+      ),
+    };
+  }
+
+  try {
+    return { body: JSON.parse(rawBody) };
+  } catch {
+    return {
+      error: new Response(
+        JSON.stringify({
+          error: { message: 'Request body must be valid JSON', code: 'INVALID_JSON' },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      ),
+    };
+  }
+}
+
+async function getUploadQuotaError(env: Env, size: number): Promise<Response | null> {
+  const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
+  if (size > maxObjectSize) {
+    return new Response(
+      JSON.stringify({
+        error: {
+          message: `Object too large. Max ${maxObjectSize} bytes`,
+          code: 'OBJECT_TOO_LARGE',
+        },
+      }),
+      { status: 413, headers: buildDefaultHeaders(env) }
+    );
+  }
+
+  const approx = await getApproxBytes(env);
+  const locked = await isQuotaLocked(env);
+  const willBe = approx + size;
+  if (locked || willBe > hardLimit) {
+    await setQuotaLocked(env, true);
+    return new Response(
+      JSON.stringify({
+        error: { message: 'Storage locked due to quota', code: 'QUOTA_LOCKED' },
+      }),
+      { status: 403, headers: buildDefaultHeaders(env) }
+    );
+  }
+  if (willBe > softLimit) {
+    await setQuotaLocked(env, true);
+    return new Response(
+      JSON.stringify({ error: { message: 'Approaching quota', code: 'SOFT_LIMIT' } }),
+      { status: 403, headers: buildDefaultHeaders(env) }
+    );
+  }
+
+  return null;
+}
+
 function isAuthorizedAdminRequest(request: Request, env: Env): boolean {
   const auth = request.headers.get('authorization') || '';
   const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
@@ -643,23 +731,39 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
   };
 }
 
+/**
+ * Middleware for API-key lifecycle operations. These endpoints can mint and
+ * revoke credentials, so an ordinary customer API key is not sufficient.
+ */
+function withAdminAuth(handler: (request: Request, env: Env) => Promise<Response>) {
+  return withErrorHandler(async (request: Request, env: Env) => {
+    if (!isAuthorizedAdminRequest(request, env)) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
+        { status: 401, headers: buildDefaultHeaders(env) }
+      );
+    }
+    return handler(request, env);
+  });
+}
+
 router.post(
   '/v1/keys',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withAdminAuth(async (request: Request, env: Env) => {
     return await createApiKey(request, env);
   })
 );
 
 router.get(
   '/v1/keys',
-  withErrorHandler(async (request: Request, env: Env) => {
+  withAdminAuth(async (request: Request, env: Env) => {
     return await listApiKeys(request, env);
   })
 );
 
 router.delete(
   '/v1/keys/:keyId',
-  withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+  withAdminAuth(async (request: Request & { params?: { keyId: string } }, env: Env) => {
     const keyId = request.params?.keyId;
     if (!keyId) {
       return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
@@ -673,7 +777,7 @@ router.delete(
 
 router.get(
   '/v1/keys/:keyId/usage',
-  withErrorHandler(async (request: Request & { params?: { keyId: string } }, env: Env) => {
+  withAdminAuth(async (request: Request & { params?: { keyId: string } }, env: Env) => {
     const keyId = request.params?.keyId;
     if (!keyId) {
       return new Response(JSON.stringify({ error: 'keyId parameter required' }), {
@@ -686,30 +790,42 @@ router.get(
 );
 
 // Stripe Integration routes
-router.all('/v1/stripe/*', (request: Request, env: Env) => {
+router.all('/v1/stripe/webhook', (request: Request, env: Env) => {
   return stripeRouter.handle(request, env);
 });
+router.get('/v1/stripe/pricing', (request: Request, env: Env) => {
+  return stripeRouter.handle(request, env);
+});
+router.all(
+  '/v1/stripe/*',
+  withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+    return stripeRouter.handle(request, env);
+  })
+);
 
 // PHASE 3: Circuit breaker monitoring endpoint
-router.get('/v1/admin/circuit-breakers', (_req: Request, env: Env) => {
-  const states = getAllCircuitStates();
-  const headers = new Headers({
-    ...getCorsHeaders(env),
-    ...getSecurityHeaders(env),
-    'Content-Type': 'application/json',
-  });
-  return new Response(
-    JSON.stringify(
-      {
-        circuitBreakers: states,
-        timestamp: new Date().toISOString(),
-      },
-      null,
-      2
-    ),
-    { headers }
-  );
-});
+router.get(
+  '/v1/admin/circuit-breakers',
+  withAdminAuth(async (_req: Request, env: Env) => {
+    const states = getAllCircuitStates();
+    const headers = new Headers({
+      ...getCorsHeaders(env),
+      ...getSecurityHeaders(env),
+      'Content-Type': 'application/json',
+    });
+    return new Response(
+      JSON.stringify(
+        {
+          circuitBreakers: states,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2
+      ),
+      { headers }
+    );
+  })
+);
 
 // Lightweight ping endpoint for uptime checks
 router.get('/ping', (_req: Request, env: Env) => {
@@ -820,42 +936,46 @@ registerChatRoutes(router);
 
 router.get(
   '/v1/storage/status',
-  withErrorHandler(async (_request: Request, env: Env) => {
-    const { softLimit, hardLimit } = getThresholds(env);
-    const approx = await getApproxBytes(env);
-    const locked = await isQuotaLocked(env);
-    const hasBucket = Boolean(env.DOCUMENTS);
-    return new Response(
-      JSON.stringify({
-        bucket: hasBucket ? 'configured' : 'absent',
-        approxBytes: approx,
-        softLimit,
-        hardLimit,
-        locked,
-      }),
-      { headers: buildDefaultHeaders(env) }
-    );
-  })
+  withErrorHandler(
+    withAuth(async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const { softLimit, hardLimit } = getThresholds(env);
+      const approx = await getApproxBytes(env);
+      const locked = await isQuotaLocked(env);
+      const hasBucket = Boolean(env.DOCUMENTS);
+      return new Response(
+        JSON.stringify({
+          bucket: hasBucket ? 'configured' : 'absent',
+          approxBytes: approx,
+          softLimit,
+          hardLimit,
+          locked,
+        }),
+        { headers: buildDefaultHeaders(env) }
+      );
+    })
+  )
 );
 
 router.get(
   '/v1/storage/usage',
-  withErrorHandler(async (_request: Request, env: Env) => {
-    const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
-    const usedBytes = await getApproxBytes(env);
-    const locked = await isQuotaLocked(env);
-    return new Response(
-      JSON.stringify({
-        usedBytes,
-        softLimit,
-        hardLimit,
-        maxObjectSize,
-        locked,
-        timestamp: new Date().toISOString(),
-      }),
-      { headers: buildDefaultHeaders(env) }
-    );
-  })
+  withErrorHandler(
+    withAuth(async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
+      const usedBytes = await getApproxBytes(env);
+      const locked = await isQuotaLocked(env);
+      return new Response(
+        JSON.stringify({
+          usedBytes,
+          softLimit,
+          hardLimit,
+          maxObjectSize,
+          locked,
+          timestamp: new Date().toISOString(),
+        }),
+        { headers: buildDefaultHeaders(env) }
+      );
+    })
+  )
 );
 
 // Admin-only reconcile endpoint (requires Authorization: Bearer <ADMIN_API_TOKEN>)
@@ -997,158 +1117,170 @@ router.get(
 
 router.put(
   '/v1/storage/object/:key',
-  withErrorHandler(async (request: Request, env: Env) => {
-    if (!env.DOCUMENTS) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
-        { status: 500, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const url = new URL(request.url);
-    const key = decodeURIComponent(url.pathname.replace(/^.*\/object\//, ''));
-    // Basic key hygiene: non-empty, no trailing slash, length cap, safe charset, and no dot segments
-    if (!key || key.endsWith('/')) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Invalid object key', code: 'BAD_KEY' } }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-    if (key.length > 1024 || hasControlChars(key) || /(^|\/)\.\.(\/|$)/.test(key)) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Unsafe object key', code: 'BAD_KEY' } }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Enforce lock and thresholds
-    const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
-    // Prefer Content-Length; allow X-Content-Length as a fallback (browsers can't set Content-Length)
-    const contentLengthHeader =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (!contentLengthHeader) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Content-Length required', code: 'LENGTH_REQUIRED' } }),
-        { status: 411, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const contentLength = Number(contentLengthHeader);
-    if (!Number.isFinite(contentLength) || contentLength < 0) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Invalid Content-Length', code: 'BAD_LENGTH' } }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-    if (contentLength > maxObjectSize) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `Object too large. Max ${maxObjectSize} bytes`,
-            code: 'OBJECT_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const approx = await getApproxBytes(env);
-    const locked = await isQuotaLocked(env);
-    const willBe = approx + contentLength;
-    if (locked || willBe > hardLimit) {
-      await setQuotaLocked(env, true);
-      return new Response(
-        JSON.stringify({ error: { message: 'Storage locked due to quota', code: 'QUOTA_LOCKED' } }),
-        { status: 403, headers: buildDefaultHeaders(env) }
-      );
-    }
-    if (willBe > softLimit) {
-      // Flip the lock and reject to prevent crossing soft limit.
-      await setQuotaLocked(env, true);
-      return new Response(
-        JSON.stringify({ error: { message: 'Approaching quota', code: 'SOFT_LIMIT' } }),
-        { status: 403, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
-    // Optional MIME allowlist
-    if (env.ALLOWED_UPLOAD_MIME_PREFIXES) {
-      const allowed = String(env.ALLOWED_UPLOAD_MIME_PREFIXES)
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const ok = allowed.length === 0 || allowed.some((p) => contentType.startsWith(p));
-      if (!ok) {
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      if (!env.DOCUMENTS) {
         return new Response(
-          JSON.stringify({
-            error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' },
-          }),
-          { status: 415, headers: buildDefaultHeaders(env) }
+          JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
+          { status: 500, headers: buildDefaultHeaders(env) }
         );
       }
-    }
 
-    // Conditional semantics (minimal): support If-None-Match: * (create-only) and If-Match: * (update-only)
-    const ifNoneMatch = request.headers.get('If-None-Match');
-    const ifMatch = request.headers.get('If-Match');
-    const existingHead = await env.DOCUMENTS.head(key);
-    if (ifNoneMatch === '*' && existingHead) {
-      return new Response(
-        JSON.stringify({
-          error: { message: 'Precondition failed (exists)', code: 'PRECONDITION_FAILED' },
-        }),
-        { status: 412, headers: buildDefaultHeaders(env) }
-      );
-    }
-    if (ifMatch === '*' && !existingHead) {
-      return new Response(
-        JSON.stringify({
-          error: { message: 'Precondition failed (missing)', code: 'PRECONDITION_FAILED' },
-        }),
-        { status: 412, headers: buildDefaultHeaders(env) }
-      );
-    }
+      const url = new URL(request.url);
+      const key = decodeURIComponent(url.pathname.replace(/^.*\/object\//, ''));
+      // Basic key hygiene: non-empty, no trailing slash, length cap, safe charset, and no dot segments
+      if (!key || key.endsWith('/')) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Invalid object key', code: 'BAD_KEY' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (key.length > 1024 || hasControlChars(key) || /(^|\/)\.\.(\/|$)/.test(key)) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Unsafe object key', code: 'BAD_KEY' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
 
-    const putRes = await env.DOCUMENTS.put(key, request.body as ReadableStream, {
-      httpMetadata: { contentType },
-    });
-    // Adjust approximate counter by delta (new - old) to avoid double counting overwrites
-    const prevSize = existingHead && typeof existingHead.size === 'number' ? existingHead.size : 0;
-    await adjustApproxBytes(env, contentLength - prevSize);
-    return new Response(JSON.stringify({ key, etag: putRes?.etag ?? null, size: contentLength }), {
-      status: 201,
-      headers: buildDefaultHeaders(env),
-    });
-  })
+      // Enforce lock and thresholds
+      const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
+      // Prefer Content-Length; allow X-Content-Length as a fallback (browsers can't set Content-Length)
+      const contentLengthHeader =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (!contentLengthHeader) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Content-Length required', code: 'LENGTH_REQUIRED' },
+          }),
+          { status: 411, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const contentLength = Number(contentLengthHeader);
+      if (!Number.isFinite(contentLength) || contentLength < 0) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Invalid Content-Length', code: 'BAD_LENGTH' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (contentLength > maxObjectSize) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `Object too large. Max ${maxObjectSize} bytes`,
+              code: 'OBJECT_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const approx = await getApproxBytes(env);
+      const locked = await isQuotaLocked(env);
+      const willBe = approx + contentLength;
+      if (locked || willBe > hardLimit) {
+        await setQuotaLocked(env, true);
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Storage locked due to quota', code: 'QUOTA_LOCKED' },
+          }),
+          { status: 403, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (willBe > softLimit) {
+        // Flip the lock and reject to prevent crossing soft limit.
+        await setQuotaLocked(env, true);
+        return new Response(
+          JSON.stringify({ error: { message: 'Approaching quota', code: 'SOFT_LIMIT' } }),
+          { status: 403, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
+      // Optional MIME allowlist
+      if (env.ALLOWED_UPLOAD_MIME_PREFIXES) {
+        const allowed = String(env.ALLOWED_UPLOAD_MIME_PREFIXES)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const ok = allowed.length === 0 || allowed.some((p) => contentType.startsWith(p));
+        if (!ok) {
+          return new Response(
+            JSON.stringify({
+              error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' },
+            }),
+            { status: 415, headers: buildDefaultHeaders(env) }
+          );
+        }
+      }
+
+      // Conditional semantics (minimal): support If-None-Match: * (create-only) and If-Match: * (update-only)
+      const ifNoneMatch = request.headers.get('If-None-Match');
+      const ifMatch = request.headers.get('If-Match');
+      const existingHead = await env.DOCUMENTS.head(key);
+      if (ifNoneMatch === '*' && existingHead) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Precondition failed (exists)', code: 'PRECONDITION_FAILED' },
+          }),
+          { status: 412, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (ifMatch === '*' && !existingHead) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Precondition failed (missing)', code: 'PRECONDITION_FAILED' },
+          }),
+          { status: 412, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const putRes = await env.DOCUMENTS.put(key, request.body as ReadableStream, {
+        httpMetadata: { contentType },
+      });
+      // Adjust approximate counter by delta (new - old) to avoid double counting overwrites
+      const prevSize =
+        existingHead && typeof existingHead.size === 'number' ? existingHead.size : 0;
+      await adjustApproxBytes(env, contentLength - prevSize);
+      return new Response(
+        JSON.stringify({ key, etag: putRes?.etag ?? null, size: contentLength }),
+        {
+          status: 201,
+          headers: buildDefaultHeaders(env),
+        }
+      );
+    })
+  )
 );
 
 router.delete(
   '/v1/storage/object/:key',
-  withErrorHandler(async (request: Request, env: Env) => {
-    if (!env.DOCUMENTS) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
-        { status: 500, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const url = new URL(request.url);
-    const key = decodeURIComponent(url.pathname.replace(/^.*\/object\//, ''));
-    if (!key || key.endsWith('/')) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Invalid object key', code: 'BAD_KEY' } }),
-        { status: 400, headers: buildDefaultHeaders(env) }
-      );
-    }
-    const head = await env.DOCUMENTS.head(key);
-    await env.DOCUMENTS.delete(key);
-    if (head && typeof head.size === 'number') {
-      await adjustApproxBytes(env, -head.size);
-    }
-    return new Response(JSON.stringify({ key, deleted: true }), {
-      status: 200,
-      headers: buildDefaultHeaders(env),
-    });
-  })
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      if (!env.DOCUMENTS) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
+          { status: 500, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const url = new URL(request.url);
+      const key = decodeURIComponent(url.pathname.replace(/^.*\/object\//, ''));
+      if (!key || key.endsWith('/')) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Invalid object key', code: 'BAD_KEY' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const head = await env.DOCUMENTS.head(key);
+      await env.DOCUMENTS.delete(key);
+      if (head && typeof head.size === 'number') {
+        await adjustApproxBytes(env, -head.size);
+      }
+      return new Response(JSON.stringify({ key, deleted: true }), {
+        status: 200,
+        headers: buildDefaultHeaders(env),
+      });
+    })
+  )
 );
 
 // MCP server endpoint for LLM integration
@@ -1578,191 +1710,199 @@ router.post(
 // Lease document upload endpoint (multipart/form-data)
 router.post(
   '/v1/api/upload/lease',
-  withErrorHandler(async (request: Request, env: Env) => {
-    if (!env.DOCUMENTS) {
-      return new Response(
-        JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
-        { status: 500, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('multipart/form-data')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be multipart/form-data',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    try {
-      const formData = await request.formData();
-      const fileEntry = formData.get('file');
-      const file =
-        fileEntry && typeof fileEntry === 'object' && 'stream' in fileEntry
-          ? (fileEntry as File)
-          : null;
-
-      if (!file) {
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      if (!env.DOCUMENTS) {
         return new Response(
-          JSON.stringify({ error: { message: 'No file provided', code: 'NO_FILE' } }),
-          { status: 400, headers: buildDefaultHeaders(env) }
+          JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
+          { status: 500, headers: buildDefaultHeaders(env) }
         );
       }
 
-      // Validate file type
-      const allowedTypes = [
-        'application/pdf',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-      ];
-      if (!allowedTypes.includes(file.type)) {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('multipart/form-data')) {
         return new Response(
           JSON.stringify({
             error: {
-              message: 'Unsupported file type. Only PDF, DOCX, and TXT files are allowed.',
-              code: 'UNSUPPORTED_FILE_TYPE',
+              message: 'Content-Type must be multipart/form-data',
+              code: 'INVALID_CONTENT_TYPE',
             },
           }),
           { status: 415, headers: buildDefaultHeaders(env) }
         );
       }
 
-      // Check file size (10MB limit)
-      const maxFileSize = 50 * 1024 * 1024; // 50MB
-      if (file.size > maxFileSize) {
+      try {
+        const formData = await request.formData();
+        const fileEntry = formData.get('file');
+        const file =
+          fileEntry && typeof fileEntry === 'object' && 'stream' in fileEntry
+            ? (fileEntry as File)
+            : null;
+
+        if (!file) {
+          return new Response(
+            JSON.stringify({ error: { message: 'No file provided', code: 'NO_FILE' } }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Validate file type
+        const allowedTypes = [
+          'application/pdf',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain',
+        ];
+        if (!allowedTypes.includes(file.type)) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Unsupported file type. Only PDF, DOCX, and TXT files are allowed.',
+                code: 'UNSUPPORTED_FILE_TYPE',
+              },
+            }),
+            { status: 415, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        // Check file size against the configured R2 object limit.
+        const { maxObjectSize: maxFileSize } = getThresholds(env);
+        if (file.size > maxFileSize) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: `File too large. Maximum size is ${maxFileSize} bytes`,
+                code: 'FILE_TOO_LARGE',
+              },
+            }),
+            { status: 413, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const quotaError = await getUploadQuotaError(env, file.size);
+        if (quotaError) return quotaError;
+
+        // Generate unique key for the file
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2);
+        const extension = file.name.split('.').pop() || 'bin';
+        const key = `lease-documents/${timestamp}-${random}.${extension}`;
+
+        // Upload to R2
+        const arrayBuffer = await file.arrayBuffer();
+        await env.DOCUMENTS.put(key, arrayBuffer, {
+          httpMetadata: { contentType: file.type },
+          customMetadata: {
+            originalName: file.name,
+            uploadedAt: new Date().toISOString(),
+          },
+        });
+        await adjustApproxBytes(env, file.size);
+
+        // Determine document type for extraction
+        let documentType = 'txt';
+        if (file.type === 'application/pdf') {
+          documentType = 'pdf';
+        } else if (
+          file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ) {
+          documentType = 'docx';
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            documentKey: key,
+            documentType,
+            filename: file.name,
+            size: file.size,
+            contentType: file.type,
+          }),
+          { status: 201, headers: buildDefaultHeaders(env) }
+        );
+      } catch (error) {
         return new Response(
           JSON.stringify({
             error: {
-              message: `File too large. Maximum size is 50MB`,
-              code: 'FILE_TOO_LARGE',
+              message: `Upload failed: ${error instanceof Error ? error.message : String(error)}`,
+              code: 'UPLOAD_FAILED',
+            },
+          }),
+          { status: 500, headers: buildDefaultHeaders(env) }
+        );
+      }
+    })
+  )
+);
+
+// Lease document extraction endpoint
+router.post(
+  '/v1/api/extract/lease',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const contentType = request.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Content-Type must be application/json',
+              code: 'INVALID_CONTENT_TYPE',
+            },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      // Enforce JSON body size cap
+      const maxBytes = getMaxJsonBytes(env);
+      const declaredLen =
+        request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
+      if (declaredLen && Number(declaredLen) > maxBytes) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `JSON body too large (max ${maxBytes} bytes)`,
+              code: 'PAYLOAD_TOO_LARGE',
             },
           }),
           { status: 413, headers: buildDefaultHeaders(env) }
         );
       }
 
-      // Generate unique key for the file
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(2);
-      const extension = file.name.split('.').pop() || 'bin';
-      const key = `lease-documents/${timestamp}-${random}.${extension}`;
+      const body = await request
+        .clone()
+        .json()
+        .catch(() => ({}));
 
-      // Upload to R2
-      const arrayBuffer = await file.arrayBuffer();
-      await env.DOCUMENTS.put(key, arrayBuffer, {
-        httpMetadata: { contentType: file.type },
-        customMetadata: {
-          originalName: file.name,
-          uploadedAt: new Date().toISOString(),
-        },
-      });
-
-      // Determine document type for extraction
-      let documentType = 'txt';
-      if (file.type === 'application/pdf') {
-        documentType = 'pdf';
-      } else if (
-        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      ) {
-        documentType = 'docx';
+      // If this has fileData, it should go to the other handler - skip this one
+      if (body && typeof body === 'object' && 'fileData' in body) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Use the fileData endpoint',
+          }),
+          {
+            status: 400,
+            headers: buildDefaultHeaders(env),
+          }
+        );
       }
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          documentKey: key,
-          documentType,
-          filename: file.name,
-          size: file.size,
-          contentType: file.type,
-        }),
-        { status: 201, headers: buildDefaultHeaders(env) }
-      );
-    } catch (error) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `Upload failed: ${error instanceof Error ? error.message : String(error)}`,
-            code: 'UPLOAD_FAILED',
-          },
-        }),
-        { status: 500, headers: buildDefaultHeaders(env) }
-      );
-    }
-  })
-);
+      const { extractLeaseFromDocument } = await import('./services/lease-extraction');
+      // Need to recreate request since we cloned it
+      const newRequest = new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: JSON.stringify(body),
+      });
+      const result = await extractLeaseFromDocument(newRequest, env);
 
-// Lease document extraction endpoint
-router.post(
-  '/v1/api/extract/lease',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const contentType = request.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: 'Content-Type must be application/json',
-            code: 'INVALID_CONTENT_TYPE',
-          },
-        }),
-        { status: 415, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    // Enforce JSON body size cap
-    const maxBytes = getMaxJsonBytes(env);
-    const declaredLen =
-      request.headers.get('Content-Length') || request.headers.get('X-Content-Length');
-    if (declaredLen && Number(declaredLen) > maxBytes) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: `JSON body too large (max ${maxBytes} bytes)`,
-            code: 'PAYLOAD_TOO_LARGE',
-          },
-        }),
-        { status: 413, headers: buildDefaultHeaders(env) }
-      );
-    }
-
-    const body = await request
-      .clone()
-      .json()
-      .catch(() => ({}));
-
-    // If this has fileData, it should go to the other handler - skip this one
-    if (body && typeof body === 'object' && 'fileData' in body) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Use the fileData endpoint',
-        }),
-        {
-          status: 400,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    }
-
-    const { extractLeaseFromDocument } = await import('./services/lease-extraction');
-    // Need to recreate request since we cloned it
-    const newRequest = new Request(request.url, {
-      method: request.method,
-      headers: request.headers,
-      body: JSON.stringify(body),
-    });
-    const result = await extractLeaseFromDocument(newRequest, env);
-
-    return new Response(JSON.stringify(result), {
-      status: result.success ? 200 : 400,
-      headers: buildDefaultHeaders(env),
-    });
-  })
+      return new Response(JSON.stringify(result), {
+        status: result.success ? 200 : 400,
+        headers: buildDefaultHeaders(env),
+      });
+    })
+  )
 );
 
 // EBITDA forecast analysis endpoint
@@ -2073,15 +2213,6 @@ router.post(
         paymentFrequency?: string;
       };
 
-      // Debug: Log raw input
-      console.log('Raw API input:', {
-        body: body,
-        apiInput: apiInput,
-        interestRate: apiInput.interestRate,
-        termInYears: apiInput.termInYears,
-        principal: apiInput.principal,
-      });
-
       // Validate required fields exist and are numbers
       if (typeof apiInput.principal !== 'number' || apiInput.principal <= 0) {
         return new Response(
@@ -2175,12 +2306,6 @@ router.post(
         );
       }
 
-      // Debug: Log the conversion
-      console.log('Amortization input conversion:', {
-        original: apiInput,
-        converted: analysisInput,
-      });
-
       const parseResult = AmortizationInputSchema.safeParse(analysisInput);
       if (!parseResult.success) {
         const issues = parseResult.error.issues.map((i: z.ZodIssue) => ({
@@ -2188,11 +2313,6 @@ router.post(
           message: i.message,
           code: i.code,
         }));
-        // Debug: Log validation failure details
-        console.error('Amortization validation failed:', {
-          input: analysisInput,
-          issues: issues,
-        });
         return new Response(
           JSON.stringify({
             error: {
@@ -2476,198 +2596,366 @@ async function buildOpenApiResponsePayload(
 // Document upload endpoint (simplified - stores in R2 if available)
 router.post(
   '/v1/api/upload/lease',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const requestId = crypto.randomUUID();
-    console.log(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'info',
-        message: 'Document upload request',
-        requestId,
-      })
-    );
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const requestId = crypto.randomUUID();
+      console.log(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'info',
+          message: 'Document upload request',
+          requestId,
+        })
+      );
 
-    try {
-      const formData = await request.formData();
-      const file = formData.get('file') as File | null;
+      try {
+        const formData = await request.formData();
+        const file = formData.get('file') as File | null;
 
-      if (!file) {
-        return new Response(JSON.stringify({ error: 'No file provided' }), {
-          status: 400,
-          headers: buildDefaultHeaders(env),
-        });
-      }
+        if (!file) {
+          return new Response(JSON.stringify({ error: 'No file provided' }), {
+            status: 400,
+            headers: buildDefaultHeaders(env),
+          });
+        }
 
-      // Validate file type
-      const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-      ];
-      if (!allowedTypes.includes(file.type)) {
+        // Validate file type
+        const allowedTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain',
+        ];
+        if (!allowedTypes.includes(file.type)) {
+          return new Response(
+            JSON.stringify({
+              error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.',
+            }),
+            {
+              status: 400,
+              headers: buildDefaultHeaders(env),
+            }
+          );
+        }
+
+        // Validate file size against the configured R2 object limit.
+        const { maxObjectSize: maxSize } = getThresholds(env);
+        if (file.size > maxSize) {
+          return new Response(
+            JSON.stringify({ error: `File too large. Maximum size is ${maxSize} bytes.` }),
+            {
+              status: 400,
+              headers: buildDefaultHeaders(env),
+            }
+          );
+        }
+
+        const quotaError = env.DOCUMENTS ? await getUploadQuotaError(env, file.size) : null;
+        if (quotaError) return quotaError;
+
+        // Store in R2 if available (optional)
+        const fileKey = `uploads/${requestId}-${file.name}`;
+
+        if (env.DOCUMENTS) {
+          try {
+            await env.DOCUMENTS.put(fileKey, await file.arrayBuffer(), {
+              customMetadata: {
+                originalName: file.name,
+                contentType: file.type,
+                uploadedAt: new Date().toISOString(),
+              },
+            });
+            await adjustApproxBytes(env, file.size);
+          } catch (r2Error) {
+            console.warn('R2 upload failed, continuing without storage:', r2Error);
+          }
+        }
+
         return new Response(
           JSON.stringify({
-            error: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.',
+            success: true,
+            key: fileKey,
+            fileName: file.name,
+            fileSize: file.size,
+            contentType: file.type,
           }),
           {
-            status: 400,
+            status: 200,
+            headers: buildDefaultHeaders(env),
+          }
+        );
+      } catch (error) {
+        console.error('Document upload error:', error);
+        return new Response(
+          JSON.stringify({
+            error: 'Failed to upload document',
+            message: error instanceof Error ? error.message : 'Unknown error',
+          }),
+          {
+            status: 500,
             headers: buildDefaultHeaders(env),
           }
         );
       }
-
-      // Validate file size (50MB max)
-      const maxSize = 50 * 1024 * 1024;
-      if (file.size > maxSize) {
-        return new Response(JSON.stringify({ error: 'File too large. Maximum size is 50MB.' }), {
-          status: 400,
-          headers: buildDefaultHeaders(env),
-        });
-      }
-
-      // Store in R2 if available (optional)
-      const fileKey = `uploads/${requestId}-${file.name}`;
-
-      if (env.DOCUMENTS) {
-        try {
-          await env.DOCUMENTS.put(fileKey, await file.arrayBuffer(), {
-            customMetadata: {
-              originalName: file.name,
-              contentType: file.type,
-              uploadedAt: new Date().toISOString(),
-            },
-          });
-        } catch (r2Error) {
-          console.warn('R2 upload failed, continuing without storage:', r2Error);
-        }
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          key: fileKey,
-          fileName: file.name,
-          fileSize: file.size,
-          contentType: file.type,
-        }),
-        {
-          status: 200,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    } catch (error) {
-      console.error('Document upload error:', error);
-      return new Response(
-        JSON.stringify({
-          error: 'Failed to upload document',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        }),
-        {
-          status: 500,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    }
-  })
+    })
+  )
 );
 
 // Document extraction endpoint - accepts file data directly (no storage)
 router.post(
   '/v1/api/extract/lease-direct',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const requestId = crypto.randomUUID();
-    console.log(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'info',
-        message: 'Document extraction request',
-        requestId,
-      })
-    );
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const requestId = crypto.randomUUID();
+      console.log(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'info',
+          message: 'Document extraction request',
+          requestId,
+        })
+      );
 
-    try {
-      const body = (await request.json()) as {
-        fileData?: string; // Base64 encoded file
-        fileName?: string;
-        fileType?: string;
-        documentType?: string;
-        documentKey?: string; // Legacy support
-        extractionOptions?: Record<string, boolean>;
-      };
+      try {
+        const parsedBody = await readJsonBodyWithinLimit(request, env);
+        if (parsedBody.error) return parsedBody.error;
+        const body = parsedBody.body as {
+          fileData?: string; // Base64 encoded file
+          fileName?: string;
+          fileType?: string;
+          documentType?: string;
+          documentKey?: string; // Legacy support
+          extractionOptions?: Record<string, boolean>;
+        };
 
-      const { fileData, fileName, fileType, documentType = 'lease' } = body;
+        const { fileData, fileName, documentType = 'lease' } = body;
 
-      // If we have fileData, process it directly
-      let extractedText = '';
-      if (fileData) {
-        console.log('Processing file from base64:', fileName, fileType);
-        const fileBuffer = Uint8Array.from(atob(fileData), (c) => c.charCodeAt(0));
-        const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'txt';
+        // If we have fileData, process it directly
+        let extractedText = '';
+        if (fileData) {
+          console.log('Processing direct document extraction', { requestId, documentType });
+          if (typeof fileData !== 'string') {
+            return new Response(
+              JSON.stringify({ error: { message: 'Invalid file data', code: 'BAD_FILE_DATA' } }),
+              { status: 400, headers: buildDefaultHeaders(env) }
+            );
+          }
+          const { maxObjectSize } = getThresholds(env);
+          const maxEncodedLength = Math.ceil(maxObjectSize / 3) * 4 + 4;
+          if (fileData.length > maxEncodedLength) {
+            return new Response(
+              JSON.stringify({
+                error: {
+                  message: `File too large. Maximum size is ${maxObjectSize} bytes`,
+                  code: 'FILE_TOO_LARGE',
+                },
+              }),
+              { status: 413, headers: buildDefaultHeaders(env) }
+            );
+          }
 
-        if (fileExtension === 'txt') {
-          extractedText = new TextDecoder().decode(fileBuffer);
-        } else if (fileExtension === 'pdf') {
-          // Use Workers AI to extract text from PDF
-          console.log('Extracting text from PDF using Workers AI');
+          let decodedFile: string;
           try {
-            if (env.AI) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const ai = env.AI as any;
-              const result = await ai.run('@cf/browsershot/text-extract', {
-                blob: new Uint8Array(fileBuffer),
-              });
-              extractedText = result.text || '';
-              console.log('PDF extraction successful, extracted length:', extractedText.length);
-            } else {
-              console.log('AI not available, using sample text');
+            decodedFile = atob(fileData);
+          } catch {
+            return new Response(
+              JSON.stringify({ error: { message: 'Invalid file data', code: 'BAD_FILE_DATA' } }),
+              { status: 400, headers: buildDefaultHeaders(env) }
+            );
+          }
+          if (decodedFile.length > maxObjectSize) {
+            return new Response(
+              JSON.stringify({
+                error: {
+                  message: `File too large. Maximum size is ${maxObjectSize} bytes`,
+                  code: 'FILE_TOO_LARGE',
+                },
+              }),
+              { status: 413, headers: buildDefaultHeaders(env) }
+            );
+          }
+          const fileBuffer = Uint8Array.from(decodedFile, (c) => c.charCodeAt(0));
+          const fileExtension = fileName?.split('.').pop()?.toLowerCase() || 'txt';
+
+          if (fileExtension === 'txt') {
+            extractedText = new TextDecoder().decode(fileBuffer);
+          } else if (fileExtension === 'pdf') {
+            // Use Workers AI to extract text from PDF
+            try {
+              if (env.AI) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const ai = env.AI as any;
+                const result = await ai.run('@cf/browsershot/text-extract', {
+                  blob: new Uint8Array(fileBuffer),
+                });
+                extractedText = result.text || '';
+              } else {
+                extractedText = generateSampleLeaseText();
+              }
+            } catch (error) {
+              console.error('PDF extraction failed:', error);
               extractedText = generateSampleLeaseText();
             }
-          } catch (error) {
-            console.error('PDF extraction failed:', error);
-            extractedText = generateSampleLeaseText();
+          } else if (fileExtension === 'docx') {
+            // DOCX files are ZIP archives containing XML files
+            // For now, try to extract text manually or use sample text
+            try {
+              // DOCX is a ZIP archive with XML documents inside
+              // A proper implementation would unzip and parse the XML
+              // For now, use sample text since we don't have a DOCX parser
+              extractedText = generateSampleLeaseText();
+            } catch (error) {
+              console.error('DOCX processing failed:', error);
+              extractedText = generateSampleLeaseText();
+            }
+          } else {
+            extractedText = new TextDecoder().decode(fileBuffer);
           }
-        } else if (fileExtension === 'docx') {
-          // DOCX files are ZIP archives containing XML files
-          // For now, try to extract text manually or use sample text
-          console.log('Processing DOCX file');
+        }
+
+        // If we extracted text, use AI to extract structured lease data
+        let extractedData;
+        if (extractedText && env.AI) {
           try {
-            // DOCX is a ZIP archive with XML documents inside
-            // A proper implementation would unzip and parse the XML
-            // For now, use sample text since we don't have a DOCX parser
-            console.log('DOCX parsing not fully implemented, using sample text');
-            extractedText = generateSampleLeaseText();
+            const { extractLeaseDataWithAI } = await import('./services/lease-extraction');
+            extractedData = await extractLeaseDataWithAI(extractedText, env, {});
           } catch (error) {
-            console.error('DOCX processing failed:', error);
-            extractedText = generateSampleLeaseText();
+            console.error('AI extraction failed, using sample data:', error);
+            // Fall through to sample data below
           }
-        } else {
-          extractedText = new TextDecoder().decode(fileBuffer);
         }
-      }
 
-      // If we extracted text, use AI to extract structured lease data
-      let extractedData;
-      if (extractedText && env.AI) {
-        console.log('Using AI to extract structured lease data from text');
-        try {
+        // Fallback to sample data if AI extraction didn't work
+        if (!extractedData) {
+          extractedData = {
+            confidence: {
+              overall: 0.85 + Math.random() * 0.1,
+              financial: 0.92 + Math.random() * 0.05,
+              property: 0.78 + Math.random() * 0.15,
+            },
+            leaseType: 'office-modified',
+            leaseTerm: 60,
+            baseRent: 2500 + Math.floor(Math.random() * 1000),
+            escalationType: 'percentage',
+            escalationRate: 0.03,
+            securityDeposit: 5000,
+            squareFootage: 1200 + Math.floor(Math.random() * 300),
+            cam: 300,
+            taxes: 200,
+            insurance: 150,
+            utilities: 250,
+            // Additional extracted fields
+            landlord: 'Property Management LLC',
+            tenant: 'Acme Corporation',
+            propertyAddress: '123 Business Park Dr, Suite 200',
+            leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split('T')[0],
+            leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split('T')[0],
+            renewalOptions: [{ term: 12, rentIncrease: 0.03 }],
+            parkingSpaces: 2,
+            allowedUse: 'General office use',
+            specialProvisions: [
+              'Tenant responsible for interior maintenance',
+              'Landlord covers exterior and structural repairs',
+              'Option to expand to adjacent space if available',
+            ],
+          };
+        }
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            extractedData,
+            documentType,
+            extractionMethod: fileData ? 'client-upload' : 'simulated',
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 200,
+            headers: buildDefaultHeaders(env),
+          }
+        );
+      } catch (error) {
+        console.error('Document extraction error:', error);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Failed to extract lease data',
+            message: error instanceof Error ? error.message : 'Unknown error',
+          }),
+          {
+            status: 500,
+            headers: buildDefaultHeaders(env),
+          }
+        );
+      }
+    })
+  )
+);
+
+// Text extraction endpoint - accepts plain text without file handling
+router.post(
+  '/v1/api/extract/lease-text',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+      const requestId = crypto.randomUUID();
+      console.log(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'info',
+          message: 'Text extraction request',
+          requestId,
+        })
+      );
+
+      try {
+        const parsedBody = await readJsonBodyWithinLimit(request, env);
+        if (parsedBody.error) return parsedBody.error;
+        const body = parsedBody.body as {
+          text: string;
+          extractionOptions?: Record<string, boolean>;
+        };
+
+        const { text } = body;
+
+        if (!text) {
+          return new Response(JSON.stringify({ error: 'Text is required' }), {
+            status: 400,
+            headers: buildDefaultHeaders(env),
+          });
+        }
+
+        // For now, use the AI extraction service if available
+        // Otherwise, return sample data
+        if (env.AI && text.length > 100) {
           const { extractLeaseDataWithAI } = await import('./services/lease-extraction');
-          extractedData = await extractLeaseDataWithAI(extractedText, env, {});
-        } catch (error) {
-          console.error('AI extraction failed, using sample data:', error);
-          // Fall through to sample data below
-        }
-      }
+          const extractedData = await extractLeaseDataWithAI(text, env, {});
 
-      // Fallback to sample data if AI extraction didn't work
-      if (!extractedData) {
-        extractedData = {
+          return new Response(
+            JSON.stringify({
+              success: true,
+              extractedData,
+              extractionMethod: 'workers-ai',
+              timestamp: new Date().toISOString(),
+            }),
+            {
+              status: 200,
+              headers: buildDefaultHeaders(env),
+            }
+          );
+        }
+
+        // Fallback to sample data
+        const extractedData = {
           confidence: {
             overall: 0.85 + Math.random() * 0.1,
             financial: 0.92 + Math.random() * 0.05,
             property: 0.78 + Math.random() * 0.15,
           },
-          leaseType: 'office-modified',
+          leaseType: 'office-modified-gross',
           leaseTerm: 60,
           baseRent: 2500 + Math.floor(Math.random() * 1000),
           escalationType: 'percentage',
@@ -2678,7 +2966,6 @@ router.post(
           taxes: 200,
           insurance: 150,
           utilities: 250,
-          // Additional extracted fields
           landlord: 'Property Management LLC',
           tenant: 'Acme Corporation',
           propertyAddress: '123 Business Park Dr, Suite 200',
@@ -2697,78 +2984,12 @@ router.post(
             'Option to expand to adjacent space if available',
           ],
         };
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          extractedData,
-          documentType,
-          extractionMethod: fileData ? 'client-upload' : 'simulated',
-          timestamp: new Date().toISOString(),
-        }),
-        {
-          status: 200,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    } catch (error) {
-      console.error('Document extraction error:', error);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Failed to extract lease data',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        }),
-        {
-          status: 500,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    }
-  })
-);
-
-// Text extraction endpoint - accepts plain text without file handling
-router.post(
-  '/v1/api/extract/lease-text',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const requestId = crypto.randomUUID();
-    console.log(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'info',
-        message: 'Text extraction request',
-        requestId,
-      })
-    );
-
-    try {
-      const body = (await request.json()) as {
-        text: string;
-        extractionOptions?: Record<string, boolean>;
-      };
-
-      const { text } = body;
-
-      if (!text) {
-        return new Response(JSON.stringify({ error: 'Text is required' }), {
-          status: 400,
-          headers: buildDefaultHeaders(env),
-        });
-      }
-
-      // For now, use the AI extraction service if available
-      // Otherwise, return sample data
-      if (env.AI && text.length > 100) {
-        const { extractLeaseDataWithAI } = await import('./services/lease-extraction');
-        const extractedData = await extractLeaseDataWithAI(text, env, {});
 
         return new Response(
           JSON.stringify({
             success: true,
             extractedData,
-            extractionMethod: 'workers-ai',
+            extractionMethod: 'simulated',
             timestamp: new Date().toISOString(),
           }),
           {
@@ -2776,70 +2997,22 @@ router.post(
             headers: buildDefaultHeaders(env),
           }
         );
+      } catch (error) {
+        console.error('Text extraction error:', error);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Failed to extract lease data',
+            message: error instanceof Error ? error.message : 'Unknown error',
+          }),
+          {
+            status: 500,
+            headers: buildDefaultHeaders(env),
+          }
+        );
       }
-
-      // Fallback to sample data
-      const extractedData = {
-        confidence: {
-          overall: 0.85 + Math.random() * 0.1,
-          financial: 0.92 + Math.random() * 0.05,
-          property: 0.78 + Math.random() * 0.15,
-        },
-        leaseType: 'office-modified-gross',
-        leaseTerm: 60,
-        baseRent: 2500 + Math.floor(Math.random() * 1000),
-        escalationType: 'percentage',
-        escalationRate: 0.03,
-        securityDeposit: 5000,
-        squareFootage: 1200 + Math.floor(Math.random() * 300),
-        cam: 300,
-        taxes: 200,
-        insurance: 150,
-        utilities: 250,
-        landlord: 'Property Management LLC',
-        tenant: 'Acme Corporation',
-        propertyAddress: '123 Business Park Dr, Suite 200',
-        leaseStartDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        leaseEndDate: new Date(Date.now() + (30 + 60 * 30) * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0],
-        renewalOptions: [{ term: 12, rentIncrease: 0.03 }],
-        parkingSpaces: 2,
-        allowedUse: 'General office use',
-        specialProvisions: [
-          'Tenant responsible for interior maintenance',
-          'Landlord covers exterior and structural repairs',
-          'Option to expand to adjacent space if available',
-        ],
-      };
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          extractedData,
-          extractionMethod: 'simulated',
-          timestamp: new Date().toISOString(),
-        }),
-        {
-          status: 200,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    } catch (error) {
-      console.error('Text extraction error:', error);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Failed to extract lease data',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        }),
-        {
-          status: 500,
-          headers: buildDefaultHeaders(env),
-        }
-      );
-    }
-  })
+    })
+  )
 );
 
 // Helper function for sample lease text

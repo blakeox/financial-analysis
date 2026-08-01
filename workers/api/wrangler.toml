@@ -30,6 +30,7 @@ binding = "DB"
 database_name = "financial-analysis-db"
 database_id = "d7308084-125e-4675-88ae-bbb096af5167"
 preview_database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+migrations_dir = "migrations"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
@@ -94,6 +95,7 @@ host = "localhost"
 [env.preview]
 [env.preview.vars]
 ENVIRONMENT = "preview"
+AI_GATEWAY_ID = "fanalyx-chat"
 R2_SOFT_LIMIT_BYTES = 2147483648     # 2 GiB (preview)
 R2_HARD_LIMIT_BYTES = 3221225472     # 3 GiB (preview)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
@@ -101,7 +103,7 @@ ANALYSIS_CACHE_TTL_SECONDS = 0
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
-AI_SEARCH_INSTANCE_NAME = "fanalyx-site"
+AI_SEARCH_INSTANCE_NAME = "fanalyx-preview-site"
 AI_SEARCH_SOURCE_DOMAIN = "https://fanalyx.com"
 BROWSER_RENDERING_ENABLED = "true"
 BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
@@ -111,16 +113,17 @@ crons = ["0 * * * *"]
 
 [[env.preview.d1_databases]]
 binding = "DB"
-database_name = "financial-analysis-db"
-database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+database_name = "financial-analysis-db-preview"
+database_id = "93a9c6be-a26d-40f8-8576-3ab4570c82c3"
+migrations_dir = "migrations"
 
 [[env.preview.kv_namespaces]]
 binding = "SESSIONS"
-id = "2b02898694364a2693681466265c912d"
+id = "7f752308ffc1429686db83d1e7c260a0"
 
 [[env.preview.r2_buckets]]
 binding = "DOCUMENTS"
-bucket_name = "financial-analysis-documents"
+bucket_name = "financial-analysis-documents-preview"
 
 [[env.preview.queues.producers]]
 binding = "KNOWLEDGE_JOBS"
@@ -135,23 +138,23 @@ max_retries = 3
 [[env.preview.durable_objects.bindings]]
 name = "SESSION_DO"
 class_name = "SessionDO"
-script_name = "fanalyx-api"
+script_name = "fanalyx-api-preview"
 
 [[env.preview.durable_objects.bindings]]
 name = "FinancialAnalysisAgent"
 class_name = "FinancialAnalysisAgent"
-script_name = "fanalyx-api"
+script_name = "fanalyx-api-preview"
 
 [[env.preview.analytics_engine_datasets]]
 binding = "ANALYTICS"
 
 [[env.preview.vectorize]]
 binding = "VECTORIZE"
-index_name = "financial-analysis-autorag"
+index_name = "financial-analysis-autorag-preview"
 
 [[env.preview.ai_search_namespaces]]
 binding = "AI_SEARCH"
-namespace = "default"
+namespace = "preview"
 
 [env.preview.ai]
 binding = "AI"
@@ -163,6 +166,7 @@ binding = "BROWSER"
 [env.production]
 [env.production.vars]
 ENVIRONMENT = "production"
+AI_GATEWAY_ID = "fanalyx-chat"
 R2_SOFT_LIMIT_BYTES = 8589934592     # 8 GiB (prod)
 R2_HARD_LIMIT_BYTES = 9663676416     # 9 GiB (prod)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
@@ -176,12 +180,13 @@ BROWSER_RENDERING_ENABLED = "true"
 BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 
 [env.production.triggers]
-crons = ["0 * * * *"]
+crons = ["0 * * * *", "0 0 * * *"]
 
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "financial-analysis-db"
 database_id = "d7308084-125e-4675-88ae-bbb096af5167"
+migrations_dir = "migrations"
 
 [[env.production.kv_namespaces]]
 binding = "SESSIONS"

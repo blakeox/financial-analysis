@@ -5,10 +5,12 @@ function makeEnv({
   environment,
   apiDevOrigin,
   apiProdOrigin,
+  internalApiToken,
 }: {
   environment: string;
   apiDevOrigin?: string;
   apiProdOrigin?: string;
+  internalApiToken?: string;
 }) {
   const fetchSpy = vi.fn(
     async (_req: Request) =>
@@ -23,10 +25,12 @@ function makeEnv({
     ENVIRONMENT: string;
     API_DEV_ORIGIN?: string;
     API_ORIGIN?: string;
+    INTERNAL_API_TOKEN?: string;
   } = {
     ENVIRONMENT: environment,
     API_DEV_ORIGIN: apiDevOrigin,
     API_ORIGIN: apiProdOrigin,
+    INTERNAL_API_TOKEN: internalApiToken,
     ASSETS: { fetch: fetchSpy } as unknown as Fetcher,
   };
   const ctx: ExecutionContext = {
@@ -64,6 +68,35 @@ describe('web worker dev proxy', () => {
     expect(res.headers.get('x-dev-proxy')).toBe('web->api');
     expect(await res.json()).toEqual({ ok: true });
 
+    globalFetch.mockRestore();
+  });
+
+  it('strips client internal headers and injects the server token', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'production',
+      apiProdOrigin: 'https://api.example.com',
+      internalApiToken: 'server-secret',
+    });
+
+    const req = new Request('https://example.com/v1/chat', {
+      headers: {
+        'x-internal-api-token': 'attacker-controlled',
+        'x-internal-request': 'true',
+      },
+    });
+    const apiResponse = new Response(JSON.stringify({ ok: true }), { status: 200 });
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async (forwarded) => {
+      const forwardedRequest =
+        forwarded instanceof Request ? forwarded : new Request(forwarded.toString());
+      expect(forwardedRequest.headers.get('x-internal-api-token')).toBe('server-secret');
+      expect(forwardedRequest.headers.get('x-internal-request')).toBeNull();
+      return apiResponse;
+    });
+
+    const res = await web.fetch(req, env as never, ctx);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
     globalFetch.mockRestore();
   });
 

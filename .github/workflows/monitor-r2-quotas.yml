@@ -22,17 +22,19 @@ jobs:
         id: precheck
         env:
           API_URL: ${{ vars.PROD_API_URL }}
+          API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${API_URL:-}" ]; then
-            echo "PROD_API_URL is not configured; skipping run" >&2
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          if [ -z "${API_URL:-}" ] || [ -z "${API_TOKEN:-}" ]; then
+            echo "PROD_API_URL and INTERNAL_API_TOKEN are required; quota cannot be verified" >&2
+            exit 1
           fi
-          code=$(curl -sS -o /dev/null -w "%{http_code}" "$API_URL/v1/storage/status" || true)
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -H "x-internal-api-token: $API_TOKEN" \
+            "$API_URL/v1/storage/status" || true)
           if [ "$code" != "200" ]; then
-            echo "Endpoint not reachable (status=$code); skipping run" >&2
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Endpoint not healthy or authorized (status=$code)" >&2
+            exit 1
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
@@ -46,11 +48,12 @@ jobs:
         id: status
         env:
           API_URL: ${{ vars.PROD_API_URL }}
+          API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
         if: steps.precheck.outputs.skip != 'true'
         run: |
           set -euo pipefail
-          API="${API_URL:-https://financial-analysis-api-production.blakeoxford.workers.dev}"
-          resp=$(curl -sfSL "$API/v1/storage/status")
+          API="$API_URL"
+          resp=$(curl -sfSL -H "x-internal-api-token: $API_TOKEN" "$API/v1/storage/status")
           echo "Response: $resp"
           locked=$(echo "$resp" | jq -r '.locked')
           approx=$(echo "$resp" | jq -r '.approxBytes')

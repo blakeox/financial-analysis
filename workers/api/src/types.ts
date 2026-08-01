@@ -14,6 +14,7 @@ export interface Env {
   ALLOWED_ORIGIN?: string;
   COMMIT_SHA?: string;
   ADMIN_API_TOKEN?: string;
+  INTERNAL_API_TOKEN?: string;
   AI?: Ai;
   AI_GATEWAY_ID?: string;
   WORKERS_AI_MODEL?: string;
