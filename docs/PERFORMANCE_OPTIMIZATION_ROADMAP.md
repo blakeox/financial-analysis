@@ -86,8 +86,8 @@ After completing Phases 1 & 2 refactoring, I've identified several optimization 
 **Current:** No resource hints for API calls  
 **Add:**
 ```html
-<link rel="dns-prefetch" href="https://api.fanalyx.com" />
-<link rel="preconnect" href="https://api.fanalyx.com" />
+<link rel="dns-prefetch" href="https://fanalyx.com" />
+<link rel="preconnect" href="https://fanalyx.com" />
 ```
 
 **Impact:** ⚡ Faster API calls  
@@ -224,4 +224,3 @@ while (true) {
 **Total Potential Savings:** 50-75% smaller initial bundle + instant-feeling responses  
 **Investment:** ~6-8 hours for all optimizations  
 **ROI:** Significantly better user experience
-

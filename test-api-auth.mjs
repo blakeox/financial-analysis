@@ -72,12 +72,12 @@ console.log('1. Deploy schema to production D1:');
 console.log('   npx wrangler d1 execute financial-analysis-db --remote --file=./schema.sql\n');
 
 console.log('2. Create your first API key:');
-console.log('   curl -X POST https://api.fanalyx.com/v1/keys \\');
+console.log('   curl -X POST https://fanalyx.com/v1/keys \\');
 console.log('     -H "Content-Type: application/json" \\');
 console.log('     -d \'{"customerEmail":"you@example.com","customerId":"cus_001","tier":"test"}\'\n');
 
 console.log('3. Test authenticated request:');
-console.log('   curl -X POST https://api.fanalyx.com/v1/api/analysis/amortization \\');
+console.log('   curl -X POST https://fanalyx.com/v1/api/analysis/amortization \\');
 console.log(`     -H "Authorization: Bearer ${testKey}" \\`);
 console.log('     -H "Content-Type: application/json" \\');
 console.log('     -d \'{"principal":100000,"annualRate":0.05,"termMonths":360}\'\n');

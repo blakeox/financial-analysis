@@ -83,8 +83,8 @@ document.getElementById('chat-toggle')?.addEventListener('click', () => {
 #### **5. Preconnect to API** ⚠️ **QUICK WIN**
 **Add:**
 ```astro
-<link rel="dns-prefetch" href="https://api.fanalyx.com" />
-<link rel="preconnect" href="https://api.fanalyx.com" />
+<link rel="dns-prefetch" href="https://fanalyx.com" />
+<link rel="preconnect" href="https://fanalyx.com" />
 ```
 
 **Impact:** Faster API calls  
@@ -150,4 +150,3 @@ document.getElementById('chat-toggle')?.addEventListener('click', () => {
 ---
 
 **Conclusion:** Your codebase is already extremely well-optimized! These improvements are polish on an already excellent foundation. 🎉
-
