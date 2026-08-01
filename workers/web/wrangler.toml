@@ -28,7 +28,7 @@ API_DEV_ORIGIN = "http://localhost:8787"
 name = "fanalyx-web-preview"
 [env.preview.vars]
 ENVIRONMENT = "preview"
-API_ORIGIN = "https://financial-analysis-api-preview.blakeoxford.workers.dev"
+API_ORIGIN = "https://fanalyx-api-preview.blakeoxford.workers.dev"
 
 # Production environment
 [env.production]
