@@ -9,6 +9,9 @@ import {
   CardTitle,
   Input,
 } from '@financial-analysis/ui';
+import { renderTheAnswer } from '../scripts/_shared/answer-html';
+import { renderAssumptionChips } from '../scripts/_shared/assumption-chip-html';
+import { renderComparePair, renderCompareToggle } from '../scripts/_shared/compare-html';
 import { renderMetricCard } from '../scripts/_shared/metric-card-html';
 
 function toggleTheme(): boolean {
@@ -31,6 +34,39 @@ export default function DesignSystemShowcase() {
     value: '$1,842',
     meta: '30-year fixed',
     tone: 'violet',
+  });
+
+  const theAnswerHtml = renderTheAnswer({
+    label: 'Monthly payment',
+    value: '$1,842.17',
+    meaning: 'What you pay each month on a $350,000 loan at 6.5% for 30 years.',
+    assumptions: [
+      { label: '30y', title: 'Term' },
+      { label: '6.5%', title: 'Rate' },
+      { label: '$350,000', title: 'Principal' },
+    ],
+    cta: { label: 'View schedule', href: '#ds-compare' },
+    reveal: false,
+  });
+
+  const compareToggleHtml = renderCompareToggle([
+    { id: 'a', label: 'Buy', active: true },
+    { id: 'b', label: 'Rent' },
+  ]);
+
+  const comparePairHtml = renderComparePair({
+    a: {
+      eyebrow: 'Scenario A',
+      title: 'Buy',
+      metricHtml: '<p class="fa-answer-value fa-tabular-nums !text-2xl">$84,200</p>',
+      bodyHtml: '<p class="fa-meta-copy !mt-2">Net position after 10 years</p>',
+    },
+    b: {
+      eyebrow: 'Scenario B',
+      title: 'Rent',
+      metricHtml: '<p class="fa-answer-value fa-tabular-nums !text-2xl">$61,400</p>',
+      bodyHtml: '<p class="fa-meta-copy !mt-2">Invested down payment + rent path</p>',
+    },
   });
 
   return (
@@ -63,6 +99,10 @@ export default function DesignSystemShowcase() {
           <p className="fa-body-copy !mt-0">Body copy — standard page prose.</p>
           <p className="fa-meta-copy !mt-0">Meta copy — labels, footnotes, secondary detail.</p>
           <p className="fa-panel-title !mt-0">Panel title — card and section headings.</p>
+          <p className="fa-meta-copy !mt-4 mb-1">Tabular lining figures (.fa-tabular-nums)</p>
+          <p className="fa-tabular-nums text-2xl font-semibold tracking-tight">
+            $1,842.17 &nbsp; $12,450.00 &nbsp; 6.50%
+          </p>
         </div>
       </section>
 
@@ -92,7 +132,7 @@ export default function DesignSystemShowcase() {
             <input
               id="ds-spine-input"
               type="text"
-              className="fa-input-surface mt-1 w-full"
+              className="fa-input-surface fa-tabular-nums mt-1 w-full"
               placeholder="350,000"
             />
             <p className="fa-help-copy mt-2">Helper text via fa-help-copy.</p>
@@ -181,6 +221,34 @@ export default function DesignSystemShowcase() {
       </section>
 
       <section>
+        <h2 className="fa-display-section mb-4 text-2xl font-semibold">The Answer</h2>
+        <p className="fa-meta-copy mb-4">
+          Signature result pattern: one hero tabular number, one meaning sentence, assumption chips,
+          one next step. Answer budget — no competing KPI wall above the fold.
+        </p>
+        <div dangerouslySetInnerHTML={{ __html: theAnswerHtml }} />
+        <p className="fa-meta-copy mt-6 mb-2">Standalone assumption chips</p>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: renderAssumptionChips([
+              { label: 'taxes on' },
+              { label: 'PMI off' },
+              { label: 'extra $200/mo' },
+            ]),
+          }}
+        />
+      </section>
+
+      <section id="ds-compare">
+        <h2 className="fa-display-section mb-4 text-2xl font-semibold">Compare A/B</h2>
+        <p className="fa-meta-copy mb-4">
+          Lightweight dual-column compare with segmented toggle (catalog stub).
+        </p>
+        <div dangerouslySetInnerHTML={{ __html: compareToggleHtml }} />
+        <div className="mt-4" dangerouslySetInnerHTML={{ __html: comparePairHtml }} />
+      </section>
+
+      <section>
         <h2 className="fa-display-section mb-4 text-2xl font-semibold">Metric cards</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div dangerouslySetInnerHTML={{ __html: htmlMetricCard }} />
@@ -194,6 +262,67 @@ export default function DesignSystemShowcase() {
             <p className="fa-metric-card-value-lg">$1,842</p>
           </div>
         </div>
+      </section>
+
+      <section>
+        <h2 className="fa-display-section mb-4 text-2xl font-semibold">Chart palette</h2>
+        <p className="fa-meta-copy mb-4">
+          Series colors from <code className="text-sm">--fa-chart-*</code> /{' '}
+          <code className="text-sm">chartColors</code> in @financial-analysis/ui — not Tailwind
+          blue/violet. Charts need role+label, axes, and non-color cues (AmortizationChart bar).
+        </p>
+        <div className="flex flex-wrap gap-3">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div key={n} className="flex items-center gap-2">
+              <span
+                className="inline-block h-8 w-8 rounded-md border border-[var(--fa-border-subtle)]"
+                style={{ background: `var(--fa-chart-${n})` }}
+                aria-hidden="true"
+              />
+              <span className="fa-meta-copy !mt-0">chart-{n}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="fa-display-section mb-4 text-2xl font-semibold">Signature motion</h2>
+        <p className="fa-meta-copy mb-4">
+          Exactly three motions: ink-dry answer reveal, field highlight, journey progress width.
+          Reduced-motion disables decorative animation.
+        </p>
+        <div className="fa-progress-panel max-w-md p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="fa-scenario-title text-sm">Journey progress</h3>
+            <span className="fa-list-copy text-sm">40% complete</span>
+          </div>
+          <div className="fa-progress-track mt-3">
+            <div className="fa-progress-bar" style={{ width: '40%' }} />
+          </div>
+        </div>
+        <label className="fa-field-label mt-6 block" htmlFor="ds-highlight-demo">
+          Field highlight demo
+        </label>
+        <input
+          id="ds-highlight-demo"
+          className="fa-input-surface mt-1 w-full max-w-md"
+          defaultValue="Focus me via chip"
+        />
+        <button
+          type="button"
+          className="fa-assumption-chip mt-3"
+          onClick={() => {
+            const el = document.getElementById('ds-highlight-demo');
+            if (!el) return;
+            el.classList.remove('field-highlight');
+            void el.offsetWidth;
+            el.classList.add('field-highlight');
+            el.focus();
+            window.setTimeout(() => el.classList.remove('field-highlight'), 2200);
+          }}
+        >
+          Trigger highlight
+        </button>
       </section>
 
       <section>

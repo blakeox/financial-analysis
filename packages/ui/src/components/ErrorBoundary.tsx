@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from './Button';
+import { Callout } from './Callout';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -37,34 +38,24 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       }
 
       return (
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="space-y-4 rounded-[1.5rem] border border-rose-200 bg-rose-50/80 p-8 text-center shadow-sm dark:border-rose-900/70 dark:bg-rose-950/20">
-            <div className="text-rose-600 dark:text-rose-300">
-              <svg
-                className="mx-auto h-12 w-12"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-              Something went wrong
-            </h2>
-            <p className="max-w-md text-slate-600 dark:text-slate-300">
+        <div className="flex min-h-[400px] items-center justify-center p-6">
+          <Callout
+            variant="error"
+            title="Something went wrong"
+            className="max-w-md text-left"
+            role="alert"
+          >
+            <p className="mb-4">
               An unexpected error occurred. Please try again or contact support if the problem
               persists.
             </p>
-            <Button onClick={this.resetError} variant="primary">
+            {this.state.error?.message ? (
+              <p className="mb-4 font-mono text-xs opacity-80">{this.state.error.message}</p>
+            ) : null}
+            <Button onClick={this.resetError} variant="primary" type="button">
               Try Again
             </Button>
-          </div>
+          </Callout>
         </div>
       );
     }

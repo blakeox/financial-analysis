@@ -30,4 +30,17 @@ test.describe('Design system page', () => {
       maxDiffPixelRatio: 0.02,
     });
   });
+
+  test('matches dark-mode visual baseline', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.addInitScript(() => {
+      localStorage.setItem('theme', 'dark');
+    });
+    await page.goto('/developers/design-system');
+    await page.locator('.fa-page-shell').waitFor({ state: 'visible' });
+    await expect(page.locator('html')).toHaveClass(/dark/);
+    await expect(page.locator('.fa-page-shell')).toHaveScreenshot('design-system-dark.png', {
+      maxDiffPixelRatio: 0.02,
+    });
+  });
 });

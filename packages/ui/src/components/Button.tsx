@@ -22,8 +22,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // Canonical: danger / ghost. Aliases: destructive → danger, tertiary → ghost (#361).
     const resolvedVariant =
-      variant === 'danger' ? 'danger' : variant === 'tertiary' ? 'tertiary' : variant;
+      variant === 'destructive' ? 'danger' : variant === 'tertiary' ? 'ghost' : variant;
 
     return (
       <button

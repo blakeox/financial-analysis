@@ -63,7 +63,7 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
           description={config.description}
           icon={config.icon}
           badgeText={config.category === 'personal' ? 'Personal Finance' : 'Business Finance'}
-          badgeTone="slate"
+          badgeTone="muted"
         />
 
         <section class="fa-card p-6">
@@ -195,41 +195,26 @@ const formHTML = generateFormHTMLWithValidation(config.formFields);
         <div id="amortization-table-container" class="hidden">
           <div class="fa-card p-5">
             <h2 class="fa-panel-title text-lg mb-4">Amortization Schedule</h2>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                <thead class="bg-slate-50 dark:bg-slate-900/60">
+            <div
+              class="overflow-x-auto"
+              role="region"
+              aria-label="Amortization schedule table"
+              tabindex="0"
+            >
+              <table class="fa-data-table min-w-full">
+                <thead>
                   <tr>
-                    <th
-                      class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                      >Month</th
-                    >
-                    <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                      >Payment</th
-                    >
-                    <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                      >Principal</th
-                    >
-                    <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                      >Interest</th
-                    >
-                    <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
-                      >Balance</th
-                    >
-                    <th
-                      class="px-3 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                    <th class="fa-data-table-header text-left text-xs uppercase">Month</th>
+                    <th class="fa-data-table-header text-right text-xs uppercase">Payment</th>
+                    <th class="fa-data-table-header text-right text-xs uppercase">Principal</th>
+                    <th class="fa-data-table-header text-right text-xs uppercase">Interest</th>
+                    <th class="fa-data-table-header text-right text-xs uppercase">Balance</th>
+                    <th class="fa-data-table-header text-right text-xs uppercase"
                       >Cumulative Interest</th
                     >
                   </tr>
                 </thead>
-                <tbody
-                  id="table-body"
-                  class="divide-y divide-slate-200 bg-white/90 dark:divide-slate-800 dark:bg-slate-950/40"
-                >
-                </tbody>
+                <tbody id="table-body"></tbody>
               </table>
             </div>
           </div>

@@ -46,7 +46,7 @@ export function benchmarkStatusChipClass(status: BenchmarkStatus): string {
 }
 
 export function scenarioCardClass(isHighlighted: boolean): string {
-  return isHighlighted ? 'fa-subcard border-2 border-emerald-500' : 'fa-subcard';
+  return isHighlighted ? 'fa-subcard fa-subcard-highlighted' : 'fa-subcard';
 }
 
 export type ChipVariant = 'accent' | 'success' | 'warning' | 'danger' | 'muted';

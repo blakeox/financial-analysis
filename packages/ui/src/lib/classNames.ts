@@ -1,116 +1,91 @@
 /**
  * Shared CSS class name utilities for consistent styling.
+ * Prefer composing `fa-*` spine classes (like Callout → `fa-callout-*`) so React
+ * and calculator HTML share one brand surface.
  * @module classNames
  */
 
+/** Single merge path: clsx + tailwind-merge (see `utils.ts`). */
+export { cn } from './utils';
+
 /**
- * Conditionally join class names together, filtering out falsy values.
- * @param classes - Class names or conditional class objects
- * @returns Combined class name string
- * @example
- * cn('base', isActive && 'active', 'extra') // "base active extra"
- * cn({ 'text-red': hasError, 'text-green': !hasError }) // "text-green"
+ * Layout/interaction base for React Button.
+ * Focus uses `--fa-focus-ring` (not Tailwind violet rings). Size utilities may
+ * override `fa-button-*` min-height via `cn` + `min-h-*`.
  */
-export function cn(
-  ...classes: Array<string | boolean | undefined | null | Record<string, boolean>>
-): string {
-  const result: string[] = [];
-
-  for (const cls of classes) {
-    if (!cls) continue;
-
-    if (typeof cls === 'string') {
-      result.push(cls);
-    } else if (typeof cls === 'object') {
-      for (const [key, value] of Object.entries(cls)) {
-        if (value) {
-          result.push(key);
-        }
-      }
-    }
-  }
-
-  return result.join(' ');
-}
-
 export const buttonBaseClasses =
-  'inline-flex items-center justify-center gap-2 rounded-2xl font-semibold tracking-[-0.02em] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none dark:focus-visible:ring-offset-slate-950';
+  'inline-flex items-center justify-center gap-2 font-semibold tracking-[-0.02em] transition-all duration-200 focus-visible:outline-none focus-visible:shadow-[var(--fa-focus-ring)] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none';
 
+/** Height/padding overrides — pair with `fa-button-*` min-height via cn. */
 export const buttonSizeClasses = {
-  sm: 'h-9 px-3.5 text-sm',
-  md: 'h-11 px-4 text-sm',
-  lg: 'h-12 px-5 text-base',
+  sm: 'h-9 min-h-9 px-3.5 text-sm',
+  md: 'h-11 min-h-11 px-4 text-sm',
+  lg: 'h-12 min-h-12 px-5 text-base',
 } as const;
 
 /**
- * Common button variant classes.
+ * Button variants — compose spine `fa-button-*` (#361).
+ * Canonical: primary | secondary | success | danger | warning | outline | ghost.
+ * Aliases: `destructive` ≡ `danger`, `tertiary` ≡ `ghost` (prefer canonical names).
  */
 export const buttonVariants = {
-  primary:
-    'bg-linear-to-r from-violet-600 to-violet-700 text-white shadow-[var(--fa-brand-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-brand-shadow-hover)] active:translate-y-0 active:shadow-[var(--fa-brand-shadow-active)]',
-  secondary:
-    'border border-slate-200 bg-white/90 text-slate-900 shadow-sm hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:hover:border-slate-600 dark:hover:bg-slate-900',
-  success:
-    'bg-linear-to-r from-emerald-600 to-emerald-700 text-white shadow-[var(--fa-success-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-success-shadow-hover)] active:translate-y-0',
-  danger:
-    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[var(--fa-danger-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-danger-shadow-hover)] active:translate-y-0',
-  destructive:
-    'bg-linear-to-r from-rose-600 to-rose-700 text-white shadow-[var(--fa-danger-shadow)] hover:-translate-y-px hover:shadow-[var(--fa-danger-shadow-hover)] active:translate-y-0',
-  warning:
-    'bg-linear-to-r from-amber-500 to-amber-600 text-slate-950 shadow-[var(--fa-warning-shadow)] hover:-translate-y-px hover:shadow-[0_16px_36px_rgba(245,158,11,0.28)] active:translate-y-0',
-  outline:
-    'border border-slate-200 bg-transparent text-slate-700 hover:border-violet-200 hover:bg-violet-50/70 hover:text-violet-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-violet-800 dark:hover:bg-violet-950/40 dark:hover:text-violet-200',
-  ghost:
-    'text-slate-700 hover:bg-slate-100/80 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-slate-800/70 dark:hover:text-white',
-  tertiary:
-    'text-slate-700 hover:bg-slate-100/80 hover:text-slate-950 dark:text-slate-200 dark:hover:bg-slate-800/70 dark:hover:text-white',
+  primary: 'fa-button-primary',
+  secondary: 'fa-button-secondary',
+  success: 'fa-button-success',
+  danger: 'fa-button-danger',
+  /** @deprecated Prefer `danger` — kept for contract/back-compat. */
+  destructive: 'fa-button-danger',
+  warning: 'fa-button-warning',
+  outline: 'fa-button-outline',
+  ghost: 'fa-button-ghost',
+  /** @deprecated Prefer `ghost` — kept for contract/back-compat. */
+  tertiary: 'fa-button-ghost',
 } as const;
 
 /**
- * Common input field classes.
+ * Common input field classes — brand focus ring (#366).
+ */
+/**
+ * React input surface — token borders/focus + autofill paint match (#381).
+ * Autofill shadow uses elevated surface so UA yellow/blue fill does not leak.
  */
 export const inputClasses =
-  'flex h-11 w-full rounded-2xl border border-slate-200 bg-white/95 px-4 text-sm text-slate-900 shadow-[0_1px_2px_rgba(9,14,36,0.03)] transition-[border-color,box-shadow,background-color] placeholder:text-slate-500 focus:border-violet-400 focus:outline-none focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-100 dark:placeholder:text-slate-400 dark:focus:border-violet-400';
+  'flex h-11 w-full rounded-[var(--fa-radius-lg)] border border-[var(--fa-border-default)] bg-[var(--fa-surface-elevated)] px-4 text-sm text-[var(--fa-text-primary)] shadow-[var(--fa-shadow-inset)] transition-[border-color,box-shadow,background-color] placeholder:text-[var(--fa-text-muted)] focus:border-[var(--fa-brand)] focus:outline-none focus:shadow-[var(--fa-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 autofill:shadow-[inset_0_0_0_1000px_var(--fa-surface-elevated)]';
+
+/** Tabular lining figures for currency / rate inputs (#411). */
+export const numericInputClasses = 'fa-tabular-nums tabular-nums';
 
 export const inputStateClasses = {
   default: '',
   error:
-    'border-rose-300 focus:border-rose-500 focus:ring-rose-500/10 dark:border-rose-800 dark:focus:border-rose-500',
+    'border-rose-300 focus:border-rose-500 focus:shadow-[0_0_0_3px_rgba(225,29,72,0.18)] dark:border-rose-800 dark:focus:border-rose-500',
   success:
-    'border-emerald-300 focus:border-emerald-500 focus:ring-emerald-500/10 dark:border-emerald-800 dark:focus:border-emerald-500',
+    'border-emerald-300 focus:border-emerald-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.18)] dark:border-emerald-800 dark:focus:border-emerald-500',
 } as const;
 
 /**
- * Common card classes.
+ * Card surfaces — compose `fa-card` / modifiers (#362).
+ * Padding/radius/shadow live on the spine classes.
  */
-export const cardClasses =
-  'rounded-[var(--fa-radius-2xl)] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[var(--fa-shadow-card)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100';
+export const cardClasses = 'fa-card';
 
 export const cardVariants = {
-  default: cardClasses,
-  elevated:
-    'rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[var(--fa-shadow-elevated)] p-6 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100',
-  interactive:
-    'rounded-[var(--fa-radius-2xl)] border border-slate-200/80 bg-white/95 p-6 text-slate-900 shadow-[var(--fa-shadow-card)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[var(--fa-shadow-elevated)] dark:border-slate-800 dark:bg-slate-950/85 dark:text-slate-100',
-  rail: 'rounded-[1.75rem] border border-slate-200/80 bg-white/88 p-6 text-slate-900 shadow-[0_28px_72px_rgba(9,14,36,0.12)] backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/88 dark:text-slate-100',
-  subtle:
-    'rounded-[1.35rem] border border-slate-200/70 bg-slate-50/85 p-5 text-slate-900 shadow-[0_8px_24px_rgba(9,14,36,0.04)] dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-100',
+  default: 'fa-card',
+  elevated: 'fa-card fa-card-elevated',
+  interactive: 'fa-card fa-card-interactive',
+  rail: 'fa-card fa-card-rail',
+  subtle: 'fa-card fa-card-subtle',
 } as const;
 
 /**
- * Common badge/tag classes by variant.
+ * Badge variants — compose `fa-badge-*` (#361).
  */
 export const badgeVariants = {
-  default:
-    'border border-slate-200 bg-white/80 text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300',
-  primary:
-    'border border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-900/70 dark:bg-violet-950/40 dark:text-violet-200',
-  success:
-    'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200',
-  danger:
-    'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/70 dark:bg-rose-950/40 dark:text-rose-200',
-  warning:
-    'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-200',
+  default: 'fa-badge-default',
+  primary: 'fa-badge-primary',
+  success: 'fa-badge-success',
+  danger: 'fa-badge-danger',
+  warning: 'fa-badge-warning',
 } as const;
 
 /**
@@ -125,22 +100,41 @@ export const gridLayouts = {
 
 /**
  * Common text color classes by semantic meaning.
+ * Muted/accent resolve through design tokens so `.dark` on `:root` is enough (#366 / #369).
+ * Status fg maps to `--fa-status-*-fg` from `@financial-analysis/tokens`.
  */
 export const textColors = {
-  primary: 'text-slate-950 dark:text-white',
-  secondary: 'text-slate-600 dark:text-slate-300',
-  success: 'text-emerald-600 dark:text-emerald-300',
-  danger: 'text-rose-600 dark:text-rose-300',
-  warning: 'text-amber-600 dark:text-amber-300',
-  /** Secondary/helper copy — WCAG AA on white and dark shell backgrounds. */
-  muted: 'text-slate-600 dark:text-slate-400',
-  accent: 'text-violet-600 dark:text-violet-300',
+  primary: 'text-[var(--fa-text-primary)]',
+  secondary: 'text-[var(--fa-text-secondary)]',
+  success: 'text-[var(--fa-status-success-fg)]',
+  danger: 'text-[var(--fa-status-danger-fg)]',
+  warning: 'text-[var(--fa-status-warning-fg)]',
+  /** Helper/meta copy — `--fa-text-muted` (#475569 light). */
+  muted: 'text-[var(--fa-text-muted)]',
+  accent: 'text-brand',
 } as const;
 
-/** Semantic copy sizes built on accessible muted/secondary colors. */
+/**
+ * Status surface pairs (fg+bg). Prefer over raw emerald-* utility pairs in new UI (#369).
+ * Requires `@financial-analysis/tokens` loaded by the app spine.
+ */
+export const statusSurfaces = {
+  success: 'bg-[var(--fa-status-success-bg)] text-[var(--fa-status-success-fg)]',
+  warning: 'bg-[var(--fa-status-warning-bg)] text-[var(--fa-status-warning-fg)]',
+  danger: 'bg-[var(--fa-status-danger-bg)] text-[var(--fa-status-danger-fg)]',
+  info: 'bg-[var(--fa-status-info-bg)] text-[var(--fa-status-info-fg)]',
+} as const;
+
+/**
+ * Copy ladder (React): display → body → meta → caption (#369).
+ * Spine: fa-display / fa-body-copy / fa-meta-copy / fa-script-note.
+ * `fa-script-copy-*` are deprecated aliases — prefer ladder names in new HTML.
+ */
 export const copyClasses = {
   muted: textColors.muted,
+  /** meta */
   helper: `text-sm ${textColors.muted}`,
+  /** caption */
   caption: `text-xs ${textColors.muted}`,
 } as const;
 

@@ -57,6 +57,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@cloudflare/ai-chat": "^0.9.1",
     "@financial-analysis/analysis": "workspace:*",
+    "@financial-analysis/tokens": "workspace:*",
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/ui": "workspace:*",
     "agents": "^0.17.1",

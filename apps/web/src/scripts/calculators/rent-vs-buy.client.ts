@@ -6,6 +6,9 @@
  */
 
 import { storeAnalysisResult } from '../analysis/analysis-results';
+import { renderTheAnswer } from '../_shared/answer-html';
+import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
+import { renderComparePair } from '../_shared/compare-html';
 import { renderInsightCard } from '../_shared/insight-card-html';
 import { renderMetricCards } from '../_shared/metric-card-html';
 import {
@@ -485,34 +488,102 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
   const rentRealNetPosition = result.rent.netPosition / inflationFactor;
   const realDifference = buyRealNetPosition - rentRealNetPosition;
 
-  summaryCards.innerHTML = renderMetricCards([
-    {
-      title: 'Net Position (Buy)',
-      value: formatCurrency(result.buy.netPosition),
-      meta: `${formatCurrency(result.buy.equity)} equity`,
-      tone: 'violet',
+  const winner = result.comparison.factors.costAdvantage;
+  const diffAbs = Math.abs(result.comparison.difference);
+  const meaning =
+    winner === 'Buying'
+      ? `Buying comes out ahead by ${formatCurrency(diffAbs)} over ${input.yearsToAnalyze} years (net position).`
+      : winner === 'Renting'
+        ? `Renting comes out ahead by ${formatCurrency(diffAbs)} over ${input.yearsToAnalyze} years (net position).`
+        : `Net positions differ by ${formatCurrency(diffAbs)} over ${input.yearsToAnalyze} years.`;
+
+  summaryCards.innerHTML = `
+    ${renderTheAnswer({
+      label: 'Net advantage',
+      value: formatCurrency(diffAbs),
+      meaning,
+      assumptions: [
+        {
+          label: `${input.yearsToAnalyze}y`,
+          fieldName: 'yearsToAnalyze',
+          title: 'Analysis horizon',
+        },
+        {
+          label: `${input.interestRate}%`,
+          fieldName: 'interestRate',
+          title: 'Mortgage rate',
+        },
+        {
+          label: formatCurrency(input.homePrice),
+          fieldName: 'homePrice',
+          title: 'Home price',
+        },
+        {
+          label: `${formatCurrency(input.downPayment)} down`,
+          fieldName: 'downPayment',
+          title: 'Down payment',
+        },
+      ],
+      cta: {
+        label: 'Compare buy vs rent detail',
+        attrs: 'data-action="scroll-rent-buy-compare"',
+      },
+    })}
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      ${renderMetricCards([
+        {
+          title: 'Net Position (Buy)',
+          value: formatCurrency(result.buy.netPosition),
+          meta: `${formatCurrency(result.buy.equity)} equity`,
+          tone: 'violet',
+        },
+        {
+          title: 'Net Position (Rent)',
+          value: formatCurrency(result.rent.netPosition),
+          meta: `${formatCurrency(result.rent.equity)} invested`,
+          tone: 'emerald',
+        },
+        {
+          title: 'Break-Even',
+          value: result.comparison.breakEvenYear
+            ? `Year ${result.comparison.breakEvenYear}`
+            : 'Never',
+          meta: `in ${input.yearsToAnalyze} years`,
+          tone: 'orange',
+        },
+        {
+          title: 'Real difference',
+          value: formatCurrency(Math.abs(realDifference)),
+          meta: 'inflation-adjusted',
+          tone: 'amber',
+        },
+      ])}
+    </div>`;
+  bindAssumptionChipClicks(summaryCards);
+  summaryCards
+    .querySelector('[data-action="scroll-rent-buy-compare"]')
+    ?.addEventListener('click', () => {
+      document.getElementById('results-container')?.scrollIntoView({ behavior: 'smooth' });
+    });
+
+  const compareBlock = renderComparePair({
+    a: {
+      eyebrow: 'Scenario A',
+      title: 'Buying',
+      metricHtml: `<p class="fa-metric-card-value fa-tabular-nums mb-3">${formatCurrency(result.buy.netPosition)}</p>`,
+      bodyHtml: `<p class="fa-meta-copy !mt-0">Monthly ${formatCurrency(result.buy.monthlyPayment)} · Equity ${formatCurrency(result.buy.equity)}</p>`,
     },
-    {
-      title: 'Net Position (Rent)',
-      value: formatCurrency(result.rent.netPosition),
-      meta: `${formatCurrency(result.rent.equity)} invested`,
-      tone: 'emerald',
+    b: {
+      eyebrow: 'Scenario B',
+      title: 'Renting',
+      metricHtml: `<p class="fa-metric-card-value fa-tabular-nums mb-3">${formatCurrency(result.rent.netPosition)}</p>`,
+      bodyHtml: `<p class="fa-meta-copy !mt-0">Monthly rent path · Invested ${formatCurrency(result.rent.equity)}</p>`,
     },
-    {
-      title: 'Difference',
-      value: formatCurrency(Math.abs(result.comparison.difference)),
-      meta: `${result.comparison.factors.costAdvantage} wins`,
-      tone: result.comparison.difference > 0 ? 'emerald' : 'amber',
-    },
-    {
-      title: 'Break-Even',
-      value: result.comparison.breakEvenYear ? `Year ${result.comparison.breakEvenYear}` : 'Never',
-      meta: `in ${input.yearsToAnalyze} years`,
-      tone: 'orange',
-    },
-  ]);
+    className: 'mb-6',
+  });
 
   resultsContainer.innerHTML = `
+    ${compareBlock}
     <!-- Recommendation -->
     <div class="bg-linear-to-br from-violet-50 to-violet-50 dark:from-violet-900/20 dark:to-violet-900/20 rounded-lg p-6 mb-6 border border-violet-200 dark:border-violet-700">
       <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -536,14 +607,14 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
           <div class="space-y-3">
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Monthly Payment${result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0 ? ' (incl. PMI)' : ''}</span>
-              <span class="font-semibold">${formatCurrency(result.buy.monthlyPayment)}</span>
+              <span class="font-semibold fa-tabular-nums">${formatCurrency(result.buy.monthlyPayment)}</span>
             </div>
             ${
               result.buy.breakdown.pmiCost && result.buy.breakdown.pmiCost > 0
                 ? `
             <div class="flex justify-between">
               <span class="fa-script-copy-muted">Total PMI Paid</span>
-              <span class="font-semibold text-orange-600 dark:text-orange-400">${formatCurrency(result.buy.breakdown.pmiCost)}</span>
+              <span class="font-semibold text-orange-600 dark:text-orange-400 fa-tabular-nums">${formatCurrency(result.buy.breakdown.pmiCost)}</span>
             </div>
             `
                 : ''
@@ -706,22 +777,13 @@ function displayResults(result: RentVsBuyResult, input: RentVsBuyInput): void {
             meta: "in today's dollars",
             tone: 'emerald',
           },
+          {
+            title: 'Real Difference',
+            value: formatCurrency(Math.abs(realDifference)),
+            meta: `${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)`,
+            tone: realDifference > 0 ? 'emerald' : 'orange',
+          },
         ])}
-        <div class="bg-violet-50 dark:bg-violet-900/20 rounded-lg p-4">
-          <h5 class="text-sm font-medium text-violet-900 dark:text-violet-100">
-            Real Difference
-          </h5>
-          <p
-            class="text-xl font-bold ${realDifference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}"
-          >
-            ${formatCurrency(Math.abs(realDifference))}
-          </p>
-          <p
-            class="mt-1 text-xs ${realDifference > 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300'}"
-          >
-            ${realDifference > 0 ? 'Buying' : 'Renting'} wins (real terms)
-          </p>
-        </div>
       </div>
     </div>
     

@@ -4,6 +4,8 @@ import type {
   AmortizationResultItem,
 } from '@financial-analysis/analysis';
 import { clearCalculatorFormErrors, handleCalculatorFormError } from '../_shared/form-field-errors';
+import { renderTheAnswer } from '../_shared/answer-html';
+import { bindAssumptionChipClicks } from '../_shared/assumption-chip-html';
 import { renderMetricCard } from '../_shared/metric-card-html';
 import {
   renderDataTableCell,
@@ -48,19 +50,19 @@ const getTotalInterest = (result: AmortizationResultExtended): number => {
   return 0;
 };
 
-// Professional chart color palette
+// Brand chart palette (#412) — align with --fa-chart-* tokens
 const CHART_COLORS = {
-  balance: '#3b82f6', // blue-500 - modern blue for balance
-  principal: '#10b981', // emerald-500 - vibrant green for principal
-  interest: '#f59e0b', // amber-500 - warm amber for interest
-  grid: '#e5e7eb', // gray-200
-  gridDark: '#374151', // gray-700 for dark mode
-  text: '#1f2937', // gray-800
-  textLight: '#6b7280', // gray-500
-  textDark: '#e5e7eb', // for dark mode
+  balance: '#6d4aff', // --fa-chart-1 / brand
+  principal: '#16a34a', // --fa-chart-2 / success
+  interest: '#f59e0b', // --fa-chart-3 / warning
+  grid: '#e7e4f2',
+  gridDark: '#374151',
+  text: '#1f2937',
+  textLight: '#475569',
+  textDark: '#e5e7eb',
   background: '#ffffff',
   backgroundDark: '#1f2937',
-  accent: '#6366f1', // indigo-500
+  accent: '#4328bb', // --fa-chart-4
 } as const;
 
 const toCurrency = (value: unknown): string => {
@@ -580,7 +582,8 @@ type AmortizationAnalysisBroadcast = AmortizationComprehensiveAnalysis & {
 export const renderSummaryCards = (
   result: AmortizationAnalysisResult,
   termMonths: number,
-  target: HTMLElement | null = document.getElementById('summary-cards')
+  target: HTMLElement | null = document.getElementById('summary-cards'),
+  assumptionContext?: { annualRate?: number; principal?: number }
 ): void => {
   if (!target) return;
 
@@ -589,14 +592,39 @@ export const renderSummaryCards = (
   const totalPayments = getTotalPaid(result);
   const interestShare =
     totalPayments > 0 ? ((totalInterest / totalPayments) * 100).toFixed(1) : '0.0';
+  const termYears = Math.max(1, Math.round(termMonths / 12));
+  const rateFraction = assumptionContext?.annualRate;
+  const rateLabel =
+    typeof rateFraction === 'number' && Number.isFinite(rateFraction)
+      ? `${(rateFraction * 100).toFixed(2).replace(/\.?0+$/, '')}%`
+      : undefined;
 
-  target.innerHTML = [
-    renderMetricCard({
-      title: 'Monthly Payment',
-      value: toCurrency(monthlyPayment),
-      tone: 'primary',
-      valueClassName: 'fa-metric-card-value-lg',
-    }),
+  const answerHtml = renderTheAnswer({
+    label: 'Monthly payment',
+    value: toCurrency(monthlyPayment) || '—',
+    meaning: `You pay this each month over ${termMonths} months (${interestShare}% of total goes to interest).`,
+    assumptions: [
+      { label: `${termYears}y`, fieldName: 'termMonths', title: 'Loan term' },
+      ...(rateLabel
+        ? [{ label: rateLabel, fieldName: 'annualRate', title: 'Annual interest rate' }]
+        : []),
+      ...(assumptionContext?.principal
+        ? [
+            {
+              label: toCurrency(assumptionContext.principal) || 'Principal',
+              fieldName: 'principal',
+              title: 'Loan amount',
+            },
+          ]
+        : []),
+    ],
+    cta: {
+      label: 'View amortization schedule',
+      attrs: 'data-action="scroll-amortization-schedule"',
+    },
+  });
+
+  const secondaryHtml = [
     renderMetricCard({
       title: 'Total Interest',
       value: toCurrency(totalInterest),
@@ -612,6 +640,15 @@ export const renderSummaryCards = (
       valueClassName: 'fa-metric-card-value-violet',
     }),
   ].join('\n');
+
+  target.innerHTML = `${answerHtml}
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">${secondaryHtml}</div>`;
+  bindAssumptionChipClicks(target);
+
+  const cta = target.querySelector<HTMLElement>('[data-action="scroll-amortization-schedule"]');
+  cta?.addEventListener('click', () => {
+    document.getElementById('amortization-chart')?.scrollIntoView({ behavior: 'smooth' });
+  });
 };
 
 export const renderChart = (
@@ -945,7 +982,10 @@ export const handleSuccess = (
   const targetTableBody = options.tableBody ?? document.getElementById('table-body');
 
   storeAnalysisResult('analyze_amortization', result);
-  renderSummaryCards(result, inputs.termMonths, targetSummary);
+  renderSummaryCards(result, inputs.termMonths, targetSummary, {
+    annualRate: inputs.annualRate,
+    principal: inputs.principal,
+  });
   renderChart(result.schedule, document.getElementById('amortization-chart'));
   renderSchedule(result.schedule, targetTableBody);
 

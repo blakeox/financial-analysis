@@ -12,3 +12,11 @@ export type { WaterfallChartProps, WaterfallDataPoint } from './WaterfallChart';
 
 export { StackedBarChart } from './StackedBarChart';
 export type { StackedBarChartProps } from './StackedBarChart';
+
+export {
+  chartColors,
+  chartColorFallbacks,
+  chartSeriesPalette,
+  CHART_A11Y_NOTES,
+} from '../../lib/chartColors';
+export type { ChartSeriesKey } from '../../lib/chartColors';

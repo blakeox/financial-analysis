@@ -5,36 +5,55 @@
   }
 
   .fa-input-surface {
-    background: white;
-    border: 1px solid rgba(210, 204, 223, 0.92);
-    border-radius: 0.9rem;
-    color: var(--color-gray-900);
+    background: var(--fa-surface);
+    border: 1px solid var(--fa-border-default);
+    border-radius: var(--fa-radius-md);
+    color: var(--fa-text-primary);
     min-height: 2.75rem;
     padding: 0.65rem 0.9rem;
     transition:
-      border-color 180ms ease,
-      box-shadow 180ms ease,
-      background 180ms ease;
+      border-color var(--fa-duration-normal) var(--fa-ease-standard),
+      box-shadow var(--fa-duration-normal) var(--fa-ease-standard),
+      background var(--fa-duration-normal) var(--fa-ease-standard);
   }
 
   .fa-input-surface::placeholder {
-    color: var(--color-gray-500);
+    color: var(--fa-text-muted);
   }
 
   .fa-input-surface:focus-visible {
-    border-color: rgba(109, 74, 255, 0.34);
+    border-color: var(--fa-brand);
     box-shadow: var(--fa-focus-ring);
     outline: none;
   }
 
+  .fa-input-surface:-webkit-autofill,
+  .fa-input-surface:-webkit-autofill:hover,
+  .fa-input-surface:-webkit-autofill:focus,
+  .fa-input-surface:autofill {
+    -webkit-text-fill-color: var(--fa-text-primary);
+    caret-color: var(--fa-text-primary);
+    box-shadow: 0 0 0 1000px var(--fa-surface) inset;
+    transition: background-color 99999s ease-out;
+  }
+
   .dark .fa-input-surface {
-    background: rgba(35, 41, 71, 0.92);
-    border-color: rgba(94, 100, 120, 0.64);
-    color: white;
+    background: var(--fa-surface-muted);
+    border-color: var(--fa-border-default);
+    color: var(--fa-text-primary);
   }
 
   .dark .fa-input-surface::placeholder {
-    color: var(--color-gray-500);
+    color: var(--fa-text-muted);
+  }
+
+  .dark .fa-input-surface:-webkit-autofill,
+  .dark .fa-input-surface:-webkit-autofill:hover,
+  .dark .fa-input-surface:-webkit-autofill:focus,
+  .dark .fa-input-surface:autofill {
+    -webkit-text-fill-color: var(--fa-text-primary);
+    caret-color: var(--fa-text-primary);
+    box-shadow: 0 0 0 1000px var(--fa-surface-muted) inset;
   }
 
   .fa-form-label {
@@ -66,12 +85,32 @@
   }
 
   .fa-help-copy {
-    color: var(--color-gray-600);
+    color: var(--fa-text-muted);
     font-size: 0.75rem;
     line-height: 1.5;
   }
 
   .dark .fa-help-copy {
-    color: #cbd5e1;
+    color: var(--fa-text-muted);
+  }
+
+  .fa-checkbox {
+    accent-color: var(--fa-brand);
+    background: var(--fa-surface);
+    border: 1px solid var(--fa-border-default);
+    border-radius: 0.25rem;
+    color: var(--fa-brand);
+    height: 1rem;
+    width: 1rem;
+  }
+
+  .fa-checkbox:focus-visible {
+    box-shadow: var(--fa-focus-ring);
+    outline: none;
+  }
+
+  .dark .fa-checkbox {
+    background: var(--fa-surface-muted);
+    border-color: var(--fa-border-default);
   }
 }

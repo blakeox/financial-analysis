@@ -6,7 +6,8 @@ export interface Props {
   backHref?: string;
   backLabel?: string;
   badgeText?: string;
-  badgeTone?: 'blue' | 'slate';
+  /** Chip tone: accent (brand) or muted. Legacy `blue`/`slate` accepted temporarily. */
+  badgeTone?: 'accent' | 'muted' | 'blue' | 'slate';
   currentStep?: number;
   totalSteps?: number;
   scenarioName?: string;
@@ -21,7 +22,7 @@ const {
   backHref,
   backLabel,
   badgeText,
-  badgeTone = 'blue',
+  badgeTone = 'accent',
   currentStep,
   totalSteps,
   scenarioName,
@@ -29,7 +30,10 @@ const {
   progressLabel = 'Journey progress',
 } = Astro.props as Props;
 
-const badgeClasses = badgeTone === 'slate' ? 'fa-chip fa-chip-muted' : 'fa-chip fa-chip-accent';
+const badgeClasses =
+  badgeTone === 'muted' || badgeTone === 'slate'
+    ? 'fa-chip fa-chip-muted'
+    : 'fa-chip fa-chip-accent';
 const showBack = Boolean(backHref && backLabel);
 const showProgress =
   typeof currentStep === 'number' &&

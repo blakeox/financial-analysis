@@ -1,0 +1,250 @@
+/* Fanalyx design tokens — single source of truth for both fa-* CSS and React class strings */
+
+:root {
+  /* Brand palette (maps to Tailwind violet scale) */
+  --color-primary-50: #f7f4ff;
+  --color-primary-100: #efe9ff;
+  --color-primary-200: #ddd2ff;
+  --color-primary-300: #c3adff;
+  --color-primary-400: #9f82ff;
+  --color-primary-500: #6d4aff;
+  --color-primary-600: #5636e8;
+  --color-primary-700: #4328bb;
+  --color-primary-800: #311e86;
+  --color-primary-900: #211657;
+  --color-primary-950: #160b38;
+
+  /* Neutral palette (purple-tinted grays) */
+  --color-gray-50: #fafaff;
+  --color-gray-100: #f7f4ff;
+  --color-gray-200: #e7e4f2;
+  --color-gray-300: #d2ccdf;
+  --color-gray-400: #b0aabe;
+  --color-gray-500: #5e6478;
+  /* Unified muted ladder (#366): same hex as --fa-text-muted for secondary/body-muted */
+  --color-gray-600: #475569;
+  --color-gray-700: #40465d;
+  --color-gray-800: #232947;
+  --color-gray-900: #090e24;
+  --color-gray-950: #050816;
+
+  /* Semantic aliases */
+  --fa-brand: var(--color-primary-500);
+  --fa-brand-hover: var(--color-primary-600);
+  --fa-brand-active: var(--color-primary-700);
+  --fa-brand-light: var(--color-primary-50);
+  --fa-brand-shadow: 0 14px 32px color-mix(in srgb, var(--fa-brand) 28%, transparent);
+  --fa-brand-shadow-hover: 0 18px 40px color-mix(in srgb, var(--fa-brand) 34%, transparent);
+  --fa-brand-shadow-active: 0 12px 24px color-mix(in srgb, var(--fa-brand) 24%, transparent);
+  --fa-brand-gradient: linear-gradient(135deg, var(--fa-brand), var(--fa-brand-hover));
+  /* Ambient ledger light (#416) — color-mix from brand; use for page glows */
+  --fa-brand-glow: color-mix(in srgb, var(--fa-brand) 9%, transparent);
+  --fa-brand-glow-soft: color-mix(in srgb, var(--fa-brand) 4%, transparent);
+
+  --fa-success: #16a34a;
+  --fa-success-hover: #15803d;
+  --fa-success-shadow: 0 12px 28px rgba(16, 185, 129, 0.24);
+  --fa-success-shadow-hover: 0 16px 36px rgba(16, 185, 129, 0.3);
+  --fa-success-gradient: linear-gradient(135deg, #16a34a, #059669);
+
+  --fa-danger: #e11d48;
+  --fa-danger-shadow: 0 12px 28px rgba(225, 29, 72, 0.22);
+  --fa-danger-shadow-hover: 0 16px 36px rgba(225, 29, 72, 0.28);
+  --fa-danger-gradient: linear-gradient(135deg, #e11d48, #be123c);
+
+  --fa-warning: #f59e0b;
+  --fa-warning-shadow: 0 12px 28px rgba(245, 158, 11, 0.22);
+  --fa-warning-shadow-hover: 0 16px 36px rgba(245, 158, 11, 0.28);
+  --fa-warning-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+
+  /* Status surfaces (fg/bg pairs for chips, banners, helper text) */
+  --fa-status-success-fg: #166534;
+  --fa-status-success-bg: #ecfdf5;
+  --fa-status-warning-fg: #9a3412;
+  --fa-status-warning-bg: #fffbeb;
+  --fa-status-danger-fg: #991b1b;
+  --fa-status-danger-bg: #fff1f2;
+  --fa-status-info-fg: #1e3a8a;
+  --fa-status-info-bg: #eff6ff;
+
+  /* Surfaces */
+  --fa-surface: #ffffff;
+  --fa-surface-elevated: rgba(255, 255, 255, 0.95);
+  --fa-surface-subtle: #fafaff;
+  --fa-surface-muted: rgba(255, 255, 255, 0.92);
+  /* Near-invisible grain tint (~2%); disable under forced-colors (#416) */
+  --fa-surface-grain: color-mix(in srgb, var(--color-gray-900) 2%, transparent);
+
+  /* Text — one muted hex for meta/help/secondary copy (#366) */
+  --fa-text-primary: var(--color-gray-900);
+  --fa-text-muted: #475569;
+  --fa-text-secondary: var(--fa-text-muted);
+  --fa-text-on-brand: #ffffff;
+
+  /* Radius */
+  --fa-radius-md: 0.9rem;
+  --fa-radius-lg: 1rem;
+  --fa-radius-xl: 1.5rem;
+  --fa-radius-2xl: 1.75rem;
+  --fa-radius-pill: 9999px;
+
+  /* Shadows */
+  --fa-shadow-soft: 0 1px 2px rgba(9, 14, 36, 0.04), 0 6px 18px rgba(9, 14, 36, 0.05);
+  --fa-shadow-card: 0 1px 2px rgba(9, 14, 36, 0.04), 0 12px 40px rgba(9, 14, 36, 0.07);
+  --fa-shadow-elevated: 0 2px 4px rgba(9, 14, 36, 0.05), 0 20px 56px rgba(9, 14, 36, 0.1);
+  --fa-shadow-rail: 0 28px 72px rgba(9, 14, 36, 0.12);
+  --fa-shadow-inset: inset 0 1px 2px rgba(9, 14, 36, 0.04);
+
+  /* Borders & focus */
+  --fa-border-subtle: rgba(231, 228, 242, 0.82);
+  --fa-border-default: var(--color-gray-200);
+  --fa-focus-ring-color: color-mix(in srgb, var(--fa-brand) 34%, transparent);
+  --fa-focus-ring: 0 0 0 3px var(--fa-focus-ring-color);
+  --fa-surface-blur: blur(14px) saturate(1.06);
+
+  /* Type scale (--fa-fs-*) */
+  --fa-fs-xs: 0.75rem; /* 12px — caption / help */
+  --fa-fs-sm: 0.875rem; /* 14px — meta / body secondary */
+  --fa-fs-md: 1rem; /* 16px — body */
+  --fa-fs-lg: 1.125rem; /* 18px — lead body */
+  --fa-fs-xl: 1.25rem; /* 20px — panel titles */
+  --fa-fs-2xl: 1.5rem; /* 24px — section */
+  --fa-fs-3xl: 1.875rem; /* 30px — display section */
+  --fa-fs-display: 2.25rem; /* 36px — hero display */
+
+  /* Z-index scale */
+  --fa-z-base: 0;
+  --fa-z-dropdown: 20;
+  --fa-z-sticky: 40;
+  --fa-z-overlay: 50;
+  --fa-z-modal: 60;
+  --fa-z-toast: 70;
+  --fa-z-skip-link: 80;
+
+  /* Motion */
+  --fa-duration-fast: 150ms;
+  --fa-duration-normal: 200ms;
+  --fa-duration-slow: 300ms;
+  --fa-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --fa-ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --fa-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Numeric craft — tabular lining figures for money / KPIs (#411) */
+  --fa-font-numeric: var(--font-sans);
+
+  /*
+   * Chart series palette (#412) — brand + status, not Tailwind blue/violet guests.
+   * Prefer these over ad-hoc hex in Recharts / SVG charts.
+   */
+  --fa-chart-1: var(--fa-brand);
+  --fa-chart-2: var(--fa-success);
+  --fa-chart-3: var(--fa-warning);
+  --fa-chart-4: var(--color-primary-700);
+  --fa-chart-5: #0284c7;
+  --fa-chart-positive: var(--fa-success);
+  --fa-chart-negative: var(--fa-danger);
+  --fa-chart-total: var(--fa-brand);
+  --fa-chart-grid: var(--color-gray-200);
+  --fa-chart-axis: var(--fa-text-muted);
+  --fa-chart-surface: var(--fa-surface);
+
+  /* Breakpoints — aligned with Tailwind defaults (document values; MQ literals must match) */
+  --fa-bp-sm: 40rem; /* 640px */
+  --fa-bp-md: 48rem; /* 768px */
+  --fa-bp-lg: 64rem; /* 1024px */
+  --fa-bp-xl: 80rem; /* 1280px */
+
+  /* Page shell max-widths */
+  --fa-shell-narrow: var(--fa-bp-lg); /* 64rem */
+  --fa-shell: var(--fa-bp-xl); /* 80rem */
+  --fa-shell-wide: 96rem; /* 1536px — dashboards / catalogs */
+
+  /* Typography stacks */
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-serif: 'Fraunces', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
+
+  /* Layout */
+  --chat-panel-active-width: 0px;
+  --chat-panel-top-offset: 0px;
+
+  /*
+   * Homepage / landing aliases (used by fa-home-* inside .landing-page).
+   * Prefer --fa-* / --color-gray-* / --color-primary-* in new work.
+   * These are stable aliases — do not delete without auditing index.astro + home.css.
+   */
+  --color-navy: var(--color-gray-900);
+  --color-deep-navy: var(--color-gray-950);
+  --color-purple: var(--fa-brand);
+  --color-purple-dark: var(--fa-brand-hover);
+  --color-purple-light: #eee9ff;
+  --color-lavender: var(--color-primary-100);
+  --color-white: #ffffff;
+  --color-off-white: var(--color-gray-50);
+  --color-border: var(--color-gray-200);
+  --color-muted-text: var(--fa-text-muted);
+  --color-soft-text: var(--fa-text-muted);
+  --color-success: #047857;
+}
+
+.dark {
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #94a3b8;
+
+  --fa-surface: #050816;
+  --fa-surface-elevated: rgba(5, 8, 22, 0.85);
+  --fa-surface-subtle: #090e24;
+  --fa-surface-muted: rgba(35, 41, 71, 0.92);
+
+  --fa-brand-glow: color-mix(in srgb, var(--fa-brand) 14%, transparent);
+  --fa-brand-glow-soft: color-mix(in srgb, var(--color-primary-600) 8%, transparent);
+
+  --fa-text-primary: #ffffff;
+  --fa-text-muted: #94a3b8;
+  --fa-text-secondary: var(--fa-text-muted);
+  --fa-surface-grain: color-mix(in srgb, var(--fa-text-primary) 2%, transparent);
+
+  --fa-border-subtle: rgba(64, 70, 93, 0.55);
+  --fa-border-default: rgba(94, 100, 120, 0.52);
+  --fa-focus-ring-color: color-mix(in srgb, var(--color-primary-400) 42%, transparent);
+  --fa-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.18), 0 6px 18px rgba(0, 0, 0, 0.22);
+  --fa-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 40px rgba(0, 0, 0, 0.28);
+  --fa-shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.24), 0 20px 56px rgba(0, 0, 0, 0.32);
+  --fa-shadow-rail: 0 28px 72px rgba(0, 0, 0, 0.4);
+  --fa-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  --fa-status-success-fg: #bbf7d0;
+  --fa-status-success-bg: rgba(6, 78, 59, 0.35);
+  --fa-status-warning-fg: #fdba74;
+  --fa-status-warning-bg: rgba(154, 52, 18, 0.3);
+  --fa-status-danger-fg: #fecaca;
+  --fa-status-danger-bg: rgba(127, 29, 29, 0.35);
+  --fa-status-info-fg: #bfdbfe;
+  --fa-status-info-bg: rgba(30, 58, 138, 0.35);
+
+  --fa-chart-grid: rgba(94, 100, 120, 0.45);
+  --fa-chart-axis: var(--fa-text-muted);
+  --fa-chart-surface: var(--fa-surface);
+}
+
+/* Tailwind v4 theme bridge — enables bg-brand, text-text-muted, etc. */
+@theme {
+  --color-brand: var(--fa-brand);
+  --color-brand-hover: var(--fa-brand-hover);
+  --color-brand-active: var(--fa-brand-active);
+  --color-brand-light: var(--fa-brand-light);
+  --color-surface: var(--fa-surface);
+  --color-surface-elevated: var(--fa-surface-elevated);
+  --color-surface-subtle: var(--fa-surface-subtle);
+  --color-text-muted: var(--fa-text-muted);
+  --color-text-primary: var(--fa-text-primary);
+  --color-text-secondary: var(--fa-text-secondary);
+  --radius-card: var(--fa-radius-xl);
+  --radius-card-lg: var(--fa-radius-2xl);
+  --shadow-card: var(--fa-shadow-card);
+  --shadow-elevated: var(--fa-shadow-elevated);
+  --shadow-rail: var(--fa-shadow-rail);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}

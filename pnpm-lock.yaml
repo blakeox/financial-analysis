@@ -126,6 +126,9 @@ importers:
       '@financial-analysis/analysis':
         specifier: workspace:*
         version: link:../../packages/analysis
+      '@financial-analysis/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
       '@financial-analysis/tools':
         specifier: workspace:*
         version: link:../../packages/tools
@@ -287,6 +290,8 @@ importers:
       prettier:
         specifier: ^3.9.1
         version: 3.9.1
+
+  packages/tokens: {}
 
   packages/tools:
     dependencies:

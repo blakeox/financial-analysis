@@ -5,6 +5,7 @@ import { buildJourneyNavFromOrder } from '../../../../utils/journeyNavigation';
 import Breadcrumbs from '../../../../components/site/Breadcrumbs.astro';
 import JourneyStepHero from '../../../../components/JourneyStepHero.astro';
 import JourneyStepNavigation from '../../../../components/JourneyStepNavigation.astro';
+import WorkflowSupportRail from '../../../../components/WorkflowSupportRail.astro';
 
 export async function getStaticPaths() {
   const journeyData = getJourneyData();
@@ -75,7 +76,7 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   }
 </script>
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} showChat={false} showToolAnalysis={false}>
   <Breadcrumbs
     items={[
       { label: 'Home', href: '/' },
@@ -86,6 +87,8 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
   />
 
   <div class="fa-page-shell">
+    <div class="fa-workflow-grid">
+      <div class="space-y-6">
           <JourneyStepHero
             title={currentStep?.name ?? 'Current step'}
             description={currentStep?.description ?? ''}
@@ -279,6 +282,11 @@ const seoDescription = `${currentStep?.description} This is step ${currentStepOr
         nextStep={journeyNav.nextStep}
         completeLabel="Complete Journey Analysis"
       />
+      </div>
+
+      <WorkflowSupportRail modelType="initial-capital-investment" />
+    </div>
+
   </div>
 </Layout>
 

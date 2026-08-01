@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type ScriptLoaderMap = {
   amortization: () => Promise<unknown>;
@@ -198,22 +198,61 @@ interface ClientScriptLoaderProps {
 
 /**
  * Loads a specific client-side script on demand while keeping build output hashed as JS.
- * We hide the marker span so it stays out of layout calculations.
+ * On failure, surfaces an fa-callout-danger with retry (not console-only).
  */
 export default function ClientScriptLoader({ name }: ClientScriptLoaderProps) {
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
+
+  const retry = useCallback(() => {
+    setLoadError(null);
+    setRetryKey((k) => k + 1);
+  }, []);
+
   useEffect(() => {
     const loadScript = scriptLoaders[name];
     if (!loadScript) {
       if (import.meta.env.DEV) {
         console.warn(`[ClientScriptLoader] Unknown script key: ${name}`);
       }
+      setLoadError(`Unknown calculator script "${name}". Refresh the page or try another tool.`);
       return;
     }
 
-    void loadScript().catch((error) => {
-      console.error(`[ClientScriptLoader] Failed to load script "${name}"`, error);
-    });
-  }, [name]);
+    let cancelled = false;
+    void loadScript()
+      .then(() => {
+        if (!cancelled) setLoadError(null);
+      })
+      .catch((error) => {
+        console.error(`[ClientScriptLoader] Failed to load script "${name}"`, error);
+        if (!cancelled) {
+          setLoadError(
+            "This tool's interactive script failed to load. Check your connection, then retry."
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [name, retryKey]);
+
+  if (loadError) {
+    return (
+      <div className="fa-callout-danger my-4" role="alert" data-client-script-error={name}>
+        <p className="fa-callout-title-danger text-sm font-medium">Couldn’t load this tool</p>
+        <p className="fa-callout-copy-danger mt-1 text-sm">{loadError}</p>
+        <button
+          type="button"
+          className="fa-button-secondary mt-3 px-3 py-2 text-sm"
+          onClick={retry}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return <span data-client-script-loader={name} hidden />;
 }

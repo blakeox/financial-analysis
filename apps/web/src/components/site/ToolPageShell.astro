@@ -12,6 +12,7 @@ export interface Props {
   eyebrow?: string;
   title: string;
   description: string;
+  /** Optional extra classes on the inner content wrapper (prefer shell tokens — no nested max-w-*). */
   contentClassName?: string;
 }
 
@@ -20,14 +21,14 @@ const {
   eyebrow = 'Analysis',
   title,
   description,
-  contentClassName = 'mx-auto max-w-7xl',
+  contentClassName = '',
 } = Astro.props as Props;
 ---
 
 <Breadcrumbs items={items} />
 
 <div class="fa-page-shell">
-  <div class={contentClassName}>
+  <div class={contentClassName || undefined}>
     <PageHero eyebrow={eyebrow} title={title} description={description} />
     <slot />
   </div>
