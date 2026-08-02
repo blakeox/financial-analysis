@@ -154,6 +154,38 @@ describe('buildSecurityContext', () => {
     expect(context.isAllowed).toBe(true);
     expect(context.fingerprint).toBeTruthy();
   });
+
+  it('fails closed in production when the Session DO errors', async () => {
+    class FailingSessionDO {
+      async fetch(): Promise<Response> {
+        throw new Error('session backend unavailable');
+      }
+    }
+
+    const mockEnv = {
+      ENVIRONMENT: 'production',
+      SESSION_DO: {
+        get: () => new FailingSessionDO(),
+        idFromName: (name: string) => ({ name }),
+      },
+    } as unknown as Env;
+
+    const request = new Request('https://example.com/v1/chat/stream', {
+      method: 'POST',
+      headers: {
+        'CF-Connecting-IP': '203.0.113.1',
+        'User-Agent': 'Test/1.0',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: 'test' }),
+    });
+
+    const context = await buildSecurityContext(request, mockEnv, { isMessageRequest: true });
+
+    expect(context.isAllowed).toBe(false);
+    expect(context.denyReason).toBe('security_backend_unavailable');
+    expect(context.retryAfter).toBe(60);
+  });
 });
 
 describe('withSecurityContext', () => {

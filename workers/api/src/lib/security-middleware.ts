@@ -274,15 +274,19 @@ export async function buildSecurityContext(
 
   // Circuit breaker: skip Session DO if it's failing repeatedly
   if (shouldSkipSessionDO()) {
-    console.warn('Session DO circuit breaker open, using degraded mode');
+    const isProduction = env.ENVIRONMENT === 'production';
+    console.warn(
+      `Session DO circuit breaker open; ${isProduction ? 'denying' : 'allowing degraded'} request`
+    );
     const context = {
       ...requestContext,
       sessionId: fingerprint,
       fingerprint,
-      trustScore: 50, // Degraded trust score
+      trustScore: isProduction ? 0 : 50,
       securityFlags: ['circuit-breaker-open'],
-      isAllowed: true, // Allow but with reduced trust
-      denyReason: undefined,
+      isAllowed: !isProduction,
+      denyReason: isProduction ? 'security_backend_unavailable' : undefined,
+      retryAfter: isProduction ? 60 : undefined,
     };
 
     // Log to Analytics Engine
@@ -380,15 +384,16 @@ export async function buildSecurityContext(
       failureCount: sessionDOFailureCount,
     });
 
-    // Graceful degradation: allow request but with reduced trust
+    const isProduction = env.ENVIRONMENT === 'production';
     const context = {
       ...requestContext,
       sessionId: fingerprint,
       fingerprint,
-      trustScore: 50,
+      trustScore: isProduction ? 0 : 50,
       securityFlags: ['session-do-error'],
-      isAllowed: true,
-      denyReason: undefined,
+      isAllowed: !isProduction,
+      denyReason: isProduction ? 'security_backend_unavailable' : undefined,
+      retryAfter: isProduction ? 60 : undefined,
     };
 
     // Log to Analytics Engine
@@ -397,9 +402,9 @@ export async function buildSecurityContext(
       'suspicious_activity',
       fingerprint,
       ipAddress,
-      50,
+      isProduction ? 0 : 50,
       ['session-do-error'],
-      true,
+      !isProduction,
       requestContext.path
     );
 

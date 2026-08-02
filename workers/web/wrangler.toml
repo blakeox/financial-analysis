@@ -41,6 +41,7 @@ invocation_logs = true
 
 [env.production.vars]
 ENVIRONMENT = "production"
+ALLOWED_ORIGIN = "https://fanalyx.com"
 API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
 
 [[env.production.routes]]

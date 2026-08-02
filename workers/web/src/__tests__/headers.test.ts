@@ -30,6 +30,7 @@ describe('web worker security headers', () => {
 
   it('sets CSP and HSTS only in production', async () => {
     const { env, ctx } = makeEnv('production');
+    (env as { ALLOWED_ORIGIN?: string }).ALLOWED_ORIGIN = 'https://fanalyx.com';
     const req = new Request('https://example.com/', { method: 'GET' });
     const res = await web.fetch(req, env, ctx);
     expect(res.headers.get('content-security-policy')).toContain("default-src 'self'");
@@ -37,5 +38,6 @@ describe('web worker security headers', () => {
     expect(hsts).toContain('max-age=31536000');
     expect(hsts).toContain('includeSubDomains');
     expect(hsts).toContain('preload');
+    expect(res.headers.get('access-control-allow-origin')).toBe('https://fanalyx.com');
   });
 });
