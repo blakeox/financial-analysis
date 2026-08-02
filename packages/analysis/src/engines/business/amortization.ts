@@ -1,6 +1,11 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
 
+import {
+  AMORTIZATION_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
+
 export interface AmortizationResultItem {
   month: number;
   payment: number;
@@ -15,6 +20,9 @@ export interface AmortizationResultItem {
 }
 
 export interface AmortizationAnalysisResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   monthlyPayment: number;
   totalPayments: number;
   totalInterest: number;
@@ -189,6 +197,8 @@ export const AmortizationInputSchema = z.object({
   closingCosts: z.number().min(0).optional().default(0),
 });
 
+export type AmortizationEngineInput = z.input<typeof AmortizationInputSchema>;
+
 /**
  * Calculate APR using Newton-Raphson method (XIRR approximation)
  * APR accounts for all upfront costs and compares to the actual loan amount received
@@ -237,7 +247,7 @@ function calculateAPR(
 }
 
 export class AmortizationAnalyzer {
-  static analyze(input: z.infer<typeof AmortizationInputSchema>): AmortizationAnalysisResult {
+  static analyze(input: AmortizationEngineInput): AmortizationAnalysisResult {
     const parsed = AmortizationInputSchema.parse(input);
     const {
       principal,
@@ -438,6 +448,8 @@ export class AmortizationAnalyzer {
     };
 
     return {
+      formulaVersion: AMORTIZATION_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: AMORTIZATION_FORMULA_METADATA,
       monthlyPayment: Number(new Decimal(basePayment).toDecimalPlaces(2)),
       totalPayments: Number(new Decimal(actualPayments).toDecimalPlaces(2)),
       totalInterest: totalInterestPaid,

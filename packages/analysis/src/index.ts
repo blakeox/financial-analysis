@@ -110,6 +110,17 @@ export type { EbitdaForecastResult, ScenarioInput } from './engines/business/ebi
 export type { LeaseAnalysisResult } from './engines/business/lease.js';
 export type { WACCResult } from './engines/business/wacc.js';
 
+// Formula semantic metadata and canonical certification vectors
+export {
+  AMORTIZATION_CANONICAL_TEST_VECTORS,
+  AMORTIZATION_FORMULA_METADATA,
+} from './formula-semantics.js';
+export type {
+  AmortizationCanonicalOutput,
+  CanonicalTestVector,
+  FormulaSemanticMetadata,
+} from './formula-semantics.js';
+
 // Bond pricing schemas and types
 export { BondPricingInputSchema } from './schemas/bond-pricing.js';
 export type { BondPricingInput, BondType, CouponFrequency } from './schemas/bond-pricing.js';
