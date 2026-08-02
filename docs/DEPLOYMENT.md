@@ -6,13 +6,15 @@ Key principles:
 
 - One pipeline: typecheck, lint, unit tests, security scan, E2E, and deploy run in a single CI/CD pipeline.
 - Deterministic builds: enforce build order (UI → Astro web → Workers) before deploy.
-- Safe by default: preview deploy job only runs on PRs labeled `deploy-preview`, and each deploy step no-ops when secrets are missing.
+- Safe by default: preview deploy job only runs on PRs labeled `deploy-preview`, uses a dedicated preview token, and each deploy step no-ops when secrets are missing.
 - Environments: GitHub environments (preview, production) guard secrets and can require manual approvals.
 
 ## Required Secrets (GitHub → Settings → Secrets and variables → Actions)
 
-- CLOUDFLARE_API_TOKEN
+- CLOUDFLARE_PREVIEW_API_TOKEN (preview Workers only; Workers Scripts Write)
+- CLOUDFLARE_API_TOKEN (production deployment only)
 - CLOUDFLARE_ACCOUNT_ID
+- CLOUDFLARE_OBSERVABILITY_TOKEN (health monitor; read-only analytics/observability)
 
 ## Workflows
 
@@ -28,9 +30,9 @@ Deploy guards in `ci-cd.yml`:
 
 To request a preview deployment on a PR:
 
-1) Add label `deploy-preview` to the pull request.
-2) Ensure Cloudflare secrets are set in GitHub repository secrets.
-3) The `Preview Deploy` job will run and perform wrangler deploy dry-runs for both workers.
+1. Add label `deploy-preview` to the pull request.
+2. Ensure `CLOUDFLARE_PREVIEW_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are set in GitHub repository secrets.
+3. The `Preview Deploy` job will run and perform wrangler deploy dry-runs for both workers.
 
 To skip preview deploys, remove the label or don’t add it.
 
