@@ -6,16 +6,21 @@ export interface Env {
   API_DEV_ORIGIN?: string;
   // Optional: explicit API origin for non-development environments
   API_ORIGIN?: string;
+  ALLOWED_ORIGIN?: string;
   // Server-only credential for API worker authentication; never accept this from clients.
   INTERNAL_API_TOKEN?: string;
 }
 
-const corsHeaders = {
-  // Static assets are generally safe to allow broadly; tighten if needed
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, HEAD, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+function getCorsHeaders(env: Env): Record<string, string> {
+  const origin =
+    env.ALLOWED_ORIGIN || (env.ENVIRONMENT === 'production' ? 'https://fanalyx.com' : '*');
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, HEAD, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    Vary: 'Origin',
+  };
+}
 
 function getSecurityHeaders(env: Env): Record<string, string> {
   const isProd = env.ENVIRONMENT === 'production';
@@ -32,6 +37,7 @@ function getSecurityHeaders(env: Env): Record<string, string> {
   ].join('; ');
 
   return {
+    ...getCorsHeaders(env),
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -44,7 +50,7 @@ function getSecurityHeaders(env: Env): Record<string, string> {
 
 function buildDefaultHeaders(env: Env) {
   return {
-    ...corsHeaders,
+    ...getCorsHeaders(env),
     ...getSecurityHeaders(env),
   } as Record<string, string>;
 }
@@ -100,8 +106,9 @@ export default {
         }
 
         const headers = new Headers(apiRes.headers);
-        headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        headers.set('Access-Control-Allow-Origin', '*');
+        for (const [key, value] of Object.entries(getCorsHeaders(env))) {
+          headers.set(key, value);
+        }
         if (isDev) {
           headers.set('x-dev-proxy', 'web->api');
         }

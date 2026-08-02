@@ -1,7 +1,10 @@
 import type { Env } from '../types';
 
 export function getCorsHeaders(env: Env): Record<string, string> {
-  const origin = env.ALLOWED_ORIGIN || '*';
+  // Keep local/test behavior permissive, but never let a missing production
+  // variable silently reopen the API to every browser origin.
+  const origin =
+    env.ALLOWED_ORIGIN || (env.ENVIRONMENT === 'production' ? 'https://fanalyx.com' : '*');
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
