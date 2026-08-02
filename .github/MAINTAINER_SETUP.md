@@ -66,9 +66,11 @@ Optional: add the repo to the [OpenSSF Scorecard dashboard](https://scorecard.de
 
 ## 6. Deploy and monitors
 
-| Secret / setting | Used by |
-|------------------|---------|
-| Cloudflare API token / account | `deploy-preview.yml`, `deploy-production.yml` |
-| Slack webhooks (if used) | `monitor-workers-health.yml`, `monitor-r2-quotas.yml` |
+| Secret / setting                           | Used by                                               |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `CLOUDFLARE_PREVIEW_API_TOKEN` + account   | `deploy-preview.yml`                                  |
+| `CLOUDFLARE_API_TOKEN` + account           | `deploy-production.yml`                               |
+| `CLOUDFLARE_OBSERVABILITY_TOKEN` + account | `monitor-workers-health.yml`                          |
+| Slack webhooks (if used)                   | `monitor-workers-health.yml`, `monitor-r2-quotas.yml` |
 
 See [workflows/README.md](./workflows/README.md) for the full workflow map.
