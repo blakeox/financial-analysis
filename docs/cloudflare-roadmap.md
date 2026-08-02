@@ -2,7 +2,7 @@
 
 This roadmap outlines phased improvements to deepen our integration with Cloudflare across reliability, security, scalability, observability, and cost controls.
 
-Status legend: (✅ done) (🔜 next) (🧪 experiment) (📝 docs) (🧩 optional)
+Status legend: (✅ done) (🟡 in progress) (🔜 next) (🧪 experiment) (📝 docs) (🧩 optional)
 
 ---
 
@@ -101,7 +101,7 @@ Deliverables:
 
 ---
 
-## Phase 4 — Observability & alerting (🔜)
+## Phase 4 — Observability & alerting (🟡 in progress)
 
 Goal: Gain visibility and detect regressions early.
 
@@ -110,6 +110,12 @@ Deliverables:
 - Workers Analytics Engine or Logpush for structured logs (json lines)
 - Tail filters & sampling strategies for high-traffic routes
 - Error budgets and alerting (PagerDuty/Webhooks/Email via Workers or third-party) (🧩)
+
+Current production state:
+
+- Workers Logs are enabled and persisted for the production API and web Workers through their Wrangler configurations.
+- Invocation logs are enabled at 100% sampling while traffic remains low; traces and external log exports remain disabled.
+- Alerting and log-retention review are still outstanding.
 
 ### Implementation notes
 
