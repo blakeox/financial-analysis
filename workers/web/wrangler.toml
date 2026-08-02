@@ -33,6 +33,12 @@ API_ORIGIN = "https://fanalyx-api-preview.blakeoxford.workers.dev"
 # Production environment
 [env.production]
 name = "fanalyx-web"
+
+[env.production.observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
 [env.production.vars]
 ENVIRONMENT = "production"
 API_ORIGIN = "https://fanalyx-api-production.blakeoxford.workers.dev"
