@@ -39,7 +39,9 @@ const apiBaseUrl = (process.env.CLERK_API_BASE_URL || 'https://api.clerk.com/v1'
   /\/$/,
   ''
 );
-const scopes = process.env.CLERK_OAUTH_SCOPES?.trim() || 'openid profile email';
+// Clerk's OAuth application API configures user-info scopes as profile/email.
+// The OIDC login request separately asks for the standard `openid` scope.
+const scopes = process.env.CLERK_OAUTH_SCOPES?.trim() || 'profile email';
 
 if (!secretKey) {
   console.error(
@@ -89,6 +91,7 @@ function summarize(application) {
     scopes: application.scopes,
     isPublic: value('isPublic', 'is_public'),
     pkceRequired: value('pkceRequired', 'pkce_required'),
+    consentScreenEnabled: value('consentScreenEnabled', 'consent_screen_enabled'),
   };
 }
 
@@ -106,6 +109,7 @@ function validateProvisionedApplication(application) {
   const failures = [];
   if (summary.isPublic !== true) failures.push('application is not public');
   if (summary.pkceRequired !== true) failures.push('PKCE is not required');
+  if (summary.consentScreenEnabled !== true) failures.push('consent screen is not enabled');
 
   const redirectUris = Array.isArray(summary.redirectUris) ? summary.redirectUris : [];
   if (redirectUris.length !== 1 || redirectUris[0] !== config.redirectUri) {
@@ -150,6 +154,8 @@ async function readDiscovery(application) {
 const requested = {
   name: config.name,
   public: true,
+  pkce_required: true,
+  consent_screen_enabled: true,
   redirect_uris: [config.redirectUri],
   scopes,
 };
@@ -184,6 +190,8 @@ if (!application) {
       redirect_uris: requested.redirect_uris,
       scopes: requested.scopes,
       public: requested.public,
+      pkce_required: requested.pkce_required,
+      consent_screen_enabled: requested.consent_screen_enabled,
     }),
   });
   console.log(`Updated Clerk OAuth application for ${environment}.`);
