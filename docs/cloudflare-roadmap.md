@@ -375,8 +375,9 @@ Goal: Reliable data evolution.
   `405 METHOD_NOT_ALLOWED`; Cloudflare WAF rules for abusive paths remain
   separately gated.
 - (🟡) Added a read-only WAF entrypoint audit and rollout/rollback runbook;
-  live WAF configuration remains blocked until a narrowly scoped WAF read/write
-  token is provisioned and the rules are reviewed.
+  live WAF configuration remains blocked until a narrowly scoped WAF read-only
+  token is provisioned for inspection and any separate write authority is
+  explicitly approved.
 - CSP review (docs viewer done; add for web worker output if needed)
 - Secrets rotation cadence
 - (✅) File-type validation for PDF, DOCX, and UTF-8 text now performs byte-level
