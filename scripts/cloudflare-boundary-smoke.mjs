@@ -150,10 +150,11 @@ async function main() {
     );
 
     const method = await readResponse(await fetchWithRetry('/health', { method: 'PATCH' }));
+    const methodCode = method.json?.code ?? method.json?.error?.code;
     record(
       'method allow-list',
-      method.status === 405 && method.json?.code === 'METHOD_NOT_ALLOWED',
-      { status: method.status, code: method.json?.code, allow: method.headers.allow }
+      method.status === 405 && methodCode === 'METHOD_NOT_ALLOWED',
+      { status: method.status, code: methodCode, allow: method.headers.allow }
     );
 
     const oauth = await readResponse(
