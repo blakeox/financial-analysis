@@ -55,10 +55,10 @@ Current gates:
 - (🟡) Local authoritative CI gate passes: duplicate guard, smoke, typecheck,
   lint, format, audit, and full workspace tests. The duplicate guard still
   reports 541 nonblocking macOS Finder duplicates under `node_modules`.
-- (🟡) Preview and production `/health` checks return 200, but their current
-  `/version` receipts still report `commit: "unknown"` and the older control
-  schema. Publication of this validated source and a SHA-bound hosted receipt
-  remain open.
+- (✅) Preview `/health` and `/version` now return 200 and a SHA-bound receipt
+  for `e0085efe7760e897d24f9a822f732ee4e25a4a2f`, including the current MCP
+  protocol/policy identifiers and fail-closed controls. Production remains
+  protected and intentionally awaits the matching preview promotion gate.
 - (✅) Protected MCP responses are explicitly non-cacheable and vary on all
   supported credentials (`Authorization`, `X-API-Key`, and
   `X-Internal-API-Token`); anonymous `tools/list` is empty and anonymous
@@ -73,8 +73,9 @@ Current gates:
   expected fail-closed canary states are absent or enabled unexpectedly.
 - (✅) Preview deployment verifies the API `/health` and `/version` receipt,
   checks the preview web title, uploads a SHA-bound boundary receipt, and
-  passed independently after propagation on the published Worker. The preview
-  environment allows only explicitly registered preview branches; production
+  passed independently after propagation on the published Worker at
+  `e0085efe7760e897d24f9a822f732ee4e25a4a2f`. The preview environment allows
+  only explicitly registered preview branches, including `main`; production
   remains protected.
 - (✅) OAuth remains fail-closed in live environments: `OAUTH_ENABLED=false`
   yields no public discovery or authorization endpoints until the identity
