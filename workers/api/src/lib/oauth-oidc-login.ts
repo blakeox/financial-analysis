@@ -50,15 +50,20 @@ function getConfiguredRedirectUri(env: Env): URL | null {
   return parseHttpsUrl(env.OIDC_REDIRECT_URI);
 }
 
+function getConfiguredHttpsEndpoint(env: Env, key: keyof Env): URL | null {
+  const value = env[key];
+  return typeof value === 'string' ? parseHttpsUrl(value) : null;
+}
+
 export function isOidcBrowserLoginConfigured(env: Env): boolean {
   return Boolean(
     env.SESSIONS &&
-    env.OIDC_ISSUER &&
     env.OIDC_AUDIENCE &&
-    env.OIDC_JWKS_URI &&
-    env.OIDC_AUTHORIZATION_ENDPOINT &&
-    env.OIDC_TOKEN_ENDPOINT &&
     env.OIDC_CLIENT_ID &&
+    getConfiguredHttpsEndpoint(env, 'OIDC_ISSUER') &&
+    getConfiguredHttpsEndpoint(env, 'OIDC_JWKS_URI') &&
+    getConfiguredHttpsEndpoint(env, 'OIDC_AUTHORIZATION_ENDPOINT') &&
+    getConfiguredHttpsEndpoint(env, 'OIDC_TOKEN_ENDPOINT') &&
     getConfiguredRedirectUri(env)
   );
 }

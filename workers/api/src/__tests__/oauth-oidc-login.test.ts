@@ -154,6 +154,27 @@ describe('browser OIDC login boundary', () => {
     ).toBe('openid profile email');
   });
 
+  it.each([
+    ['OIDC_ISSUER', 'http://login.example.com'],
+    ['OIDC_JWKS_URI', 'http://login.example.com/keys'],
+    ['OIDC_AUTHORIZATION_ENDPOINT', 'http://login.example.com/authorize'],
+    ['OIDC_TOKEN_ENDPOINT', 'http://login.example.com/token'],
+    ['OIDC_REDIRECT_URI', 'http://app.example.com/oauth/callback'],
+  ] as const)('fails closed when %s is not HTTPS', (key, value) => {
+    const { sessions } = createSessions();
+    const env = { ...makeEnv(sessions), [key]: value };
+
+    return handleOidcLoginRequest(
+      new Request(
+        'https://app.example.com/oauth/login?return_to=https%3A%2F%2Fapp.example.com%2Foauth%2Fauthorize'
+      ),
+      env
+    ).then(async (response) => {
+      expect(response.status).toBe(503);
+      expect(await response.text()).toContain('OIDC_LOGIN_NOT_CONFIGURED');
+    });
+  });
+
   it('rejects an external return URL before redirecting to the IdP', async () => {
     const { sessions } = createSessions();
     const response = await handleOidcLoginRequest(
