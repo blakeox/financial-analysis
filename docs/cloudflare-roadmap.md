@@ -88,6 +88,11 @@ Current gates:
 - (✅) Credential-free hosted boundary smoke checks run hourly for both
   environments: health/version receipt, unauthenticated MCP/storage rejection,
   method allow-listing, and OAuth discovery fail-closed behavior.
+- (✅) The production Workers monitor now emits a bounded, read-only JSON health
+  receipt as a retained workflow artifact and job summary. Hosted run
+  `30807488844` passed on `6a7c76b960f3b61e21c20b7c9d99e31103010306` with a
+  30-minute window, a 1% threshold, 4 API requests, 0 web requests, and 0
+  errors; raw GraphQL responses and credentials are not retained.
 - (✅) The hosted boundary smoke is a reusable machine-readable receipt harness
   covering MCP cache variance, storage denial, Agent authentication/origin
   isolation, method controls, and OAuth kill-switch behavior; deployment jobs
