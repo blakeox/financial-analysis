@@ -93,7 +93,7 @@ sessions and abandoned objects remain an operational cleanup gate.
 - `.github/workflows/ci.yml` — lightweight CI (typecheck, lint, unit tests)
 - `.github/workflows/ci-cd.yml` — main/PR quality, tests, build, and security checks
 - `.github/workflows/deploy-preview.yml` — label-gated preview deployment using the preview token
-- `.github/workflows/deploy-production.yml` — manually confirmed production deployment from `main`
+- `.github/workflows/deploy-production.yml` — manually confirmed production deployment from `main`; requires a successful matching preview run, a rollback SHA, and an approval reference
 
 Both deployment workflows apply the environment's remote D1 migrations before
 deploying the API Worker. A migration failure stops the release before code is
@@ -119,8 +119,18 @@ To skip preview deploys, remove the label or don’t add it.
 
 ## Production Deploys
 
-- Trigger: push to `main` (after all quality gates pass)
+- Trigger: manual workflow dispatch from `main` (after all quality gates pass)
 - Environment: `production` (requires secrets; optionally enable manual approval on the environment)
+- Required inputs: `confirm_production=true`, `preview_run_id`, `rollback_sha`, and
+  `approval_reference`. The preview run must be the successful
+  `Deploy Preview (API + Web)` workflow for the exact production SHA; the
+  rollback SHA must be a commit reachable from `main`.
+- The workflow uploads both the SHA-bound boundary receipt and a
+  `cloudflare-production-promotion` receipt containing the preview run, rollback
+  reference, approval reference, actor, smoke outcome, and workflow run ID.
+- If production fails, leave the active deployment unchanged unless the operator
+  explicitly dispatches a rollback using a known-good main SHA. Do not treat the
+  GitHub job result alone as proof that Cloudflare is serving the expected SHA.
 
 ## Free-Tier Edge Hardening
 

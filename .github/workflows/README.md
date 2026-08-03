@@ -44,7 +44,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | Workflow                                         | Trigger                                 |
 | ------------------------------------------------ | --------------------------------------- |
 | [deploy-preview.yml](./deploy-preview.yml)       | PR label `deploy-preview` or manual     |
-| [deploy-production.yml](./deploy-production.yml) | Manual from `main` (confirmation input) |
+| [deploy-production.yml](./deploy-production.yml) | Manual from `main` (confirmation, matching preview run, approval reference, and rollback SHA) |
 
 ## Labels
 

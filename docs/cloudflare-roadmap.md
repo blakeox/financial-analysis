@@ -349,8 +349,9 @@ Deliverables:
   request.
 - (✅) Production deployment requires a main commit, an explicit confirmation,
   a protected production environment, and post-deploy API/web receipt checks.
-- (🔜) Add a hosted preview-to-production promotion record with an approval and
-  rollback reference.
+- (✅) Production promotion now requires a successful matching preview run,
+  an explicit approval reference, a main-reachable rollback SHA, and uploads a
+  machine-readable promotion receipt alongside the boundary receipt.
 
 ### Acceptance criteria (Phase 6)
 
