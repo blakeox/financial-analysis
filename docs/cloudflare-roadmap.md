@@ -55,10 +55,12 @@ Current gates:
 - (✅) Local authoritative CI gate passes: duplicate guard, smoke, typecheck,
   lint, format, audit, and full workspace tests. The duplicate guard still
   reports 541 nonblocking macOS Finder duplicates under `node_modules`.
-- (✅) Preview `/health` and `/version` now return 200 and a SHA-bound receipt
-  for `e0085efe7760e897d24f9a822f732ee4e25a4a2f`, including the current MCP
-  protocol/policy identifiers and fail-closed controls. Production remains
-  protected and intentionally awaits the matching preview promotion gate.
+- (✅) Preview `/health` and `/version` return 200 and a SHA-bound receipt for
+  `6348054474a4aff9839c6285d3d467f5cc96e4d4`, including the current MCP
+  protocol/policy identifiers, OIDC readiness, and fail-closed controls.
+  Independent hosted smoke passed in deployment run `30806544436`;
+  production remains protected and intentionally awaits the matching preview
+  promotion gate.
 - (✅) Protected MCP responses are explicitly non-cacheable and vary on all
   supported credentials (`Authorization`, `X-API-Key`, and
   `X-Internal-API-Token`); anonymous `tools/list` is empty and anonymous
@@ -77,7 +79,7 @@ Current gates:
 - (✅) Preview deployment verifies the API `/health` and `/version` receipt,
   checks the preview web title, uploads a SHA-bound boundary receipt, and
   passed independently after propagation on the published Worker at
-  `e0085efe7760e897d24f9a822f732ee4e25a4a2f`. The preview environment allows
+  `6348054474a4aff9839c6285d3d467f5cc96e4d4`. The preview environment allows
   only explicitly registered preview branches, including `main`; production
   remains protected.
 - (✅) OAuth remains fail-closed in live environments: `OAUTH_ENABLED=false`

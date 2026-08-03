@@ -10,7 +10,8 @@ security headers; it never sends user data or credentials.
 The receipt covers:
 
 - health and environment identity;
-- `/version` protocol, policy, commit, and fail-closed canary controls;
+- `/version` protocol, policy, commit, OIDC-readiness, and fail-closed canary
+  controls;
 - anonymous MCP denial and credential-aware `no-store`/`Vary` headers;
 - anonymous storage presign/finalize denial;
 - Worker method allow-listing;
