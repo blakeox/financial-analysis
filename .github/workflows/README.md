@@ -34,10 +34,11 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [e2e-web.yml](./e2e-web.yml)                                     | Mon 12:00 UTC          | Weekly web smoke                                                                          |
 | [coverage.yml](./coverage.yml)                                   | Mon 06:00 UTC          | Analysis + web coverage (Codecov when `CODECOV_TOKEN` is set)                             |
 | [mutation.yml](./mutation.yml)                                   | 1st of month 08:00 UTC | Analysis mutation tests                                                                   |
-| [monitor-workers-health.yml](./monitor-workers-health.yml)       | Daily                  | Workers health with bounded JSON receipt                                                   |
+| [monitor-workers-health.yml](./monitor-workers-health.yml)       | Daily                  | Workers health with bounded JSON receipt                                                  |
 | [cloudflare-boundary-smoke.yml](./cloudflare-boundary-smoke.yml) | Hourly                 | Machine-readable health, version, MCP, storage, Agent, method, and OAuth boundary receipt |
 | [cloudflare-waf-audit.yml](./cloudflare-waf-audit.yml)           | Manual                 | Read-only Cloudflare WAF phase-entrypoint audit                                           |
 | [provision-clerk-oauth.yml](./provision-clerk-oauth.yml)         | Manual                 | Dry-run or explicitly applied Clerk OIDC/OAuth application reconciliation per environment |
+| [link-clerk-user-email.yml](./link-clerk-user-email.yml)         | Manual                 | Dry-run or confirmed same-user email association; never verifies or creates users         |
 | [monitor-r2-quotas.yml](./monitor-r2-quotas.yml)                 | Daily                  | R2 quota checks                                                                           |
 
 ## Deploy

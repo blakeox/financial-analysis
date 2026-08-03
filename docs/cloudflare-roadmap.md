@@ -108,6 +108,11 @@ Current gates:
 - (✅) The Clerk reconciler now validates the returned public/PKCE-required
   application, exact per-environment callback, required profile/email scopes,
   and complete HTTPS discovery metadata before emitting Worker configuration.
+- (✅) Added a protected, dry-run-first Clerk identity-link workflow that finds
+  an existing Microsoft-backed user by exact email, refuses cross-user email
+  collisions, never creates users or marks email addresses verified, and emits
+  only masked email values in its receipt. The final Microsoft account link
+  remains a user verification/sign-in step.
 - (✅) Browser OIDC login now fails closed unless issuer, JWKS, authorization,
   token, and callback endpoints are all HTTPS; focused login and resource-owner
   tests cover each rejected endpoint configuration.

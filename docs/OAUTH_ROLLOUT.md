@@ -126,9 +126,13 @@ For the maintainer account, sign in through Microsoft using the verified
 Microsoft address configured for the deployment. If `blake@fanalyx.com` is also
 needed as a contact or alternate sign-in address, add it to the same Clerk user
 through a verified Clerk email-address flow after the mailbox/domain is
-controlled. Do not create a second user or merge users by comparing email
-strings. The login hint is optional configuration and is never an identity
-claim; do not commit a maintainer email to this open-source repository.
+controlled. The protected [Link Clerk user email workflow](../.github/workflows/link-clerk-user-email.yml)
+can locate the existing Microsoft-backed user and add the alternate address in
+dry-run-first mode; apply requires explicit confirmation and leaves the address
+unverified until Clerk verification completes. Do not create a second user or
+merge users by comparing email strings. The login hint is optional configuration
+and is never an identity claim; do not commit a maintainer email to this
+open-source repository.
 
 In Clerk, enable Microsoft Azure Entra ID as a social connection for all users.
 For production, use custom Microsoft Entra credentials and the `common` tenant

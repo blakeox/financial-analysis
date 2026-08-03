@@ -1,0 +1,124 @@
+name: Link Clerk user email
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Clerk environment containing the secret
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+      lookup_email:
+        description: Existing verified Microsoft/Clerk email used to locate the user
+        required: true
+        type: string
+      email:
+        description: Additional email address to associate with that same user
+        required: true
+        type: string
+      apply:
+        description: Apply the unverified email association
+        required: true
+        type: boolean
+        default: false
+      confirm:
+        description: Required when applying; confirms same-user association
+        required: true
+        type: boolean
+        default: false
+      confirm_production:
+        description: Required when applying to production
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clerk-user-email-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  link:
+    name: Link Clerk user email (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Verify apply confirmation
+        if: inputs.apply == true && (inputs.confirm != true || (inputs.environment == 'production' && inputs.confirm_production != true))
+        run: |
+          echo 'Apply requires confirm=true; production also requires confirm_production=true.' >&2
+          exit 1
+
+      - name: Verify Clerk secret availability
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${CLERK_SECRET_KEY:-}" || {
+            echo 'CLERK_SECRET_KEY is required in the selected GitHub environment.' >&2
+            exit 1
+          }
+
+      - name: Link Clerk user email
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          LOOKUP_EMAIL: ${{ inputs.lookup_email }}
+          TARGET_EMAIL: ${{ inputs.email }}
+          APPLY_REQUESTED: ${{ inputs.apply }}
+          CONFIRM_REQUESTED: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          args=(
+            "--lookup-email=$LOOKUP_EMAIL"
+            "--email=$TARGET_EMAIL"
+          )
+          if [[ "$APPLY_REQUESTED" == 'true' ]]; then
+            args+=(--apply)
+          fi
+          if [[ "$CONFIRM_REQUESTED" == 'true' ]]; then
+            args+=(--confirm)
+          fi
+          node scripts/link-clerk-user-email.mjs "${args[@]}" > clerk-user-email-link.json
+
+      - name: Validate sanitized receipt
+        run: |
+          set -euo pipefail
+          jq -e \
+            '.schemaVersion == "1.0.0" and
+             .kind == "clerk-user-email-link" and
+             (.verified == false) and
+             (.lookupEmail | contains("***@")) and
+             (.targetEmail | contains("***@"))' \
+            clerk-user-email-link.json >/dev/null
+          if grep -Eqi 'CLERK_SECRET_KEY|sk_(live|test)_[A-Za-z0-9]+' clerk-user-email-link.json; then
+            echo 'Sanitized receipt contains a credential-like value.' >&2
+            exit 1
+          fi
+
+      - name: Publish summary
+        if: always()
+        run: |
+          {
+            echo '## Clerk user email link'
+            echo
+            echo '- The lookup and target addresses are masked in the receipt.'
+            echo '- The workflow never creates a user or marks an email verified.'
+            echo '- Complete Clerk verification and Microsoft sign-in before relying on account linking.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload sanitized receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: clerk-user-email-link-${{ inputs.environment }}
+          path: clerk-user-email-link.json
+          if-no-files-found: ignore
