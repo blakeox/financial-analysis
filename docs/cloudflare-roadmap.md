@@ -52,7 +52,7 @@ Current gates:
   `0007_mcp_audit_run_id.sql` and `0008_mcp_audit_policy_receipt.sql` are now
   applied to remote preview D1. Production migration application remains
   gated by the protected production deployment workflow.
-- (🟡) Local authoritative CI gate passes: duplicate guard, smoke, typecheck,
+- (✅) Local authoritative CI gate passes: duplicate guard, smoke, typecheck,
   lint, format, audit, and full workspace tests. The duplicate guard still
   reports 541 nonblocking macOS Finder duplicates under `node_modules`.
 - (✅) Preview `/health` and `/version` now return 200 and a SHA-bound receipt
@@ -67,10 +67,10 @@ Current gates:
   version, policy version, resource scope, budget class, approval flag, and
   kill-switch metadata; `MCP_ANALYSIS_ENABLED=false` is enforced at discovery
   and execution boundaries.
-- (🟡) `/version` now publishes the MCP protocol/server/policy identifiers and
+- (✅) `/version` now publishes the MCP protocol/server/policy identifiers and
   independent OAuth/model-egress/budget-enforcement/connector-egress control state for
-  deployment receipts; the boundary smoke test now fails closed when the
-  expected fail-closed canary states are absent or enabled unexpectedly.
+  deployment receipts; the preview boundary smoke test now fails closed when
+  the expected fail-closed canary states are absent or enabled unexpectedly.
 - (✅) Preview deployment verifies the API `/health` and `/version` receipt,
   checks the preview web title, uploads a SHA-bound boundary receipt, and
   passed independently after propagation on the published Worker at
