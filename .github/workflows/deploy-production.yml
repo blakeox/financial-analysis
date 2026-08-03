@@ -101,6 +101,19 @@ jobs:
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "CLOUDFLARE_API_TOKEN is required" >&2; exit 1; }
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "CLOUDFLARE_ACCOUNT_ID is required" >&2; exit 1; }
 
+      - name: Verify Cloudflare token is active
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          token_status=$(curl --fail --silent --show-error \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify)
+          jq -e '.success == true and .result.status == "active"' <<<"${token_status}" >/dev/null || {
+            echo 'CLOUDFLARE_API_TOKEN is not active.' >&2
+            exit 1
+          }
+
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
