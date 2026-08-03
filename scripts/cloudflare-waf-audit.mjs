@@ -21,6 +21,7 @@ if (!token || !zoneId) {
 }
 
 const phases = ['http_request_firewall_managed', 'http_request_firewall_custom', 'http_ratelimit'];
+const startedAt = new Date().toISOString();
 
 async function readPhase(phase) {
   const response = await fetch(
@@ -58,4 +59,19 @@ for (const phase of phases) {
   checks.push(await readPhase(phase));
 }
 
-console.log(JSON.stringify({ zoneId, readOnly: true, checks }, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      schemaVersion: '1.0.0',
+      kind: 'cloudflare-waf-audit',
+      generatedAt: new Date().toISOString(),
+      startedAt,
+      zoneId,
+      readOnly: true,
+      passed: checks.every((check) => check.status === 200 || check.status === 404),
+      checks,
+    },
+    null,
+    2
+  )
+);

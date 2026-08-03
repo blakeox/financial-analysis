@@ -20,8 +20,11 @@ CLOUDFLARE_ZONE_ID='8b74875a9a9edb1d7572c9d41e9e2016' \
 ```
 
 The audit reads the managed, custom, and rate-limit phase entrypoints and emits
-only rule counts and IDs. It never prints the token, expressions, or full
-Cloudflare response and never creates, updates, or deletes a ruleset.
+only rule counts and IDs. It writes a schema-versioned `cloudflare-waf-audit`
+receipt with the zone, timestamps, phase statuses, and `readOnly: true`; the
+GitHub workflow validates and uploads that receipt. It never prints the token,
+expressions, or full Cloudflare response and never creates, updates, or deletes
+a ruleset.
 
 ## Recommended rollout order
 
