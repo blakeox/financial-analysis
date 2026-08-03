@@ -65,6 +65,19 @@ async function readResponse(response) {
   };
 }
 
+async function readVersionReceipt() {
+  const maxAttempts = expectedSha ? 12 : 1;
+  let version;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    version = await readResponse(await fetchWithRetry('/version'));
+    if (expectedSha === null || version.json?.commit === expectedSha || attempt === maxAttempts) {
+      return version;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5_000));
+  }
+  return version;
+}
+
 function hasVary(value, expected) {
   return (value || '')
     .split(',')
@@ -85,7 +98,7 @@ async function main() {
       expectedEnvironment: environment,
     });
 
-    const version = await readResponse(await fetchWithRetry('/version'));
+    const version = await readVersionReceipt();
     record(
       'version contract',
       version.status === 200 &&

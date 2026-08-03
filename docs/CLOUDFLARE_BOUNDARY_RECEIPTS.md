@@ -31,8 +31,10 @@ CLOUDFLARE_BOUNDARY_RECEIPT=.tmp/boundary-preview.json \
 pnpm run cloudflare:boundary:smoke
 ```
 
-Set `EXPECTED_SHA` when validating a deployment. A mismatch or an absent
-commit receipt is not a successful publication, even if health is 200.
+Set `EXPECTED_SHA` when validating a deployment. The harness tolerates bounded
+Cloudflare route propagation by retrying a mismatched commit receipt; a final
+mismatch or an absent commit receipt is not a successful publication, even if
+health is 200.
 
 ## CI and deployment
 
