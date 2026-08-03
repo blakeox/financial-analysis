@@ -37,13 +37,14 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [monitor-workers-health.yml](./monitor-workers-health.yml)       | Daily                  | Workers health                                                                            |
 | [cloudflare-boundary-smoke.yml](./cloudflare-boundary-smoke.yml) | Hourly                 | Machine-readable health, version, MCP, storage, Agent, method, and OAuth boundary receipt |
 | [cloudflare-waf-audit.yml](./cloudflare-waf-audit.yml)           | Manual                 | Read-only Cloudflare WAF phase-entrypoint audit                                           |
+| [provision-clerk-oauth.yml](./provision-clerk-oauth.yml)         | Manual                 | Dry-run or explicitly applied Clerk OIDC/OAuth application reconciliation per environment |
 | [monitor-r2-quotas.yml](./monitor-r2-quotas.yml)                 | Daily                  | R2 quota checks                                                                           |
 
 ## Deploy
 
-| Workflow                                         | Trigger                                 |
-| ------------------------------------------------ | --------------------------------------- |
-| [deploy-preview.yml](./deploy-preview.yml)       | PR label `deploy-preview` or manual     |
+| Workflow                                         | Trigger                                                                                       |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| [deploy-preview.yml](./deploy-preview.yml)       | PR label `deploy-preview` or manual                                                           |
 | [deploy-production.yml](./deploy-production.yml) | Manual from `main` (confirmation, matching preview run, approval reference, and rollback SHA) |
 
 ## Labels
@@ -92,6 +93,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 3. **Branch protection** — auto-synced from [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`, `CI gate`, `Build and test`, `E2E smoke`, `CodeQL`, `MCP policy`)
 4. **Secrets** — Cloudflare tokens for deploy; optional `CODECOV_TOKEN`; Slack for monitors
 5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
+6. **Clerk OAuth** — add `CLERK_SECRET_KEY` only to the selected protected GitHub environment before running [provision-clerk-oauth.yml](./provision-clerk-oauth.yml); use dry-run first and require production confirmation for apply
 
 ## Local equivalents
 

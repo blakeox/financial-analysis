@@ -89,6 +89,12 @@ Current gates:
   upload the receipt as an artifact and fail before publication evidence is
   accepted when a boundary regresses.
 - (🟡) Configure a real Clerk OAuth application and Worker secrets.
+- (✅) Added a protected, dry-run-first
+  `.github/workflows/provision-clerk-oauth.yml` workflow that reconciles the
+  environment-specific Clerk application, requires explicit production
+  confirmation for apply, validates the sanitized receipt, and never emits
+  Clerk credentials. The actual reconciliation remains open until
+  `CLERK_SECRET_KEY` is provisioned in the selected GitHub environment.
 - (✅) The Clerk reconciler now validates the returned public/PKCE-required
   application, exact per-environment callback, required profile/email scopes,
   and complete HTTPS discovery metadata before emitting Worker configuration.

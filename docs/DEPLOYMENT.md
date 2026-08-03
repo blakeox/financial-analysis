@@ -23,6 +23,8 @@ Key principles:
   Write plus D1 Edit scoped to the production database)
 - CLOUDFLARE_ACCOUNT_ID
 - CLOUDFLARE_OBSERVABILITY_TOKEN (health monitor; read-only analytics/observability)
+- CLERK_SECRET_KEY (selected GitHub environment only; used by the manual Clerk
+  OAuth reconciliation workflow and never written to the repository)
 
 The client analytics routes require one independently generated secret salt per
 Worker environment. The same salt may be retained across deploys when stable
@@ -68,6 +70,15 @@ The API Worker binds separate `OAUTH_KV` namespaces for preview and production.
 The OAuth kill switch remains `OAUTH_ENABLED=false` until the Clerk OAuth
 application, callback, consent flow, and external MCP client conformance test
 are verified in preview.
+
+The manual [`provision-clerk-oauth.yml`](../.github/workflows/provision-clerk-oauth.yml)
+workflow runs the repository reconciler in dry-run mode by default. It uploads
+only a sanitized receipt. Select `apply=true` only after reviewing the exact
+environment callback and scopes; production also requires
+`confirm_production=true` and the protected production environment approval.
+The workflow does not configure Worker OIDC variables, so those values must be
+copied from the sanitized receipt into the matching Cloudflare Worker
+environment through the approved secret/configuration process.
 
 R2 signed access is independently gated. The non-secret account and
 bucket variables are in `workers/api/wrangler.toml`; the signing credentials
