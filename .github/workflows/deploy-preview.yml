@@ -127,7 +127,7 @@ jobs:
         with:
           name: cloudflare-boundary-preview
           path: boundary-receipt-preview.json
-          if-no-files-found: error
+          if-no-files-found: ignore
 
       - name: Record preview deployment on pull request
         if: github.event_name == 'pull_request'

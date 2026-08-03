@@ -254,7 +254,7 @@ jobs:
         with:
           name: cloudflare-boundary-production
           path: boundary-receipt-production.json
-          if-no-files-found: error
+          if-no-files-found: ignore
 
       - name: Upload production promotion receipt
         if: always()
