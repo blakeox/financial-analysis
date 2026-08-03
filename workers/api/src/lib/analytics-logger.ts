@@ -18,15 +18,59 @@ export interface AnalyticsEventData {
     | 'session_unavailable'
     | 'suspicious_activity'
     | 'session_denied'
-    | 'auth_failure';
+    | 'auth_failure'
+    | 'mcp_tools_list'
+    | 'mcp_tools_call'
+    | 'mcp_request';
   fingerprint: string;
   trustScore: number;
   flags: string[];
   allowed: boolean;
+  /** Shared run/audit envelope. Values must already be opaque identifiers. */
+  requestId?: string;
+  runId?: string;
+  principalId?: string;
+  source?: string;
+  scopes?: readonly string[];
+  capability?: string;
+  policyVersion?: string;
+  resourceScope?: string;
+  outcome?: 'allowed' | 'denied' | 'degraded' | 'error';
+  correlationId?: string;
   ipAddress?: string;
   endpoint?: string;
   statusCode?: number;
   durationMs?: number;
+}
+
+function safeTelemetryIdentifier(value: string): string {
+  const candidate = value.trim();
+  if (!candidate || candidate.length > 256 || candidate.includes('@')) {
+    return '[REDACTED_IDENTIFIER]';
+  }
+  return String(redactTelemetryValue(candidate));
+}
+
+function buildAuditEnvelopeBlobs(event: AnalyticsEventData): string[] {
+  const values: Array<[string, string | undefined]> = [
+    ['request_id', event.requestId],
+    ['run_id', event.runId],
+    ['principal_id', event.principalId],
+    ['source', event.source],
+    ['capability', event.capability],
+    ['policy_version', event.policyVersion],
+    ['resource_scope', event.resourceScope],
+    ['outcome', event.outcome],
+    ['correlation_id', event.correlationId],
+  ];
+
+  const blobs = values.flatMap(([name, value]) =>
+    value ? [`${name}:${safeTelemetryIdentifier(value)}`] : []
+  );
+  if (event.scopes?.length) {
+    blobs.push(`scopes:${event.scopes.map(safeTelemetryIdentifier).join(' ')}`);
+  }
+  return blobs;
 }
 
 /**
@@ -43,13 +87,14 @@ export function writeAnalyticsEvent(
 
   try {
     const safeEndpoint = redactTelemetryValue(event.endpoint ?? 'unknown') as string;
-    const safeFlags = event.flags.map((flag) => String(redactTelemetryValue(flag)));
+    const safeFlags = event.flags.slice(0, 20).map((flag) => String(redactTelemetryValue(flag)));
+    const safeFingerprint = safeTelemetryIdentifier(event.fingerprint);
 
     analytics.writeDataPoint({
       // The fingerprint is already a pseudonymous hash of IP/user-agent. Never
       // place the raw client IP in Analytics Engine indexes or blobs.
       indexes: [
-        event.fingerprint,
+        safeFingerprint,
         event.type,
         event.ipAddress ? 'ip_present' : 'ip_unknown',
         safeEndpoint,
@@ -61,8 +106,9 @@ export function writeAnalyticsEvent(
         event.statusCode || 0,
         event.durationMs || 0,
       ],
-      // Store flags as blobs for detailed event analysis
-      blobs: safeFlags,
+      // Store bounded flags and the shared metadata envelope. Payloads and
+      // provider credentials never cross this telemetry boundary.
+      blobs: [...safeFlags, ...buildAuditEnvelopeBlobs(event)].slice(0, 20),
     });
   } catch (error) {
     // Don't fail request if analytics fails
@@ -111,7 +157,11 @@ export function logSecurityEventAnalytics(
   trustScore: number,
   flags: string[],
   allowed: boolean,
-  endpoint: string = 'unknown'
+  endpoint: string = 'unknown',
+  auditContext: Pick<
+    AnalyticsEventData,
+    'requestId' | 'runId' | 'principalId' | 'source' | 'scopes' | 'outcome' | 'correlationId'
+  > = {}
 ): void {
   writeAnalyticsEvent(analytics, {
     type: eventType,
@@ -122,6 +172,7 @@ export function logSecurityEventAnalytics(
     flags,
     allowed,
     statusCode: allowed ? 200 : 403,
+    ...auditContext,
   });
 }
 
@@ -134,7 +185,11 @@ export function logCircuitBreakerEvent(
   ipAddress: string,
   endpoint: string,
   state: 'open' | 'half_open' | 'closed',
-  failureCount: number
+  failureCount: number,
+  auditContext: Pick<
+    AnalyticsEventData,
+    'requestId' | 'runId' | 'principalId' | 'source' | 'scopes' | 'outcome' | 'correlationId'
+  > = {}
 ): void {
   writeAnalyticsEvent(analytics, {
     type: 'circuit_breaker',
@@ -145,6 +200,7 @@ export function logCircuitBreakerEvent(
     flags: [`circuit_breaker_${state}`, `failures_${failureCount}`],
     allowed: state !== 'open',
     statusCode: state === 'open' ? 503 : 200,
+    ...auditContext,
   });
 }
 

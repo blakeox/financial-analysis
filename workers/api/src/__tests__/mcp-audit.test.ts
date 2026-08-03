@@ -92,6 +92,8 @@ describe('MCP audit events', () => {
 
   it('records denied policy calls without storing arguments', async () => {
     const { db, bind } = createAuditDb();
+    const writeDataPoint = vi.fn();
+    const analytics = { writeDataPoint } as unknown as AnalyticsEngineDataset;
     const request = new Request('https://example.com/mcp', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -116,7 +118,7 @@ describe('MCP audit events', () => {
 
     const response = await handleEnhancedMCPRequest(
       request,
-      { ENVIRONMENT: 'production', DB: db } as Env,
+      { ENVIRONMENT: 'production', DB: db, ANALYTICS: analytics } as Env,
       requestContext
     );
 
@@ -125,5 +127,14 @@ describe('MCP audit events', () => {
     expect(values).toContain('denied');
     expect(values).toContain('cache_document');
     expect(values).not.toContain('https://private.example/sensitive-report');
+
+    const point = writeDataPoint.mock.calls[0]?.[0] as {
+      indexes: string[];
+      blobs: string[];
+    };
+    expect(point.indexes).toContain('mcp_tools_call');
+    expect(point.blobs).toContain(`run_id:${requestContext.runId}`);
+    expect(point.blobs).toContain('capability:cache_document');
+    expect(JSON.stringify(point)).not.toContain('https://private.example/sensitive-report');
   });
 });

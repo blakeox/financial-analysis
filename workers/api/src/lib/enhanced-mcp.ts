@@ -18,6 +18,7 @@ import { z } from 'zod';
 import type { Env } from '../types';
 import { buildDefaultHeaders } from './headers';
 import { recordMCPAuditEvent, type MCPAuditEvent } from './mcp-audit';
+import { writeAnalyticsEvent } from './analytics-logger';
 import { logError, logInfo, logWarn, type RequestContext } from './request-context';
 import {
   commitBudgetReservation,
@@ -291,6 +292,14 @@ export async function handleEnhancedMCPRequest(
         success: false,
         errorCode: MCP_ERROR_CODES.PARSE_ERROR,
       };
+      auditEvent = createMCPAuditEvent(
+        requestContext,
+        authorization,
+        parsedRequest,
+        400,
+        startTime,
+        MCP_ERROR_CODES.PARSE_ERROR
+      );
 
       logWarn(
         requestContext,
@@ -320,6 +329,14 @@ export async function handleEnhancedMCPRequest(
         success: false,
         errorCode: MCP_ERROR_CODES.INVALID_REQUEST,
       };
+      auditEvent = createMCPAuditEvent(
+        requestContext,
+        authorization,
+        parsedRequest,
+        400,
+        startTime,
+        MCP_ERROR_CODES.INVALID_REQUEST
+      );
 
       const mcpError = createMCPError(MCP_ERROR_CODES.INVALID_REQUEST, 'Invalid request format');
 
@@ -353,19 +370,14 @@ export async function handleEnhancedMCPRequest(
 
       logWarn(requestContext, 'MCP request failed', { ...metrics, error: error.message });
 
-      if (
-        parsedRequest &&
-        (error.code === MCP_POLICY_ERROR_CODE || error.code === MCP_PAYLOAD_TOO_LARGE_ERROR_CODE)
-      ) {
-        auditEvent = createMCPAuditEvent(
-          requestContext,
-          authorization,
-          parsedRequest,
-          getStatusCodeForMCPError(error.code),
-          startTime,
-          error.code
-        );
-      }
+      auditEvent = createMCPAuditEvent(
+        requestContext,
+        authorization,
+        parsedRequest,
+        getStatusCodeForMCPError(error.code),
+        startTime,
+        error.code
+      );
 
       return new Response(
         JSON.stringify({
@@ -394,6 +406,15 @@ export async function handleEnhancedMCPRequest(
 
     const mcpError = createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'Internal server error');
 
+    auditEvent = createMCPAuditEvent(
+      requestContext,
+      authorization,
+      parsedRequest,
+      500,
+      startTime,
+      MCP_ERROR_CODES.INTERNAL_ERROR
+    );
+
     logError(requestContext, new Error(error instanceof Error ? error.message : String(error)));
 
     return new Response(
@@ -416,6 +437,36 @@ export async function handleEnhancedMCPRequest(
     }
     if (auditEvent) {
       await recordMCPAuditEvent(env, auditEvent);
+      writeAnalyticsEvent(env.ANALYTICS, {
+        type:
+          auditEvent.method === 'tools/call'
+            ? 'mcp_tools_call'
+            : auditEvent.method === 'tools/list'
+              ? 'mcp_tools_list'
+              : 'mcp_request',
+        fingerprint: auditEvent.principalId ?? 'anonymous',
+        trustScore: auditEvent.decision === 'allowed' ? 100 : 0,
+        flags: [auditEvent.decision, `status_${auditEvent.statusCode}`],
+        allowed: auditEvent.decision === 'allowed',
+        requestId: auditEvent.requestId,
+        runId: auditEvent.runId,
+        principalId: auditEvent.principalId ?? 'anonymous',
+        source: auditEvent.source,
+        scopes: auditEvent.scopes,
+        ...(auditEvent.capability ? { capability: auditEvent.capability } : {}),
+        ...(auditEvent.policyVersion ? { policyVersion: auditEvent.policyVersion } : {}),
+        ...(auditEvent.resourceScope ? { resourceScope: auditEvent.resourceScope } : {}),
+        outcome:
+          auditEvent.statusCode >= 500
+            ? 'error'
+            : auditEvent.decision === 'allowed'
+              ? 'allowed'
+              : 'denied',
+        ...(auditEvent.auditCorrelationId ? { correlationId: auditEvent.auditCorrelationId } : {}),
+        endpoint: new URL(request.url).pathname,
+        statusCode: auditEvent.statusCode,
+        durationMs: auditEvent.durationMs,
+      });
     }
   }
 }
@@ -429,6 +480,7 @@ function getMCPToolName(params: unknown): string | undefined {
 }
 
 function getSerializedByteLength(value: unknown): number | undefined {
+  if (value === undefined) return undefined;
   try {
     const serialized = JSON.stringify(value ?? null);
     return encodeURIComponent(serialized).replace(/%[0-9A-F]{2}/gi, 'x').length;
@@ -440,7 +492,7 @@ function getSerializedByteLength(value: unknown): number | undefined {
 function createMCPAuditEvent(
   requestContext: RequestContext,
   authorization: MCPAuthorizationContext,
-  parsedRequest: z.infer<typeof mcpRequestSchema>,
+  parsedRequest: z.infer<typeof mcpRequestSchema> | undefined,
   statusCode: number,
   startTime: number,
   errorCode?: number,
@@ -451,8 +503,8 @@ function createMCPAuditEvent(
       ? requestContext.auth.apiKeyId
       : undefined;
   const customerId = requestContext.auth?.customerId;
-  const capability = getMCPToolName(parsedRequest.params);
-  const inputBytes = getSerializedByteLength(parsedRequest.params);
+  const capability = getMCPToolName(parsedRequest?.params);
+  const inputBytes = getSerializedByteLength(parsedRequest?.params);
   const outputBytes = result === undefined ? undefined : getSerializedByteLength(result);
   const policy = capability ? getMCPCapabilityPolicy(capability) : undefined;
 
@@ -464,7 +516,7 @@ function createMCPAuditEvent(
     ...(customerId === undefined ? {} : { customerId }),
     source: authorization.source,
     scopes: authorization.scopes,
-    method: parsedRequest.method,
+    method: parsedRequest?.method ?? 'unknown',
     ...(capability === undefined ? {} : { capability }),
     policyVersion: policy?.policyVersion ?? MCP_CAPABILITY_POLICY_VERSION,
     principalId: authorization.subject ?? 'anonymous',

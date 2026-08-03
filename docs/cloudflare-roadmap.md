@@ -148,6 +148,13 @@ Current gates:
 - (🟡) Shared Worker structured logs now redact sensitive metadata, bearer
   tokens, private-key blocks, oversized strings, and circular values before
   serialization; route/event coverage and hosted dashboards remain open.
+- (✅) Security-session decisions and MCP requests now emit a bounded shared
+  Analytics Engine envelope containing request/run/correlation IDs, opaque
+  principal/source metadata, scope/capability/policy/resource fields, outcome,
+  status, and duration. MCP parse, validation, policy, budget, tool, and
+  unexpected-error paths are recorded without request arguments or provider
+  credentials; email-shaped identifiers are redacted and telemetry cardinality
+  is bounded. Local privacy and persistence tests cover the contract.
 - (🟡) Analytics Engine now records only secret-salted pseudonymous
   fingerprints, IP-presence categories, bounded endpoints/actions, and
   metric-only metadata summaries; raw client IP indexes, client IDs, metadata
