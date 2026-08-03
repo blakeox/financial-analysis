@@ -82,12 +82,18 @@ runs:
           [[ "$f" == workers/api/migrations/0003_* ]] && return 0
           [[ "$f" == workers/api/schema.sql ]] && return 0
           [[ "$f" == workers/api/package.json ]] && return 0
+          [[ "$f" == scripts/cloudflare-oauth-conformance.mjs ]] && return 0
+          [[ "$f" == scripts/link-clerk-user-email.mjs ]] && return 0
+          [[ "$f" == scripts/provision-clerk-oauth.mjs ]] && return 0
           [[ "$f" == pnpm-lock.yaml ]] && return 0
           [[ "$f" == docs/MCP_CAPABILITY_POLICY.md ]] && return 0
           [[ "$f" == docs/OAUTH_ROLLOUT.md ]] && return 0
           [[ "$f" == .github/actions/repo-path-filter/action.yml ]] && return 0
           [[ "$f" == .github/path-filters.yml ]] && return 0
           [[ "$f" == .github/workflows/mcp-policy.yml ]] && return 0
+          [[ "$f" == .github/workflows/cloudflare-oauth-conformance.yml ]] && return 0
+          [[ "$f" == .github/workflows/link-clerk-user-email.yml ]] && return 0
+          [[ "$f" == .github/workflows/provision-clerk-oauth.yml ]] && return 0
           return 1
         }
 
