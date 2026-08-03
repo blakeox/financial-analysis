@@ -98,6 +98,9 @@ Current gates:
 - (✅) The Clerk reconciler now validates the returned public/PKCE-required
   application, exact per-environment callback, required profile/email scopes,
   and complete HTTPS discovery metadata before emitting Worker configuration.
+- (✅) Browser OIDC login now fails closed unless issuer, JWKS, authorization,
+  token, and callback endpoints are all HTTPS; focused login and resource-owner
+  tests cover each rejected endpoint configuration.
 - (🟡) Deploy the canary with `OAUTH_ENABLED=false`, then run preview conformance.
 - (🔜) Enable preview OAuth, validate ChatGPT/Codex/local-client discovery and
   revocation, then promote the same configuration pattern to production.

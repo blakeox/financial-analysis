@@ -16,6 +16,8 @@ This repository uses Cloudflare's maintained [`workers-oauth-provider`](https://
   - `/oauth/register`
 - OAuth advertises only `analysis:read`.
 - PKCE plain mode and implicit flow are disabled.
+- Browser OIDC login rejects any issuer, JWKS, authorization, token, or callback
+  endpoint that is not HTTPS before writing state or redirecting to the provider.
 - OAuth token storage requires a dedicated `OAUTH_KV` binding; it must not share `SESSIONS`.
 - The authorization endpoint requires a verified resource-owner identity. Cloudflare Access is supported for private deployments; generic OIDC bearer verification is supported for public or self-hosted deployments. Missing identity configuration returns `401 OAUTH_IDENTITY_NOT_VERIFIED`.
 - Verified Access users can list their own active grants with `GET /oauth/grants` and revoke one with `DELETE /oauth/grants/:grantId`; the owner is always derived from the verified assertion.
