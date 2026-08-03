@@ -71,6 +71,9 @@ Current gates:
   independent OAuth/model-egress/budget-enforcement/connector-egress control state for
   deployment receipts; the preview boundary smoke test now fails closed when
   the expected fail-closed canary states are absent or enabled unexpectedly.
+- (✅) `/version` also publishes the bounded `oidcBrowserLoginConfigured`
+  control, and the hosted boundary smoke rejects an enabled OAuth deployment
+  whose browser OIDC configuration is incomplete.
 - (✅) Preview deployment verifies the API `/health` and `/version` receipt,
   checks the preview web title, uploads a SHA-bound boundary receipt, and
   passed independently after propagation on the published Worker at

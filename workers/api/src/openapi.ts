@@ -187,6 +187,7 @@ const VersionSchema = z.object({
   controls: z
     .object({
       oauthEnabled: z.boolean(),
+      oidcBrowserLoginConfigured: z.boolean(),
       modelEgressEnabled: z.boolean(),
       budgetEnforcementEnabled: z.boolean(),
       connectorEgressEnabled: z.boolean(),

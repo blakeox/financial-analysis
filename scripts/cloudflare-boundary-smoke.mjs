@@ -124,6 +124,15 @@ async function main() {
         version.json?.controls?.codeModeEnabled === false,
       { controls: version.json?.controls ?? null }
     );
+    record(
+      'OAuth configuration consistency',
+      version.json?.controls?.oauthEnabled !== true ||
+        version.json?.controls?.oidcBrowserLoginConfigured === true,
+      {
+        oauthEnabled: version.json?.controls?.oauthEnabled,
+        oidcBrowserLoginConfigured: version.json?.controls?.oidcBrowserLoginConfigured,
+      }
+    );
 
     const mcp = await readResponse(await fetchWithRetry('/api/v1/mcp/tools'));
     record('anonymous MCP denied', mcp.status === 401 && mcp.json?.code === 'MISSING_KEY', {

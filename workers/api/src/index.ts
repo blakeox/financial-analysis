@@ -186,6 +186,7 @@ import {
 } from './lib/document-metadata';
 import { purgeExpiredMCPAuditEvents } from './lib/mcp-audit';
 import { purgeExpiredOAuthAuditEvents } from './lib/oauth-audit';
+import { isOidcBrowserLoginConfigured } from './lib/oauth-oidc-login';
 import { isOAuthEnabled } from './lib/oauth-policy';
 import { hasExpectedUploadSignature } from './lib/upload-validation';
 import { createR2PresignedUrl, getR2PresignConfig } from './lib/r2-presign';
@@ -906,6 +907,7 @@ router.get('/version', (_req: Request, env: Env) => {
       },
       controls: {
         oauthEnabled: isOAuthEnabled(env),
+        oidcBrowserLoginConfigured: isOidcBrowserLoginConfigured(env),
         modelEgressEnabled: isModelEgressEnabled(env.AI_EGRESS_ENABLED),
         budgetEnforcementEnabled: env.BUDGET_ENFORCEMENT_ENABLED === 'true',
         connectorEgressEnabled: env.CONNECTOR_EGRESS_ENABLED === 'true',

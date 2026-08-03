@@ -1431,9 +1431,13 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
               "oauthEnabled": {
                 "type": "boolean",
               },
+              "oidcBrowserLoginConfigured": {
+                "type": "boolean",
+              },
             },
             "required": [
               "oauthEnabled",
+              "oidcBrowserLoginConfigured",
               "modelEgressEnabled",
               "budgetEnforcementEnabled",
               "connectorEgressEnabled",
@@ -4181,9 +4185,13 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
                         "oauthEnabled": {
                           "type": "boolean",
                         },
+                        "oidcBrowserLoginConfigured": {
+                          "type": "boolean",
+                        },
                       },
                       "required": [
                         "oauthEnabled",
+                        "oidcBrowserLoginConfigured",
                         "modelEgressEnabled",
                         "budgetEnforcementEnabled",
                         "connectorEgressEnabled",

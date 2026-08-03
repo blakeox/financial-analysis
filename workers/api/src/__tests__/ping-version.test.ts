@@ -33,6 +33,7 @@ describe('/version', () => {
       };
       controls: {
         oauthEnabled: boolean;
+        oidcBrowserLoginConfigured: boolean;
         modelEgressEnabled: boolean;
         budgetEnforcementEnabled: boolean;
         connectorEgressEnabled: boolean;
@@ -45,6 +46,7 @@ describe('/version', () => {
     expect(json.mcp.protocolVersion).toBe('2024-11-05');
     expect(json.mcp.capabilityPolicyVersion).toBe('1.0.0');
     expect(json.controls.oauthEnabled).toBe(false);
+    expect(json.controls.oidcBrowserLoginConfigured).toBe(false);
     expect(json.controls.modelEgressEnabled).toBe(true);
     expect(json.controls.budgetEnforcementEnabled).toBe(false);
     expect(json.controls.connectorEgressEnabled).toBe(false);
