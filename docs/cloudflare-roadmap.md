@@ -425,10 +425,23 @@ Goal: Reliable data evolution.
 - (✅) Worker-level HTTP method allow-list rejects unsupported methods with
   `405 METHOD_NOT_ALLOWED`; Cloudflare WAF rules for abusive paths remain
   separately gated.
-- (🟡) Added a read-only WAF entrypoint audit, schema-versioned receipt upload,
-  and rollout/rollback runbook; live WAF configuration remains blocked until a
-  narrowly scoped WAF read-only token is provisioned for inspection and any
-  separate write authority is explicitly approved.
+- (✅) The web-to-API internal credential is now restricted to the stateless
+  formula/MCP facade. Storage, upload, extraction, billing, and other
+  user-owned routes fail closed unless a real caller API key or identity is
+  present.
+- (✅) Boundary receipts now exercise both the direct API Worker and, for
+  production, the canonical `fanalyx.com` Cloudflare facade: formula MCP
+  initialization must succeed at the edge while public storage access must
+  fail with `MISSING_KEY`.
+- (✅) Added a read-only WAF entrypoint audit, schema-versioned receipt upload,
+  and rollout/rollback runbook. A dedicated `Zone WAF:Read` token is now
+  restricted to `fanalyx.com`, and the audit has verified all three entrypoints
+  are reachable without granting write authority.
+- (🟡) The audit currently reports all three WAF entrypoints as unconfigured;
+  the scheduled workflow therefore fails its custom-WAF baseline and opens a
+  bounded GitHub control alert. A WAF write rollout remains blocked until the
+  exact ruleset, route exclusions, observe-mode validation, and rollback owner
+  are approved.
 - (✅) The WAF audit workflow now verifies that its dedicated read token is
   active before calling zone ruleset APIs; it never falls back to a deployment
   token or grants write authority.
@@ -448,6 +461,9 @@ Goal: Reliable data evolution.
 ### Acceptance criteria (Phase 8)
 
 - (🔜) Basic WAF in place with allow-listing for methods and known routes;
+  first resolve the public API-hostname boundary because the current audit
+  covers `fanalyx.com` while direct `*.workers.dev` API traffic bypasses the
+  zone rulesets.
   application-level method and route controls are already active while the
   Cloudflare ruleset gate is open.
 - (✅) File uploads rejected when content-type sniffing fails

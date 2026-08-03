@@ -4,6 +4,7 @@
 import { writeFile } from 'node:fs/promises';
 
 const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
+const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
@@ -24,11 +25,11 @@ function record(name, passed, details = {}) {
   return passed;
 }
 
-async function fetchWithRetry(path, init = {}) {
+async function fetchAgainst(baseUrl, path, init = {}) {
   let lastError;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
-      const response = await fetch(`${apiUrl}${path}`, {
+      const response = await fetch(`${baseUrl}${path}`, {
         ...init,
         signal: AbortSignal.timeout(30_000),
       });
@@ -47,6 +48,10 @@ async function fetchWithRetry(path, init = {}) {
   throw lastError instanceof Error ? lastError : new Error('Request failed');
 }
 
+async function fetchWithRetry(path, init = {}) {
+  return fetchAgainst(apiUrl, path, init);
+}
+
 async function readResponse(response) {
   const text = await response.text();
   let json = null;
@@ -61,6 +66,8 @@ async function readResponse(response) {
       cacheControl: response.headers.get('cache-control'),
       vary: response.headers.get('vary'),
       allow: response.headers.get('allow'),
+      cfRay: response.headers.get('cf-ray'),
+      server: response.headers.get('server'),
     },
     json,
   };
@@ -206,6 +213,73 @@ async function main() {
     record('foreign Agent origin denied', foreignOriginAgent.status === 403, {
       status: foreignOriginAgent.status,
     });
+
+    if (publicUrl) {
+      const publicTools = await readResponse(
+        await fetchAgainst(publicUrl, '/api/v1/mcp/tools', {
+          headers: { Accept: 'application/json' },
+        })
+      );
+      record(
+        'public formula MCP catalog',
+        publicTools.status === 200 &&
+          Array.isArray(publicTools.json?.tools) &&
+          publicTools.json.tools.length > 0 &&
+          publicTools.headers.cacheControl === 'no-store' &&
+          publicTools.headers.server === 'cloudflare',
+        {
+          status: publicTools.status,
+          toolCount: Array.isArray(publicTools.json?.tools) ? publicTools.json.tools.length : 0,
+          cacheControl: publicTools.headers.cacheControl,
+          server: publicTools.headers.server,
+          cfRayPresent: Boolean(publicTools.headers.cfRay),
+        }
+      );
+
+      const publicInitialize = await readResponse(
+        await fetchAgainst(publicUrl, '/mcp', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'boundary-public-initialize',
+            method: 'initialize',
+            params: {
+              protocolVersion: '2024-11-05',
+              capabilities: {},
+              clientInfo: { name: 'boundary-smoke', version: '1' },
+            },
+          }),
+        })
+      );
+      record(
+        'public formula MCP initialize',
+        publicInitialize.status === 200 &&
+          publicInitialize.json?.result?.protocolVersion === '2024-11-05' &&
+          publicInitialize.headers.cacheControl === 'no-store' &&
+          publicInitialize.headers.server === 'cloudflare',
+        {
+          status: publicInitialize.status,
+          protocolVersion: publicInitialize.json?.result?.protocolVersion,
+          cacheControl: publicInitialize.headers.cacheControl,
+          server: publicInitialize.headers.server,
+          cfRayPresent: Boolean(publicInitialize.headers.cfRay),
+        }
+      );
+
+      const publicStorage = await readResponse(
+        await fetchAgainst(publicUrl, '/v1/storage/presign', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ operation: 'download', key: 'lease-documents/smoke.txt' }),
+        })
+      );
+      record(
+        'public user-data auth boundary',
+        publicStorage.status === 401 && publicStorage.json?.code === 'MISSING_KEY',
+        { status: publicStorage.status, code: publicStorage.json?.code }
+      );
+    }
   } catch (error) {
     record('boundary smoke execution', false, {
       error: error instanceof Error ? error.message : String(error),
@@ -216,6 +290,7 @@ async function main() {
     schemaVersion: '1.0.0',
     kind: 'cloudflare-boundary-smoke',
     apiUrl,
+    publicUrl,
     environment,
     expectedSha,
     startedAt,

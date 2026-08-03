@@ -150,6 +150,26 @@ describe('MCP amortization tool', () => {
     });
   });
 
+  it('does not let the web proxy token access user-owned storage', async () => {
+    const { env, ctx } = makeTestEnv({ environment: 'production' });
+    const authenticatedEnv = { ...env, INTERNAL_API_TOKEN: 'server-secret' };
+    const res = await api.fetch(
+      new Request('https://example.com/v1/storage/presign', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-internal-api-token': 'server-secret',
+        },
+        body: JSON.stringify({ operation: 'download', key: 'lease-documents/smoke.txt' }),
+      }),
+      authenticatedEnv,
+      ctx
+    );
+
+    expect(res.status).toBe(401);
+    await expect(res.json()).resolves.toMatchObject({ code: 'MISSING_KEY' });
+  });
+
   it('rejects oversized MCP bodies before JSON parsing', async () => {
     const { env, ctx } = makeTestEnv();
     const req = new Request('https://example.com/mcp', {

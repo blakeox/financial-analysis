@@ -7,12 +7,23 @@ health checks before the Worker sees the request.
 
 ## Current evidence
 
-The authenticated Wrangler token currently has `zone (read)` but does not have
-Cloudflare `Zone WAF Read` or `Zone WAF Write`. The repository therefore does
-not apply live WAF mutations from the application deploy path.
+The protected GitHub `production` environment now has a dedicated token with
+Cloudflare `Zone WAF Read`, restricted to the `fanalyx.com` zone. A local
+read-only audit completed successfully on 2026-08-03, but all three phase
+entrypoints returned `404` (unconfigured):
 
-Run the read-only audit when a token with WAF read access is available in the
-protected GitHub `production` environment:
+- `http_request_firewall_managed`
+- `http_request_firewall_custom`
+- `http_ratelimit`
+
+The audit therefore proves credential scope and API reachability, not that WAF
+protection is active. The scheduled workflow treats the absence of the custom
+WAF phase as a control failure and opens or updates a GitHub alert. No WAF
+write authority is present in the application deployment token or audit
+workflow.
+
+Run the read-only audit from the repository with the protected token available
+in the process environment:
 
 ```bash
 CLOUDFLARE_API_TOKEN='(process environment only)' \
@@ -20,12 +31,30 @@ CLOUDFLARE_ZONE_ID='8b74875a9a9edb1d7572c9d41e9e2016' \
   pnpm run cloudflare:waf:audit
 ```
 
+For a baseline check, also set `REQUIRED_WAF_PHASES=http_request_firewall_custom`.
+The audit still emits a receipt when the phase is missing, but
+`baselineProtected` is `false`; the GitHub workflow then blocks the receipt
+and alerts rather than silently treating an empty WAF configuration as healthy.
+
 The audit reads the managed, custom, and rate-limit phase entrypoints and emits
 only rule counts and IDs. It writes a schema-versioned `cloudflare-waf-audit`
 receipt with the zone, timestamps, phase statuses, and `readOnly: true`; the
 GitHub workflow validates and uploads that receipt. It never prints the token,
 expressions, or full Cloudflare response and never creates, updates, or deletes
 a ruleset.
+
+The zone audit covers traffic arriving through `fanalyx.com` and does not
+protect the direct `*.workers.dev` API hostname. Public MCP/OAuth metadata and
+token exchange should move behind a reviewed custom API hostname in the zone
+before WAF protection is described as end-to-end. Until then, Worker-level
+authentication, method, quota, and rate controls remain the primary API boundary.
+
+The web-to-API internal token is deliberately narrower than a user identity:
+it may serve the stateless, caller-input-only formula/MCP facade, but it is
+rejected for storage, uploads, document extraction, billing, and other
+user-owned routes. This prevents the public Cloudflare web facade from becoming
+an accidental owner of private data while browser/OIDC identity is still being
+rolled out.
 
 ## Recommended rollout order
 

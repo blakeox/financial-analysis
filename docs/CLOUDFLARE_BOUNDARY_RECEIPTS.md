@@ -62,3 +62,8 @@ revocation, cross-tenant, and external-client conformance gates in
   Origin isolation are restored.
 - OAuth discovery failure while disabled is expected; a 200 response before
   the explicit enablement gate is a release-blocking incident.
+
+Public formula MCP checks validate the canonical Cloudflare web facade,
+including edge response, no-store behavior, and protocol initialization. The
+same public path must reject storage access with `MISSING_KEY`; a web proxy
+credential is never a user-data identity.

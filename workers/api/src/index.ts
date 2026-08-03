@@ -711,6 +711,16 @@ import { authorizeAgentRequest } from './lib/agent-access';
 /**
  * Middleware to require API key authentication
  */
+function allowsPublicInternalAccess(pathname: string): boolean {
+  return (
+    pathname === '/mcp' ||
+    pathname === '/api/v1/mcp/tools' ||
+    pathname.startsWith('/v1/api/analysis/') ||
+    pathname.startsWith('/api/analyze-') ||
+    pathname === '/api/multi-model-scenario-analysis'
+  );
+}
+
 function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
@@ -737,6 +747,20 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
 
     if (!authResult.success || !authResult.keyInfo) {
       return createAuthErrorResponse(authResult);
+    }
+
+    // The web Worker uses a server-only token for the stateless public formula
+    // facade. It must never turn a browser request into an owner for storage,
+    // uploads, document extraction, billing, or other user-data routes.
+    if (
+      authResult.keyInfo.tier === 'internal' &&
+      !allowsPublicInternalAccess(new URL(request.url).pathname)
+    ) {
+      return createAuthErrorResponse({
+        success: false,
+        error: 'A caller API key or user identity is required for this resource.',
+        errorCode: 'MISSING_KEY',
+      });
     }
 
     try {

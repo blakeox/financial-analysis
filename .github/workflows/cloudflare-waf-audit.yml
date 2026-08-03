@@ -1,10 +1,14 @@
 name: Cloudflare WAF Audit
 
 on:
+  schedule:
+    # Daily read-only WAF inventory and baseline alert (09:30 UTC).
+    - cron: '30 9 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: cloudflare-waf-audit
@@ -47,6 +51,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WAF_READ_TOKEN }}
           CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          REQUIRED_WAF_PHASES: http_request_firewall_custom
         run: node scripts/cloudflare-waf-audit.mjs > waf-audit.json
 
       - name: Validate WAF audit receipt
@@ -60,6 +65,19 @@ jobs:
              (.checks | length == 3)' \
             waf-audit.json >/dev/null
 
+      - name: Enforce WAF baseline
+        run: |
+          set -euo pipefail
+          jq -e \
+            '.baselineProtected == true and
+             (.requiredPhases | index("http_request_firewall_custom")) != null and
+             (.missingRequiredPhases | length == 0)' \
+            waf-audit.json >/dev/null || {
+            echo 'Required Cloudflare WAF baseline is not configured.' >&2
+            jq '{requiredPhases, missingRequiredPhases, configuredPhaseCount, checks}' waf-audit.json >&2
+            exit 1
+          }
+
       - name: Upload WAF audit receipt
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -67,3 +85,42 @@ jobs:
           name: cloudflare-waf-audit
           path: waf-audit.json
           if-no-files-found: ignore
+
+      - name: Create or update WAF control alert
+        if: failure()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const label = 'alert:cloudflare-waf';
+            const title = 'Cloudflare WAF control alert: baseline audit failed';
+            const body = [
+              'The scheduled or manually dispatched read-only Cloudflare WAF audit failed.',
+              '',
+              `Workflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              'Review the uploaded `cloudflare-waf-audit` receipt and restore the required WAF baseline before expanding production exposure.',
+              'This workflow has no WAF write authority and does not mutate Cloudflare configuration.',
+            ].join('\n');
+            try {
+              await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: label });
+            } catch {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label,
+                color: 'B60205',
+                description: 'Cloudflare WAF control alerts',
+              });
+            }
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+            const existing = issues.find((issue) => issue.title === title);
+            if (existing) {
+              await github.rest.issues.update({ owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: [label] });
+            }

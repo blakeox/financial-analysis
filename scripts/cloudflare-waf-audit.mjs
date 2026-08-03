@@ -12,6 +12,10 @@ const zoneId = process.env.CLOUDFLARE_ZONE_ID?.trim();
 const apiBase = (
   process.env.CLOUDFLARE_API_BASE_URL || 'https://api.cloudflare.com/client/v4'
 ).replace(/\/$/, '');
+const requiredPhases = (process.env.REQUIRED_WAF_PHASES || '')
+  .split(',')
+  .map((phase) => phase.trim())
+  .filter(Boolean);
 
 if (!token || !zoneId) {
   console.error(
@@ -59,6 +63,11 @@ for (const phase of phases) {
   checks.push(await readPhase(phase));
 }
 
+const missingRequiredPhases = requiredPhases.filter(
+  (phase) => !checks.some((check) => check.phase === phase && check.configured === true)
+);
+const readPassed = checks.every((check) => check.status === 200 || check.status === 404);
+
 console.log(
   JSON.stringify(
     {
@@ -68,7 +77,11 @@ console.log(
       startedAt,
       zoneId,
       readOnly: true,
-      passed: checks.every((check) => check.status === 200 || check.status === 404),
+      passed: readPassed,
+      requiredPhases,
+      missingRequiredPhases,
+      configuredPhaseCount: checks.filter((check) => check.configured).length,
+      baselineProtected: missingRequiredPhases.length === 0,
       checks,
     },
     null,
