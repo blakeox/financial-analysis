@@ -372,10 +372,11 @@ Goal: Reliable data evolution.
 - (🟡) Backup/export procedure and retention policy are documented in
   `docs/D1_BACKUP_OPERATIONS.md`; `scripts/export-d1-backup.mjs` requires an
   explicit production confirmation, refuses overwrite, and emits a checksum.
-- (🟡) The preview-only isolated restore drill passed again with 19 restored
-  tables and the deterministic formula suite; the temporary database/dump were
-  cleaned up. Formula-vector replay against a known backup and
-  production-authorized recovery remain open.
+- (✅) The preview-only isolated restore drill imports into a uniquely named
+  temporary D1, verifies 19 restored tables, runs the deterministic formula
+  suite, and can emit a bounded SHA-256 formula-vector replay receipt. The
+  temporary database/dump are cleaned up in a `finally` path; user records are
+  never included in the receipt. Production-authorized recovery remains open.
 
 ---
 

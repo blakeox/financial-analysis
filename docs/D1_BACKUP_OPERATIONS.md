@@ -41,17 +41,21 @@ After export:
 The repeatable preview-only drill is available as:
 
 ```bash
-pnpm run restore:drill -- --environment=preview --run-formula-tests
+pnpm run restore:drill -- \
+  --environment=preview \
+  --run-formula-tests \
+  --replay-formula-vectors
 ```
 
 The command exports preview D1 into a temporary directory, imports it into a
 uniquely named temporary D1 database, verifies that the restored schema is
 non-empty, optionally runs the deterministic formula suite, and deletes both
 the temporary database and local dump in a `finally` cleanup path. It refuses
-production. The isolated preview drill passed on 2026-08-03 with 19 restored
-tables and the deterministic formula suite passing; formula-vector replay
-against a known backup and a production-authorized restore remain separate
-gates.
+production. When requested, it also emits a bounded canonical formula-vector
+receipt containing only vector IDs, formula versions, numeric outputs, and a
+receipt digest; restored user records are never printed. The isolated preview
+drill passed on 2026-08-03 with 19 restored tables and the deterministic formula
+suite passing. A production-authorized restore remains a separate gate.
 
 Restore only into an isolated, separately named D1 database. Never run a restore
 against production in place. Before accepting the result, verify:
@@ -59,7 +63,8 @@ against production in place. Before accepting the result, verify:
 - migrations apply cleanly to the isolated database;
 - row counts and key indexes exist;
 - audit and retention jobs can read the restored schema;
-- deterministic formula vectors still return identical results;
+- deterministic formula vectors still return identical results and the replay
+  receipt is captured with the recovery record;
 - no production Worker binding points at the drill database.
 
 The rollback is to discard the isolated database and leave the active bindings

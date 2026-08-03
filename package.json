@@ -48,6 +48,7 @@
     "cloudflare:boundary:smoke": "node scripts/cloudflare-boundary-smoke.mjs",
     "backup:d1": "node scripts/export-d1-backup.mjs",
     "restore:drill": "node scripts/d1-restore-drill.mjs",
+    "replay:formula-vectors": "tsx scripts/replay-formula-vectors.ts",
     "cloudflare:waf:audit": "node scripts/cloudflare-waf-audit.mjs",
     "check:ai-provider-boundary": "node scripts/check-ai-provider-boundary.mjs",
     "deploy:api": "cd workers/api && pnpm run deploy",

@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 const environmentFlag = process.argv.find((value) => value.startsWith('--environment='));
 const environment = environmentFlag?.slice('--environment='.length) || 'preview';
 const runFormulaTests = process.argv.includes('--run-formula-tests');
+const replayFormulaVectors = process.argv.includes('--replay-formula-vectors');
 
 if (environment !== 'preview') {
   console.error('The restore drill only permits --environment=preview.');
@@ -147,12 +148,20 @@ try {
     assertCommand(formulaResult, 'formula integrity tests');
   }
 
+  let formulaVectorReceipt;
+  if (replayFormulaVectors) {
+    const replayResult = await run('pnpm', ['exec', 'tsx', 'scripts/replay-formula-vectors.ts']);
+    assertCommand(replayResult, 'canonical formula-vector replay');
+    formulaVectorReceipt = JSON.parse(replayResult.stdout);
+  }
+
   summary = {
     environment,
     sourceDatabase,
     restoredTables: tables.length,
     backupBytes: backupStats.size,
     formulaTests: runFormulaTests ? 'passed' : 'not-run',
+    formulaVectorReplay: formulaVectorReceipt ?? 'not-run',
   };
 } finally {
   await cleanup();
