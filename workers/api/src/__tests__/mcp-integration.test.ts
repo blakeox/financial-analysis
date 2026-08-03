@@ -27,6 +27,7 @@ describe('MCP Integration Tests', () => {
 
   beforeAll(async () => {
     worker = await unstable_dev(path.resolve(__dirname, '../index.ts'), {
+      config: path.resolve(__dirname, 'fixtures/mcp-integration-wrangler.toml'),
       experimental: { disableExperimentalWarning: true },
       local: true,
     });
@@ -66,7 +67,7 @@ describe('MCP Integration Tests', () => {
           },
           serverInfo: {
             name: 'financial-analysis-mcp',
-            version: '0.1.0',
+            version: '1.0.0',
           },
         },
       });

@@ -84,6 +84,33 @@ export { SupplyChainFinanceTool } from './tools/supply-chain-finance';
 // MCP Integration
 export { createMCPTools, handleMCPRequest } from './mcp/tools';
 export type { MCPRequestMethod, MCPTool } from './mcp/tools';
+export {
+  MCP_CAPABILITY_MANIFEST,
+  MCP_CAPABILITY_POLICY_VERSION,
+  MCP_PAYLOAD_TOO_LARGE_ERROR_CODE,
+  MCP_POLICY_ERROR_CODE,
+  MCP_SCOPES,
+  MCP_PROTOCOL_VERSION,
+  MCP_SERVER_VERSION,
+  MCPAuthorizationError,
+  MCPPayloadLimitError,
+  assertMCPCapabilityAuthorized,
+  assertMCPInputWithinPolicy,
+  assertMCPOutputWithinPolicy,
+  authorizeMCPCapability,
+  getMCPCapabilityPolicy,
+  getMCPExternalCapabilityNames,
+} from './mcp/capabilities';
+export type {
+  MCPAuthorizationContext,
+  MCPAuthorizationDecision,
+  MCPAuthorizationSource,
+  MCPBudgetDecision,
+  MCPCapabilityPolicy,
+  MCPCapabilityStatus,
+  MCPPolicyDecisionState,
+  MCPPolicyScope,
+} from './mcp/capabilities';
 
 // Tool Metadata Registry
 export {

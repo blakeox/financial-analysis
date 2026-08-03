@@ -26,9 +26,29 @@ describe('/version', () => {
       service: string;
       version: string;
       timestamp: string;
+      mcp: {
+        serverVersion: string;
+        protocolVersion: string;
+        capabilityPolicyVersion: string;
+      };
+      controls: {
+        oauthEnabled: boolean;
+        modelEgressEnabled: boolean;
+        budgetEnforcementEnabled: boolean;
+        connectorEgressEnabled: boolean;
+        codeModeEnabled: boolean;
+      };
     };
     expect(json.commit).toBe('abc123');
     expect(json.environment).toBe('test');
+    expect(json.mcp.serverVersion).toBe('1.0.0');
+    expect(json.mcp.protocolVersion).toBe('2024-11-05');
+    expect(json.mcp.capabilityPolicyVersion).toBe('1.0.0');
+    expect(json.controls.oauthEnabled).toBe(false);
+    expect(json.controls.modelEgressEnabled).toBe(true);
+    expect(json.controls.budgetEnforcementEnabled).toBe(false);
+    expect(json.controls.connectorEgressEnabled).toBe(false);
+    expect(json.controls.codeModeEnabled).toBe(false);
   });
 
   it('returns unknown commit when not set', async () => {

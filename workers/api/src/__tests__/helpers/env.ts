@@ -2,6 +2,7 @@ type TestEnvOverrides = {
   environment?: string;
   analysisCacheTtlSeconds?: string;
   commitSha?: string;
+  mcpAnalysisEnabled?: string;
   sessions?: KVNamespace;
   documents?: R2Bucket;
   db?: D1Database;
@@ -22,12 +23,16 @@ export const makeTestEnv = (overrides: TestEnvOverrides = {}) => {
     SESSIONS: KVNamespace;
     DOCUMENTS: R2Bucket;
     COMMIT_SHA?: string;
+    MCP_ANALYSIS_ENABLED?: string;
   } = {
     ENVIRONMENT: overrides.environment ?? 'test',
     ...(overrides.analysisCacheTtlSeconds !== undefined
       ? { ANALYSIS_CACHE_TTL_SECONDS: overrides.analysisCacheTtlSeconds }
       : {}),
     ...(overrides.commitSha !== undefined ? { COMMIT_SHA: overrides.commitSha } : {}),
+    ...(overrides.mcpAnalysisEnabled !== undefined
+      ? { MCP_ANALYSIS_ENABLED: overrides.mcpAnalysisEnabled }
+      : {}),
     DB: overrides.db ?? ({} as unknown as D1Database),
     SESSIONS: overrides.sessions ?? defaultSessions,
     DOCUMENTS: overrides.documents ?? ({} as unknown as R2Bucket),

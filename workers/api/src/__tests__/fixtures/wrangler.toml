@@ -1,0 +1,7 @@
+name = "financial-analysis-mcp-compatibility"
+main = "mcp-sdk-compatibility-worker.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[dev]
+port = 8799

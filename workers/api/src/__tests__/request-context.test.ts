@@ -5,9 +5,11 @@ import {
   getOrCreateRequestId,
   getCorrelationId,
   getParentRequestId,
+  getOrCreateAnalysisRunId,
   buildRequestContext,
   addRequestHeaders,
   createLogEntry,
+  redactTelemetryValue,
 } from '../lib/request-context';
 
 describe('Request Context', () => {
@@ -124,6 +126,30 @@ describe('Request Context', () => {
     });
   });
 
+  describe('getOrCreateAnalysisRunId', () => {
+    it('accepts a valid caller-supplied run ID', () => {
+      const runId = '550e8400-e29b-41d4-a716-446655440000';
+      const request = new Request('https://api.example.com/', {
+        headers: { 'X-Analysis-Run-ID': runId },
+      });
+
+      expect(getOrCreateAnalysisRunId(request)).toBe(runId);
+    });
+
+    it('falls back to the correlation ID and then request ID', () => {
+      const correlationId = '6ba7b810-9dad-41d1-80b4-00c04fd430c8';
+      const request = new Request('https://api.example.com/', {
+        headers: { 'X-Correlation-ID': correlationId },
+      });
+      const requestId = '123e4567-e89b-42d3-a456-426614174000';
+
+      expect(getOrCreateAnalysisRunId(request, requestId)).toBe(correlationId);
+      expect(getOrCreateAnalysisRunId(new Request('https://api.example.com/'), requestId)).toBe(
+        requestId
+      );
+    });
+  });
+
   describe('buildRequestContext', () => {
     it('should build complete request context', () => {
       const request = new Request('https://api.example.com/v1/test', {
@@ -142,6 +168,7 @@ describe('Request Context', () => {
       expect(context.clientIP).toBe('192.168.1.1');
       expect(context.environment).toBe('test');
       expect(isValidRequestId(context.requestId)).toBe(true);
+      expect(context.runId).toBe(context.requestId);
       expect(context.timestamp).toBeDefined();
     });
 
@@ -208,6 +235,7 @@ describe('Request Context', () => {
     it('should create structured log with request context', () => {
       const context = {
         requestId: '550e8400-e29b-41d4-a716-446655440000',
+        runId: '550e8400-e29b-41d4-a716-446655440000',
         timestamp: '2024-01-01T00:00:00.000Z',
         method: 'GET',
         path: '/test',
@@ -228,6 +256,7 @@ describe('Request Context', () => {
     it('should include additional metadata', () => {
       const context = {
         requestId: '550e8400-e29b-41d4-a716-446655440000',
+        runId: '550e8400-e29b-41d4-a716-446655440000',
         timestamp: '2024-01-01T00:00:00.000Z',
         method: 'GET',
         path: '/test',
@@ -242,6 +271,63 @@ describe('Request Context', () => {
 
       expect(parsed.userId).toBe('123');
       expect(parsed.action).toBe('create');
+    });
+
+    it('redacts prompts, documents, credentials, and bearer tokens from telemetry', () => {
+      const context = {
+        requestId: '550e8400-e29b-41d4-a716-446655440000',
+        runId: '550e8400-e29b-41d4-a716-446655440000',
+        timestamp: '2024-01-01T00:00:00.000Z',
+        method: 'POST',
+        path: '/chat',
+        userAgent: 'test',
+        clientIP: '127.0.0.1',
+        environment: 'test',
+      };
+      const prompt = 'private salary and account details';
+      const document = 'full document contents';
+      const bearer = 'Bearer eyJhbGciOiJIUzI1NiJ9.secret.signature';
+      const log = createLogEntry(context, 'warn', `provider failed: ${bearer}`, {
+        prompt,
+        document,
+        authorization: bearer,
+        nested: { privateKey: '-----BEGIN PRIVATE KEY-----secret-----END PRIVATE KEY-----' },
+        note: 'sk_live_1234567890 github_pat_1234567890',
+        safe: 'policy-denied',
+      });
+
+      expect(log).not.toContain(prompt);
+      expect(log).not.toContain(document);
+      expect(log).not.toContain(bearer);
+      expect(log).not.toContain('BEGIN PRIVATE KEY');
+      expect(log).not.toContain('sk_live_1234567890');
+      expect(log).not.toContain('github_pat_1234567890');
+      expect(JSON.parse(log).safe).toBe('policy-denied');
+    });
+
+    it('bounds untrusted telemetry strings and handles circular metadata', () => {
+      const context = {
+        requestId: '550e8400-e29b-41d4-a716-446655440000',
+        runId: '550e8400-e29b-41d4-a716-446655440000',
+        timestamp: '2024-01-01T00:00:00.000Z',
+        method: 'GET',
+        path: '/test',
+        userAgent: 'test',
+        clientIP: '127.0.0.1',
+        environment: 'test',
+      };
+      const circular: Record<string, unknown> = { value: 'x'.repeat(600) };
+      circular.self = circular;
+
+      const log = createLogEntry(context, 'info', 'ok', { circular });
+      const parsed = JSON.parse(log);
+
+      expect(parsed.circular.value).toContain('[TRUNCATED]');
+      expect(parsed.circular.self).toBe('[CIRCULAR]');
+      expect(redactTelemetryValue({ token: 'secret-value', result: 1 })).toEqual({
+        token: '[REDACTED]',
+        result: 1,
+      });
     });
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { IntelligentToolSelector } from './intelligent-tool-selection';
+import type { ModelProvider } from './model-provider';
 
 describe('IntelligentToolSelector', () => {
   let mockAi: { run: ReturnType<typeof vi.fn> };
@@ -15,7 +16,7 @@ describe('IntelligentToolSelector', () => {
     mockAi = {
       run: vi.fn(),
     };
-    selector = new IntelligentToolSelector(mockAi);
+    selector = new IntelligentToolSelector(mockAi as unknown as ModelProvider);
   });
 
   it('should parse valid JSON response from AI', async () => {

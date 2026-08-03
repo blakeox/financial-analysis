@@ -1,9 +1,65 @@
 import { describe, expect, it } from 'vitest';
 
-import { validateApiKey } from '../lib/auth';
+import { resolveMCPScopes, validateApiKey } from '../lib/auth';
 import type { Env } from '../types';
 
 describe('validateApiKey', () => {
+  it('defaults legacy API keys to analysis-only MCP access', () => {
+    expect(
+      resolveMCPScopes({
+        id: 1,
+        keyHash: 'hash',
+        keyPrefix: 'fk_live_',
+        customerId: 'customer-1',
+        customerEmail: 'customer@example.com',
+        tier: 'free',
+        active: true,
+        monthlyQuota: 100,
+        rateLimitPerSec: 1,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+      })
+    ).toEqual(['analysis:read']);
+  });
+
+  it('narrows MCP access to recognized configured scopes', () => {
+    const scopes = resolveMCPScopes({
+      id: 1,
+      keyHash: 'hash',
+      keyPrefix: 'fk_live_',
+      customerId: 'customer-1',
+      customerEmail: 'customer@example.com',
+      tier: 'pro',
+      active: true,
+      monthlyQuota: 100,
+      rateLimitPerSec: 1,
+      createdAt: new Date().toISOString(),
+      lastUsedAt: null,
+      metadata: { mcpScopes: ['analysis:read', 'unknown:scope', 'analysis:read'] },
+    });
+
+    expect(scopes).toEqual(['analysis:read']);
+  });
+
+  it('fails closed for malformed or empty configured scope metadata', () => {
+    const baseKey = {
+      id: 1,
+      keyHash: 'hash',
+      keyPrefix: 'fk_live_',
+      customerId: 'customer-1',
+      customerEmail: 'customer@example.com',
+      tier: 'pro' as const,
+      active: true,
+      monthlyQuota: 100,
+      rateLimitPerSec: 1,
+      createdAt: new Date().toISOString(),
+      lastUsedAt: null,
+    };
+
+    expect(resolveMCPScopes({ ...baseKey, metadata: { mcpScopes: 'analysis:read' } })).toEqual([]);
+    expect(resolveMCPScopes({ ...baseKey, metadata: { mcpScopes: [] } })).toEqual([]);
+  });
+
   it('does not trust localhost origins in production', async () => {
     const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {

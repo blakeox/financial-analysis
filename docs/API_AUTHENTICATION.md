@@ -39,27 +39,32 @@ API keys follow the format: `fk_{env}_{32_random_chars}`
 - 32 chars = base62-encoded random bytes
 
 Examples:
+
 - Test: `fk_test_A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6`
 - Live: `fk_live_Z9Y8X7W6V5U4T3S2R1Q0P9O8N7M6L5K4`
 
 ## Tier Configuration
 
 ### Free Tier
+
 - Monthly Quota: 1,000 requests
 - Rate Limit: 1 request/second
 - Cost: $0/month
 
 ### Pro Tier
+
 - Monthly Quota: 50,000 requests
 - Rate Limit: 10 requests/second
 - Cost: $49/month
 
 ### Enterprise Tier
+
 - Monthly Quota: 1,000,000 requests
 - Rate Limit: 100 requests/second
 - Cost: Custom pricing
 
 ### Test Tier
+
 - Monthly Quota: 10,000 requests
 - Rate Limit: 5 requests/second
 - Cost: Free (for development/testing)
@@ -103,7 +108,9 @@ if (count < rateLimitPerSec) {
 ## Usage Tracking
 
 ### Per-Request Tracking
+
 Every API request is logged to `api_key_usage` table with:
+
 - Endpoint called
 - HTTP method and status code
 - Response time (ms)
@@ -111,7 +118,9 @@ Every API request is logged to `api_key_usage` table with:
 - Timestamp
 
 ### Monthly Aggregation
+
 Simultaneously upserted to `api_key_usage_monthly`:
+
 - Total requests
 - Successful vs failed requests
 - Total response time (for avg calculation)
@@ -127,6 +136,19 @@ All analysis endpoints now require API key authentication:
 - `POST /v1/api/analysis/amortization` - Loan amortization schedules
 - `POST /v1/api/analysis/ebitda-forecast` - EBITDA cash flow forecasting
 
+The programmatic MCP endpoint is also protected in production:
+
+- `POST /mcp` - JSON-RPC financial analysis tools for external AI clients
+
+OAuth 2.1 is staged separately at `POST /oauth/mcp` and remains disabled by
+default. It uses a separate `OAUTH_KV` namespace, validates a configured
+Cloudflare Access or generic OIDC identity for the resource owner, and
+advertises only `analysis:read` initially. Consent is explicit and
+CSRF-protected.
+The resource owner can manage active grants at `GET /oauth/grants` and
+`DELETE /oauth/grants/:grantId`.
+See [`docs/OAUTH_ROLLOUT.md`](./OAUTH_ROLLOUT.md) for the enablement gate.
+
 ## API Key Management
 
 ### Create API Key
@@ -139,15 +161,21 @@ Content-Type: application/json
   "customerEmail": "user@example.com",
   "customerId": "cus_1234567890",
   "tier": "pro",
-  "description": "Production API key for financial dashboard"
+  "description": "Production API key for financial dashboard",
+  "mcpScopes": ["analysis:read"]
 }
 ```
 
+`mcpScopes` is optional for backwards compatibility. When omitted, the key
+receives `analysis:read`; when supplied, only recognized scopes are honored.
+Scope grants are managed through the admin-protected key lifecycle routes.
+
 Response:
+
 ```json
 {
   "success": true,
-  "key": "fk_live_ABC123...",  // Only shown once!
+  "key": "fk_live_ABC123...", // Only shown once!
   "keyPrefix": "fk_live_ABC1",
   "tier": "pro",
   "monthlyQuota": 50000,
@@ -163,6 +191,7 @@ GET /v1/keys?customerId=cus_1234567890
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -191,6 +220,7 @@ DELETE /v1/keys/1
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -205,6 +235,7 @@ GET /v1/keys/1/usage
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -258,7 +289,7 @@ curl -X POST https://fanalyx.com/v1/api/analysis/amortization \
 const response = await fetch('https://fanalyx.com/v1/api/analysis/amortization', {
   method: 'POST',
   headers: {
-    'Authorization': 'Bearer fk_live_ABC123...',
+    Authorization: 'Bearer fk_live_ABC123...',
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
@@ -355,6 +386,7 @@ npx wrangler d1 execute financial-analysis-db --file=./schema.sql --remote
 ## Next Steps
 
 ### Immediate (MVP Ready)
+
 - ✅ Database schema created
 - ✅ Authentication module implemented
 - ✅ API key management routes created
@@ -363,6 +395,7 @@ npx wrangler d1 execute financial-analysis-db --file=./schema.sql --remote
 - ✅ Usage tracking implemented
 
 ### Short Term (Production Ready)
+
 - [ ] Run database migrations on production D1
 - [ ] Create test API keys for development
 - [ ] Add admin dashboard UI for key management
@@ -371,6 +404,7 @@ npx wrangler d1 execute financial-analysis-db --file=./schema.sql --remote
 - [ ] Build usage dashboard page (/dashboard)
 
 ### Medium Term (Scale & Polish)
+
 - [ ] Build actual SDK packages (@fanalyx/sdk, fanalyx PyPI)
 - [ ] Create interactive API playground (/playground)
 - [ ] Add more granular usage analytics
@@ -379,6 +413,7 @@ npx wrangler d1 execute financial-analysis-db --file=./schema.sql --remote
 - [ ] Build migration tools for users upgrading tiers
 
 ### Long Term (Enterprise Features)
+
 - [ ] Custom rate limits per customer
 - [ ] Dedicated infrastructure for enterprise
 - [ ] SLA monitoring and guarantees

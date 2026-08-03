@@ -7,6 +7,8 @@
  * - Circuit breaker state changes
  */
 
+import { redactTelemetryValue } from './request-context';
+
 export interface AnalyticsEventData {
   type:
     | 'rate_limit'
@@ -40,13 +42,17 @@ export function writeAnalyticsEvent(
   }
 
   try {
+    const safeEndpoint = redactTelemetryValue(event.endpoint ?? 'unknown') as string;
+    const safeFlags = event.flags.map((flag) => String(redactTelemetryValue(flag)));
+
     analytics.writeDataPoint({
-      // Use fingerprint, event type, and IP as indexes for efficient querying
+      // The fingerprint is already a pseudonymous hash of IP/user-agent. Never
+      // place the raw client IP in Analytics Engine indexes or blobs.
       indexes: [
         event.fingerprint,
         event.type,
-        event.ipAddress || 'unknown',
-        event.endpoint || 'unknown',
+        event.ipAddress ? 'ip_present' : 'ip_unknown',
+        safeEndpoint,
       ],
       // Store numeric values: trustScore, allowed (1/0), statusCode, duration
       doubles: [
@@ -56,7 +62,7 @@ export function writeAnalyticsEvent(
         event.durationMs || 0,
       ],
       // Store flags as blobs for detailed event analysis
-      blobs: event.flags,
+      blobs: safeFlags,
     });
   } catch (error) {
     // Don't fail request if analytics fails

@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   deploy:
@@ -47,6 +48,14 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Apply API D1 migrations (preview)
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PREVIEW_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler d1 migrations apply DB --config wrangler.toml --env=preview --remote
+
       - name: Deploy API (preview)
         working-directory: workers/api
         env:
@@ -64,3 +73,57 @@ jobs:
           COMMIT_SHA: ${{ env.COMMIT_SHA }}
         run: |
           pnpm dlx wrangler deploy --env=preview --var COMMIT_SHA:"${COMMIT_SHA}"
+
+      - name: Smoke-test preview deployment receipt
+        env:
+          API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
+          ENVIRONMENT: preview
+          EXPECTED_SHA: ${{ env.COMMIT_SHA }}
+          CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-preview.json
+          WEB_URL: https://fanalyx-web-preview.blakeoxford.workers.dev
+        run: |
+          set -euo pipefail
+          node scripts/cloudflare-boundary-smoke.mjs
+
+          web_html="$(curl \
+            --fail \
+            --silent \
+            --show-error \
+            --retry 5 \
+            --retry-all-errors \
+            --retry-delay 2 \
+            --connect-timeout 10 \
+            --max-time 30 \
+            "${WEB_URL}/")"
+          grep -Fq '<title>Fanalyx | AI-Powered Financial Analysis</title>' <<<"${web_html}"
+
+          echo "Preview API and web receipts verified for ${EXPECTED_SHA}"
+
+      - name: Upload preview boundary receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-boundary-preview
+          path: boundary-receipt-preview.json
+          if-no-files-found: error
+
+      - name: Record preview deployment on pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const body = [
+              '### Cloudflare preview deployment verified',
+              '',
+              `- API: https://fanalyx-api-preview.blakeoxford.workers.dev`,
+              '- Web: https://fanalyx-web-preview.blakeoxford.workers.dev',
+              `- Commit: \`${context.sha}\``,
+              '- Receipt: API `/health` and `/version` plus the web title matched the preview deployment contract.',
+              '- OAuth remains disabled in preview until the Clerk/OIDC gate is explicitly completed.',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

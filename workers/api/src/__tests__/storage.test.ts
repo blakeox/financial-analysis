@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import api from '../index';
+import { reconcileBucketUsage } from '../lib/quota';
 
 type KVMap = Map<string, string>;
 
@@ -50,6 +51,14 @@ function makeR2() {
     // unimplemented methods not used in tests
   } as unknown as R2Bucket;
   return { bucket, objects };
+}
+
+function makeFailingR2(): R2Bucket {
+  return {
+    async put() {
+      throw new Error('R2 unavailable');
+    },
+  } as unknown as R2Bucket;
 }
 
 function makeCtx(): ExecutionContext {
@@ -131,6 +140,50 @@ describe('Storage endpoints', () => {
     expect(response.status).toBe(413);
     const body = (await response.json()) as { error: { code: string } };
     expect(body.error.code).toBe('FILE_TOO_LARGE');
+  });
+
+  it('rejects a multipart upload whose bytes do not match its declared MIME type', async () => {
+    const form = new FormData();
+    form.append('file', new File(['not a PDF'], 'lease.pdf', { type: 'application/pdf' }));
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/upload/lease', { method: 'POST', body: form }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(415);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('FILE_SIGNATURE_MISMATCH');
+  });
+
+  it('fails closed when the multipart upload cannot persist to R2', async () => {
+    const failingEnv = { ...env, DOCUMENTS: makeFailingR2() };
+    const form = new FormData();
+    form.append('file', new File(['plain text'], 'lease.txt', { type: 'text/plain' }));
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/upload/lease', { method: 'POST', body: form }),
+      failingEnv,
+      ctx
+    );
+
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { error: { code: string } };
+    expect(body.error.code).toBe('STORAGE_UNAVAILABLE');
+  });
+
+  it('accepts valid UTF-8 text after content sniffing', async () => {
+    const form = new FormData();
+    form.append('file', new File(['plain text'], 'lease.txt', { type: 'text/plain' }));
+    const response = await api.fetch(
+      new Request('https://example.com/v1/api/upload/lease', { method: 'POST', body: form }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { success: boolean; documentType: string };
+    expect(body.success).toBe(true);
+    expect(body.documentType).toBe('txt');
   });
 
   it('enforces the quota lock on multipart lease uploads', async () => {
@@ -325,6 +378,32 @@ describe('Scheduled reconciliation', () => {
     const locked = await env.SESSIONS.get('quota:locked');
     expect(locked).toBe('1');
   });
+
+  it('fails closed when R2 pagination reaches the reconciliation safety cap', async () => {
+    const kv = makeKV();
+    const partialBucket = {
+      async list() {
+        return {
+          objects: Array.from({ length: 10000 }, () => ({ size: 1 })),
+          truncated: true,
+          cursor: 'more-objects',
+        };
+      },
+    } as unknown as R2Bucket;
+
+    const result = await reconcileBucketUsage({
+      ENVIRONMENT: 'test',
+      SESSIONS: kv,
+      DOCUMENTS: partialBucket,
+      R2_SOFT_LIMIT_BYTES: String(50000),
+      R2_HARD_LIMIT_BYTES: String(60000),
+    } as unknown as Parameters<typeof reconcileBucketUsage>[0]);
+
+    expect(result.complete).toBe(false);
+    expect(result.scanned).toBe(10000);
+    expect(result.locked).toBe(true);
+    expect(await kv.get('quota:locked')).toBe('1');
+  });
 });
 
 describe('Admin reconcile endpoint', () => {
@@ -375,11 +454,13 @@ describe('Admin reconcile endpoint', () => {
       usedBytes: number;
       locked: boolean;
       scanned: number;
+      complete: boolean;
       timestamp: string;
     };
     expect(data.usedBytes).toBe(579);
     expect(typeof data.locked).toBe('boolean');
     expect(data.scanned).toBeGreaterThan(0);
+    expect(data.complete).toBe(true);
     expect(new Date(data.timestamp).toString()).not.toBe('Invalid Date');
   });
 });

@@ -16,8 +16,20 @@ import type { Env } from '../types';
 import type { DocumentCacheConfig } from './document-cache';
 import { IntelligentToolSelector } from './intelligent-tool-selection';
 import { PIIRedactor } from './pii-redactor';
-import { createMCPTools, type MCPTool, buildToolCategoryPrompt } from '@financial-analysis/tools';
-import { FunctionCallingService, createFunctionCallingService } from './llm-function-calling';
+import {
+  createMCPTools,
+  authorizeMCPCapability,
+  MCP_SCOPES,
+  type MCPAuthorizationContext,
+  type MCPTool,
+  buildToolCategoryPrompt,
+} from '@financial-analysis/tools';
+import {
+  FunctionCallingService,
+  createFunctionCallingService,
+  filterAuthorizedMCPTools,
+} from './llm-function-calling';
+import { CloudflareWorkersAIProvider, isModelEgressEnabled } from './model-provider';
 
 export interface OrchestrationRequest {
   message: string;
@@ -75,6 +87,7 @@ export class LLMOrchestrator {
   private toolSelector: IntelligentToolSelector;
   private functionCalling: FunctionCallingService;
   private mcpTools: MCPTool[];
+  private mcpAuthorization: MCPAuthorizationContext;
 
   constructor(
     ai: Ai,
@@ -87,6 +100,8 @@ export class LLMOrchestrator {
       | 'BROWSER_RENDERING_ENABLED'
       | 'BROWSER_RENDERING_PATH_PREFIXES'
       | 'AI_GATEWAY_ID'
+      | 'AI_EGRESS_ENABLED'
+      | 'MCP_ANALYSIS_ENABLED'
       | 'AI_SEARCH'
       | 'AI_SEARCH_INSTANCE_NAME'
       | 'AI_SEARCH_SOURCE_DOMAIN'
@@ -97,16 +112,26 @@ export class LLMOrchestrator {
     const retry = new LLMRetryHandlerImpl();
     const metrics = env.KV ? new LLMMetricsCollectorImpl(env.KV) : undefined;
 
-    this.llm = new LLMServiceImpl(ai, cache, retry, metrics, {
-      ...(env.AI_GATEWAY_ID ? { gatewayId: env.AI_GATEWAY_ID } : {}),
-    });
-    this.toolSelector = new IntelligentToolSelector(ai);
+    const modelProvider = new CloudflareWorkersAIProvider(
+      ai,
+      env.AI_GATEWAY_ID,
+      isModelEgressEnabled(env.AI_EGRESS_ENABLED)
+    );
+
+    this.llm = new LLMServiceImpl(modelProvider, cache, retry, metrics);
+    this.toolSelector = new IntelligentToolSelector(modelProvider);
 
     // Initialize function calling service and MCP tools
-    this.functionCalling = createFunctionCallingService(ai, {
+    this.functionCalling = createFunctionCallingService(modelProvider.asAiBinding(), {
       maxRecursiveToolRuns: 3,
       verbose: false,
     });
+    this.mcpAuthorization = {
+      source: 'internal',
+      subject: 'first-party-chat',
+      scopes: [MCP_SCOPES.ANALYSIS_READ],
+      mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',
+    };
     this.mcpTools = createMCPTools();
 
     // Initialize context manager with document cache when bindings exist
@@ -114,7 +139,7 @@ export class LLMOrchestrator {
     let hasDocCacheConfig = false;
 
     // Pass AI binding for embedding generation
-    docCacheConfig.ai = ai;
+    docCacheConfig.ai = modelProvider;
 
     if (env.DOCUMENTS) {
       docCacheConfig.r2Bucket = env.DOCUMENTS;
@@ -169,6 +194,10 @@ export class LLMOrchestrator {
     } = request;
     // Handle explicit null values (JS destructuring defaults don't apply to null)
     const toolOutputs = rawToolOutputs ?? {};
+    const requestAuthorization: MCPAuthorizationContext = {
+      ...this.mcpAuthorization,
+      auditCorrelationId: requestId?.trim() || 'missing-llm-request-id',
+    };
 
     // PII Redaction (Phase 2.2)
     const sanitizedMessage = PIIRedactor.redact(message);
@@ -180,11 +209,17 @@ export class LLMOrchestrator {
 
     // Auto-load MCP tools when function calling is enabled but no tools provided
     // This allows the frontend to simply pass enableFunctionCalling: true
+    const authorizedAvailableTools = availableTools.filter(
+      (tool) => authorizeMCPCapability(tool.name, requestAuthorization).allowed
+    );
     const effectiveTools =
-      availableTools.length > 0
-        ? availableTools
+      authorizedAvailableTools.length > 0
+        ? authorizedAvailableTools
         : enableFunctionCalling
-          ? this.mcpTools.map((t) => ({ name: t.name, description: t.description }))
+          ? filterAuthorizedMCPTools(this.mcpTools, requestAuthorization).map((tool) => ({
+              name: tool.name,
+              description: tool.description,
+            }))
           : [];
 
     console.log('[LLMOrchestrator] effectiveTools.length:', effectiveTools.length);
@@ -202,7 +237,7 @@ export class LLMOrchestrator {
     // DEBUG: Add debug info to response
     const debugInfo = {
       enableFunctionCalling,
-      availableToolsLength: availableTools.length,
+      availableToolsLength: authorizedAvailableTools.length,
       effectiveToolsLength: effectiveTools.length,
       mcpToolsLength: this.mcpTools.length,
       toolOutputsLength: Object.keys(toolOutputs).length,
@@ -217,6 +252,7 @@ export class LLMOrchestrator {
         effectiveTools,
         memoryContext,
         requestId,
+        requestAuthorization,
         currentModel,
         contextLabel
       );
@@ -253,6 +289,7 @@ export class LLMOrchestrator {
     availableTools: ToolSummary[],
     memoryContext: { conversationHistory?: string; modelStates?: string } | undefined,
     requestId: string | undefined,
+    authorization: MCPAuthorizationContext,
     currentModel: Record<string, unknown>,
     contextLabel: string | null | undefined
   ): Promise<OrchestrationResponse> {
@@ -283,7 +320,12 @@ export class LLMOrchestrator {
 
     try {
       // Execute with function calling
-      const fcResponse = await this.functionCalling.chat(messages, toolsForExecution, systemPrompt);
+      const fcResponse = await this.functionCalling.chat(
+        messages,
+        toolsForExecution,
+        systemPrompt,
+        authorization
+      );
 
       // Build response with tool execution results
       const toolingMetadata: OrchestrationResponse['tooling'] = {

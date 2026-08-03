@@ -3,11 +3,11 @@
  * Unified service for all LLM operations with caching, retry logic, and metrics
  */
 
-import type { Ai } from '@cloudflare/workers-types';
 import { estimateTokens } from '../utils/tokens';
 import type { IntelligentCache } from './llm-cache';
 import type { LLMRetryHandler } from './llm-retry';
 import type { LLMMetricsCollector } from './llm-metrics';
+import type { ModelProvider } from './model-provider';
 
 export interface LLMRequest {
   prompt: string;
@@ -63,7 +63,6 @@ export interface LLMConfig {
   cacheTTL: number;
   retryEnabled: boolean;
   metricsEnabled: boolean;
-  gatewayId?: string;
 }
 
 const DEFAULT_CONFIG: LLMConfig = {
@@ -80,7 +79,7 @@ export class LLMService {
   private config: LLMConfig;
 
   constructor(
-    private ai: Ai,
+    private modelProvider: ModelProvider,
     private cache?: IntelligentCache,
     private retry?: LLMRetryHandler,
     private metrics?: LLMMetricsCollector,
@@ -222,26 +221,25 @@ export class LLMService {
 
     const fullPrompt = this.buildPrompt(request);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ai = this.ai as any;
-
-    const options: any = {
+    const inputs = {
       prompt: fullPrompt,
       temperature,
       max_tokens: maxTokens,
       stream: true,
     };
 
-    if (this.config.gatewayId) {
-      options.gateway = {
-        id: this.config.gatewayId,
-        skipCache: false,
-        cacheTtl: 3600,
-      };
-    }
-
     try {
-      const stream = await ai.run(model, options);
+      const streamResult = await this.modelProvider.run(model, inputs);
+      if (
+        !streamResult ||
+        (typeof streamResult !== 'object' && typeof streamResult !== 'function') ||
+        !(Symbol.asyncIterator in streamResult)
+      ) {
+        throw new Error(
+          'Model provider returned a non-streaming response for a streaming request.'
+        );
+      }
+      const stream = streamResult as AsyncIterable<Uint8Array>;
 
       const decoder = new TextDecoder();
       let buffer = '';
@@ -327,24 +325,13 @@ export class LLMService {
     maxTokens: number
   ): Promise<string> {
     // Call Cloudflare Workers AI
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ai = this.ai as any;
-
-    const options: any = {
+    const inputs = {
       prompt,
       temperature,
       max_tokens: maxTokens,
     };
 
-    if (this.config.gatewayId) {
-      options.gateway = {
-        id: this.config.gatewayId,
-        skipCache: false,
-        cacheTtl: 3600,
-      };
-    }
-
-    const response = await ai.run(model, options);
+    const response = await this.modelProvider.run(model, inputs);
 
     // Handle ReadableStream response (Cloudflare AI sometimes streams even without stream: true)
     if (response instanceof ReadableStream) {

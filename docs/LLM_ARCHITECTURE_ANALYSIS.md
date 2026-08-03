@@ -37,7 +37,23 @@ WORKERS_AI_MODEL: Optional custom model override
 // Infrastructure
 Platform: Cloudflare Workers AI
 Binding: env.AI (Cloudflare Workers AI runtime)
-Gateway: Optional AI Gateway for caching (env.AI_GATEWAY_ID)
+Gateway: AI Gateway policy selected by env.AI_GATEWAY_ID
+
+Gateway boundary:
+- Legacy Workers AI calls pass gateway settings as the third `env.AI.run()` options argument.
+- Project Think uses the same gateway ID in `createWorkersAI({ gateway })`.
+- Model inputs never contain gateway configuration.
+- The legacy LLM orchestrator calls a provider port; the Cloudflare adapter is the only
+  adapter that knows the Workers AI binding and gateway options.
+- Tool selection, function calling, embeddings, PDF text extraction, and lease
+  extraction use the same adapter or its compatibility facade.
+- The gateway remains optional for open-source deployments that omit AI_GATEWAY_ID.
+- `AI_EGRESS_ENABLED=false` is an independent kill switch for hosted model
+  calls; deterministic analysis and stateless MCP formula tools remain usable.
+- All Workers AI provider construction is restricted to
+  `workers/api/src/services/model-provider.ts`; Agent/Think model creation uses
+  the same gateway and egress seam. `pnpm run check:ai-provider-boundary`
+  fails if another API module imports or constructs the provider directly.
 ```
 
 #### **Deployment Architecture**
@@ -914,11 +930,6 @@ The proposed roadmap is aggressive but achievable, with clear phases and measura
 **Document Version:** 1.0  
 **Last Updated:** December 2024  
 **Maintained By:** Development Team
-
-
-
-
-
 
 
 

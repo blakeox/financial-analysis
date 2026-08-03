@@ -3,29 +3,47 @@ import type { RouterType } from 'itty-router';
 import { registerChatRoutes } from './chat';
 import type { Env } from '../types';
 import type { RouteHandler } from '../lib/error-handler';
+import { createStreamingSSEStream } from './chat-sse-helpers';
 
 // Mock dependencies
-const { mockOrchestrator } = vi.hoisted(() => {
-  const mockStream = {
-    [Symbol.asyncIterator]: async function* () {
-      yield 'Hello';
-      yield ' ';
-      yield 'World';
-    },
-  };
+const { mockOrchestrator, mockReserveBudget, mockCommitBudget, mockReleaseBudget } = vi.hoisted(
+  () => {
+    const mockStream = {
+      [Symbol.asyncIterator]: async function* () {
+        yield 'Hello';
+        yield ' ';
+        yield 'World';
+      },
+    };
 
-  const mockOrchestrator = {
-    stream: vi.fn().mockReturnValue(mockStream),
-    handle: vi.fn(),
-  };
+    const mockOrchestrator = {
+      stream: vi.fn().mockReturnValue(mockStream),
+      handle: vi.fn(),
+    };
 
-  return { mockOrchestrator };
-});
+    return {
+      mockOrchestrator,
+      mockReserveBudget: vi.fn(),
+      mockCommitBudget: vi.fn(),
+      mockReleaseBudget: vi.fn(),
+    };
+  }
+);
 
 vi.mock('../services/llm-service-factory', () => ({
   canCreateOrchestrator: vi.fn().mockReturnValue(true),
   createLLMOrchestrator: vi.fn(() => mockOrchestrator),
 }));
+
+vi.mock('../lib', async () => {
+  const actual = await vi.importActual<typeof import('../lib')>('../lib');
+  return {
+    ...actual,
+    reserveBudget: mockReserveBudget,
+    commitBudgetReservation: mockCommitBudget,
+    releaseBudgetReservation: mockReleaseBudget,
+  };
+});
 
 /*
 vi.mock('../lib', async () => {
@@ -67,6 +85,13 @@ describe('Chat Stream Route', () => {
       ENVIRONMENT: 'test',
       AI: {} as unknown,
     } as Env;
+    mockReserveBudget.mockResolvedValue({
+      allowed: true,
+      reservationId: 'stream-reservation',
+      state: 'reserved',
+    });
+    mockCommitBudget.mockResolvedValue({ committed: true, state: 'committed' });
+    mockReleaseBudget.mockResolvedValue(undefined);
     vi.clearAllMocks();
   });
 
@@ -92,5 +117,84 @@ describe('Chat Stream Route', () => {
     expect(result).toContain('data: {"token":" "}\n\n');
     expect(result).toContain('data: {"token":"World"}\n\n');
     expect(result).toContain('data: [DONE]\n\n');
+  });
+
+  it('runs completion and error hooks around an async stream', async () => {
+    const completed = vi.fn();
+    const failed = vi.fn();
+    const chunks: string[] = [];
+    const stream = createStreamingSSEStream(
+      new TextEncoder(),
+      {
+        async *[Symbol.asyncIterator]() {
+          yield 'one';
+          yield 'two';
+        },
+      },
+      {
+        availableTools: [],
+        message: '',
+        formatToolList: () => '',
+        onChunk: (chunk) => chunks.push(chunk),
+        onComplete: completed,
+        onError: failed,
+      }
+    );
+
+    expect(await new Response(stream).text()).toContain('data: [DONE]\n\n');
+    expect(chunks).toEqual(['one', 'two']);
+    expect(completed).toHaveBeenCalledOnce();
+    expect(failed).not.toHaveBeenCalled();
+  });
+
+  it('reserves and commits the stream budget after the SSE completes', async () => {
+    const request = new Request('http://localhost/v1/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Budgeted stream' }),
+    });
+    const budgetedEnv = {
+      ...env,
+      BUDGET_ENFORCEMENT_ENABLED: 'true',
+      BUDGET_MAX_MODEL_TOKENS: '100',
+    } as Env;
+
+    const response = await capturedHandler(request, budgetedEnv);
+    await response.text();
+
+    expect(mockReserveBudget).toHaveBeenCalledWith(
+      budgetedEnv,
+      expect.objectContaining({ capability: 'chat.stream.model' })
+    );
+    expect(mockCommitBudget).toHaveBeenCalledWith(
+      budgetedEnv,
+      'stream-reservation',
+      expect.objectContaining({ requestBytes: expect.any(Number), modelTokens: expect.any(Number) })
+    );
+    expect(mockReleaseBudget).not.toHaveBeenCalled();
+  });
+
+  it('releases the stream budget when the model stream fails', async () => {
+    mockOrchestrator.stream.mockReturnValueOnce({
+      async *[Symbol.asyncIterator]() {
+        yield 'partial';
+        throw new Error('stream failed');
+      },
+    });
+    const request = new Request('http://localhost/v1/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Failing budgeted stream' }),
+    });
+
+    const budgetedEnv = {
+      ...env,
+      BUDGET_ENFORCEMENT_ENABLED: 'true',
+    } as Env;
+    const response = await capturedHandler(request, budgetedEnv);
+
+    await expect(response.text()).rejects.toThrow();
+    expect(mockReleaseBudget).toHaveBeenCalledWith(budgetedEnv, 'stream-reservation');
+    expect(mockCommitBudget).not.toHaveBeenCalled();
   });
 });

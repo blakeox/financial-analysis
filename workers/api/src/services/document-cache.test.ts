@@ -1,6 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { DocumentCache } from './document-cache';
-import type { Ai, AiSearchNamespace, VectorizeIndex, KVNamespace } from '@cloudflare/workers-types';
+import type {
+  Ai,
+  AiSearchNamespace,
+  KVNamespace,
+  R2Bucket,
+  VectorizeIndex,
+} from '@cloudflare/workers-types';
 
 const mockRenderPageToHtml = vi.hoisted(() => vi.fn());
 
@@ -133,6 +139,74 @@ describe('DocumentCache', () => {
     expect(results).toHaveLength(1);
     expect(results[0]?.url).toBe('https://fanalyx.com/developers');
     expect(results[0]?.metadata?.title).toBe('Developer API');
+  });
+
+  it('filters AI Search chunks covered by an invalidation tombstone', async () => {
+    const mockInstance = {
+      info: vi.fn().mockResolvedValue({ id: 'fanalyx-site' }),
+      search: vi.fn().mockResolvedValue({
+        chunks: [
+          {
+            id: 'chunk-deleted',
+            text: 'Deleted content',
+            item: { key: '/deleted', timestamp: 12345, metadata: { title: 'Deleted' } },
+          },
+        ],
+      }),
+    };
+    const mockKv = {
+      get: vi.fn((key: string) =>
+        Promise.resolve(
+          key.startsWith('autorag:tombstone:')
+            ? JSON.stringify({ type: 'invalidation-tombstone' })
+            : null
+        )
+      ),
+    } as unknown as KVNamespace;
+
+    const cache = new DocumentCache({
+      aiSearchNamespace: {
+        get: vi.fn().mockReturnValue(mockInstance),
+      } as unknown as AiSearchNamespace,
+      aiSearchInstanceName: 'fanalyx-site',
+      aiSearchSourceDomain: 'https://fanalyx.com',
+      kv: mockKv,
+    });
+
+    const results = await cache.search('deleted content');
+
+    expect(results).toEqual([]);
+  });
+
+  it('tombstones and removes cached and vectorized derivatives', async () => {
+    const mockKv = {
+      get: vi.fn().mockResolvedValue(null),
+      put: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
+    } as unknown as KVNamespace;
+    const mockR2 = {
+      delete: vi.fn().mockResolvedValue(undefined),
+    } as unknown as R2Bucket;
+    const mockVectorize = {
+      deleteByIds: vi.fn().mockResolvedValue({ mutationId: 'mutation-1' }),
+    } as unknown as VectorizeIndex;
+    const cache = new DocumentCache({ r2Bucket: mockR2, kv: mockKv, vectorize: mockVectorize });
+
+    const result = await cache.invalidate('https://example.com/deleted');
+
+    expect(result).toMatchObject({
+      tombstoneWritten: true,
+      r2Deleted: true,
+      cacheDeleted: true,
+      vectorDeleted: true,
+    });
+    expect(mockKv.put).toHaveBeenCalledWith(
+      expect.stringContaining('autorag:tombstone:'),
+      expect.stringContaining('invalidatedAt'),
+      expect.objectContaining({ expirationTtl: 30 * 24 * 60 * 60 })
+    );
+    expect(mockR2.delete).toHaveBeenCalledWith(expect.stringContaining('autorag/documents/'));
+    expect(mockVectorize.deleteByIds).toHaveBeenCalledWith([expect.any(String)]);
   });
 
   it('should use Browser Rendering for configured site paths', async () => {

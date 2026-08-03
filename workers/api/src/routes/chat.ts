@@ -19,14 +19,76 @@ import {
   withErrorHandler,
   withSecurityContext,
   commitSecurityContext,
+  commitBudgetReservation,
+  getDefaultBudgetLimits,
+  getDefaultReservationTtlSeconds,
+  releaseBudgetReservation,
+  reserveBudget,
   type SecurityContext,
 } from '../lib';
 import { canCreateOrchestrator, createLLMOrchestrator } from '../services/llm-service-factory';
+import { estimateTokens } from '../utils/tokens';
 import {
   createStructuredSSEStream,
   createStreamingSSEStream,
   buildSSEHeaders,
 } from './chat-sse-helpers';
+
+interface ChatBudgetReservation {
+  reservationId: string | null;
+  requestBytes: number;
+  reservedModelTokens: number;
+}
+
+function getCurrentBudgetPeriod(now: Date): { periodStart: string; periodEnd: string } {
+  return {
+    periodStart: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString(),
+    periodEnd: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
+  };
+}
+
+async function reserveChatBudget(
+  request: Request,
+  env: Env,
+  requestContext: SecurityContext,
+  requestBytes: number,
+  capability: string
+): Promise<ChatBudgetReservation | null> {
+  if (env.BUDGET_ENFORCEMENT_ENABLED !== 'true') return null;
+
+  const now = new Date();
+  const limits = getDefaultBudgetLimits(env);
+  const period = getCurrentBudgetPeriod(now);
+  const reservation = await reserveBudget(env, {
+    identity: {
+      principalId: requestContext.auth?.customerId ?? `anonymous:${requestContext.fingerprint}`,
+      clientId: requestContext.auth?.clientId ?? 'first-party-chat',
+    },
+    ...period,
+    runId: requestContext.runId,
+    capability,
+    idempotencyKey: request.headers.get('Idempotency-Key') ?? requestContext.runId,
+    units: {
+      requestBytes,
+      modelTokens: limits.modelTokens,
+    },
+    limits,
+    expiresAt: new Date(
+      now.getTime() + getDefaultReservationTtlSeconds(env.BUDGET_RESERVATION_TTL_SECONDS) * 1000
+    ).toISOString(),
+    degradedMode: 'fail-closed',
+  });
+
+  if (!reservation.allowed) {
+    throw new Error(`CHAT_BUDGET_DENIED:${reservation.reason}`);
+  }
+
+  return {
+    reservationId: reservation.reservationId,
+    requestBytes,
+    reservedModelTokens: limits.modelTokens,
+  };
+}
 
 export function registerChatRoutes(router: RouterType) {
   // ---- Simple contextual chat endpoint (AI Orchestrator) ----
@@ -61,6 +123,7 @@ export function registerChatRoutes(router: RouterType) {
           // Build request context for logging
           const requestContext = buildRequestContext(request, environment);
           logInfo(requestContext, 'Contextual chat request received');
+          let budgetReservation: ChatBudgetReservation | null = null;
 
           try {
             // SECURITY: Validate Content-Type
@@ -208,6 +271,38 @@ export function registerChatRoutes(router: RouterType) {
               // Continue processing but log the threat for monitoring
             }
 
+            try {
+              budgetReservation = await reserveChatBudget(
+                request,
+                env,
+                securityContext,
+                new TextEncoder().encode(JSON.stringify(body)).byteLength,
+                enableFunctionCalling ? 'chat.function_calling' : 'chat.model'
+              );
+            } catch (budgetError) {
+              const reason =
+                budgetError instanceof Error ? budgetError.message : String(budgetError);
+              const deniedByLimit = reason.includes('BUDGET_EXCEEDED');
+              logWarn(requestContext, 'Chat budget reservation denied', {
+                reason: reason.split(':')[1] || 'unknown',
+              });
+              return new Response(
+                JSON.stringify({
+                  error: deniedByLimit ? 'Chat budget exceeded' : 'Chat budget unavailable',
+                  code: deniedByLimit ? 'BUDGET_EXCEEDED' : 'BUDGET_STORE_UNAVAILABLE',
+                  requestId: requestContext.requestId,
+                }),
+                {
+                  status: deniedByLimit ? 429 : 503,
+                  headers: buildChatHeaders(
+                    env,
+                    requestContext.requestId,
+                    requestContext.correlationId
+                  ),
+                }
+              );
+            }
+
             // Log available tools for debugging
             if (availableTools.length > 0) {
               logInfo(requestContext, 'Chat has access to MCP tools', {
@@ -242,6 +337,26 @@ export function registerChatRoutes(router: RouterType) {
                 };
 
                 const result = await orchestrator.handle(orchestratorRequest);
+
+                if (budgetReservation?.reservationId) {
+                  const commit = await commitBudgetReservation(
+                    env,
+                    budgetReservation.reservationId,
+                    {
+                      requestBytes: budgetReservation.requestBytes,
+                      modelTokens: result.fromCache
+                        ? 0
+                        : Math.min(
+                            budgetReservation.reservedModelTokens,
+                            estimateTokens(result.response)
+                          ),
+                    }
+                  );
+                  if (!commit.committed) {
+                    throw new Error(`CHAT_BUDGET_COMMIT_FAILED:${commit.state}`);
+                  }
+                  budgetReservation = null;
+                }
 
                 logInfo(requestContext, 'AI orchestrator completed', {
                   intent: result.metadata?.intent || 'unknown',
@@ -298,6 +413,10 @@ export function registerChatRoutes(router: RouterType) {
                   ),
                 });
               } catch (orchestratorError) {
+                if (budgetReservation?.reservationId) {
+                  await releaseBudgetReservation(env, budgetReservation.reservationId);
+                  budgetReservation = null;
+                }
                 logError(
                   requestContext,
                   orchestratorError instanceof Error
@@ -359,6 +478,10 @@ export function registerChatRoutes(router: RouterType) {
             }
 
             // If no AI available (shouldn't happen in production)
+            if (budgetReservation?.reservationId) {
+              await releaseBudgetReservation(env, budgetReservation.reservationId);
+              budgetReservation = null;
+            }
             return new Response(
               JSON.stringify({
                 response: 'AI assistant is not available. Please contact support.',
@@ -423,6 +546,8 @@ export function registerChatRoutes(router: RouterType) {
         }
 
         const requestContext = buildRequestContext(request, environment);
+        let budgetReservation: ChatBudgetReservation | null = null;
+        let streamedModelTokens = 0;
 
         try {
           // SECURITY: Validate Content-Type
@@ -568,7 +693,42 @@ export function registerChatRoutes(router: RouterType) {
             // Continue processing but log the threat for monitoring
           }
 
+          try {
+            budgetReservation = await reserveChatBudget(
+              request,
+              env,
+              securityContext,
+              new TextEncoder().encode(JSON.stringify(body)).byteLength,
+              enableFunctionCalling ? 'chat.stream.function_calling' : 'chat.stream.model'
+            );
+          } catch (budgetError) {
+            const reason = budgetError instanceof Error ? budgetError.message : String(budgetError);
+            const deniedByLimit = reason.includes('BUDGET_EXCEEDED');
+            logWarn(requestContext, 'Streaming chat budget reservation denied', {
+              reason: reason.split(':')[1] || 'unknown',
+            });
+            return new Response(
+              JSON.stringify({
+                error: deniedByLimit ? 'Chat budget exceeded' : 'Chat budget unavailable',
+                code: deniedByLimit ? 'BUDGET_EXCEEDED' : 'BUDGET_STORE_UNAVAILABLE',
+                requestId: requestContext.requestId,
+              }),
+              {
+                status: deniedByLimit ? 429 : 503,
+                headers: buildChatHeaders(
+                  env,
+                  requestContext.requestId,
+                  requestContext.correlationId
+                ),
+              }
+            );
+          }
+
           if (!canCreateOrchestrator(env)) {
+            if (budgetReservation?.reservationId) {
+              await releaseBudgetReservation(env, budgetReservation.reservationId);
+              budgetReservation = null;
+            }
             return new Response('AI not configured', { status: 503 });
           }
 
@@ -597,6 +757,17 @@ export function registerChatRoutes(router: RouterType) {
           if (enableFunctionCalling) {
             // Structured mode: Execute tools and return structured results
             const result = await orchestrator.handle(orchestratorRequest);
+            if (budgetReservation?.reservationId) {
+              const commit = await commitBudgetReservation(env, budgetReservation.reservationId, {
+                requestBytes: budgetReservation.requestBytes,
+                modelTokens: Math.min(
+                  budgetReservation.reservedModelTokens,
+                  estimateTokens(result.response)
+                ),
+              });
+              if (!commit.committed) throw new Error(`CHAT_BUDGET_COMMIT_FAILED:${commit.state}`);
+              budgetReservation = null;
+            }
             readable = createStructuredSSEStream(
               encoder,
               result.response,
@@ -609,6 +780,23 @@ export function registerChatRoutes(router: RouterType) {
               availableTools,
               message: message || '',
               formatToolList,
+              onChunk: (chunk) => {
+                streamedModelTokens += estimateTokens(chunk);
+              },
+              onComplete: async () => {
+                if (!budgetReservation?.reservationId) return;
+                const commit = await commitBudgetReservation(env, budgetReservation.reservationId, {
+                  requestBytes: budgetReservation.requestBytes,
+                  modelTokens: Math.min(budgetReservation.reservedModelTokens, streamedModelTokens),
+                });
+                if (!commit.committed) throw new Error(`CHAT_BUDGET_COMMIT_FAILED:${commit.state}`);
+                budgetReservation = null;
+              },
+              onError: async () => {
+                if (!budgetReservation?.reservationId) return;
+                await releaseBudgetReservation(env, budgetReservation.reservationId);
+                budgetReservation = null;
+              },
             });
           }
 
@@ -618,6 +806,10 @@ export function registerChatRoutes(router: RouterType) {
             ),
           });
         } catch (error) {
+          if (budgetReservation?.reservationId) {
+            await releaseBudgetReservation(env, budgetReservation.reservationId);
+            budgetReservation = null;
+          }
           logError(requestContext, error instanceof Error ? error : new Error(String(error)));
           return new Response(JSON.stringify({ error: 'Internal Error' }), { status: 500 });
         }

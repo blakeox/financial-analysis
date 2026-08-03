@@ -91,6 +91,16 @@ import { BusinessSuccessionPlanningTool } from '../tools/business-succession-pla
 import { CryptocurrencyTaxTool } from '../tools/cryptocurrency-tax.js';
 import { InternationalTaxPlanningTool } from '../tools/international-tax-planning.js';
 import { SupplyChainFinanceTool } from '../tools/supply-chain-finance.js';
+import {
+  assertMCPCapabilityAuthorized,
+  assertMCPInputWithinPolicy,
+  assertMCPOutputWithinPolicy,
+  authorizeMCPCapability,
+  MCPAuthorizationError,
+  MCP_PROTOCOL_VERSION,
+  MCP_SERVER_VERSION,
+  type MCPAuthorizationContext,
+} from './capabilities.js';
 
 export interface MCPTool {
   name: string;
@@ -775,17 +785,36 @@ export interface MCPCallParams {
   arguments: unknown;
 }
 
+class MCPInvalidParamsError extends Error {
+  readonly code = -32602;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'MCPInvalidParamsError';
+  }
+}
+
+class MCPToolNotFoundError extends Error {
+  readonly code = -32602;
+
+  constructor(toolName: string) {
+    super(`Tool ${toolName} not found`);
+    this.name = 'MCPToolNotFoundError';
+  }
+}
+
 export async function handleMCPRequest(
   method: MCPRequestMethod,
   params: unknown,
-  _env?: unknown
+  _env?: unknown,
+  authorization?: MCPAuthorizationContext
 ): Promise<unknown> {
   const tools = createMCPTools();
 
   switch (method) {
     case 'initialize':
       return {
-        protocolVersion: '2024-11-05',
+        protocolVersion: MCP_PROTOCOL_VERSION,
         capabilities: {
           tools: {
             listChanged: true,
@@ -793,26 +822,50 @@ export async function handleMCPRequest(
         },
         serverInfo: {
           name: 'financial-analysis-mcp',
-          version: '0.1.0',
+          version: MCP_SERVER_VERSION,
         },
       };
 
     case 'tools/list':
       return {
-        tools: tools.map((tool) => ({
-          name: tool.name,
-          description: getConciseDescription(tool.name),
-          inputSchema: tool.inputSchema,
-        })),
+        tools: tools
+          .filter(
+            (tool) => authorization && authorizeMCPCapability(tool.name, authorization).allowed
+          )
+          .map((tool) => ({
+            name: tool.name,
+            description: getConciseDescription(tool.name),
+            inputSchema: tool.inputSchema,
+          })),
       };
 
     case 'tools/call': {
+      if (
+        typeof params !== 'object' ||
+        params === null ||
+        typeof (params as Partial<MCPCallParams>).name !== 'string'
+      ) {
+        throw new MCPInvalidParamsError('tools/call requires a tool name');
+      }
+
       const { name, arguments: args } = params as MCPCallParams;
       const tool = tools.find((t) => t.name === name);
       if (!tool) {
-        throw new Error(`Tool ${name} not found`);
+        throw new MCPToolNotFoundError(name);
       }
-      return await tool.execute(args);
+
+      if (!authorization) {
+        // Tool execution is never an anonymous operation. Internal callers
+        // must pass an explicit authorization context so a new route cannot
+        // accidentally inherit ambient access.
+        throw new MCPAuthorizationError(name);
+      }
+
+      const policy = assertMCPCapabilityAuthorized(name, authorization);
+      assertMCPInputWithinPolicy(policy, args);
+      const result = await tool.execute(args);
+      assertMCPOutputWithinPolicy(policy, result);
+      return result;
     }
 
     default: {

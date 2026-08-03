@@ -5,8 +5,14 @@
 
 import { runWithTools, autoTrimTools } from '@cloudflare/ai-utils';
 import type { Ai } from '@cloudflare/workers-types';
-import type { MCPTool } from '@financial-analysis/tools';
-import { getToolMetadata } from '@financial-analysis/tools';
+import {
+  authorizeMCPCapability,
+  getToolMetadata,
+  MCPAuthorizationError,
+  MCP_SCOPES,
+  type MCPAuthorizationContext,
+  type MCPTool,
+} from '@financial-analysis/tools';
 
 // Model that supports function calling
 // Using hermes-2-pro which is recommended in Cloudflare examples
@@ -45,6 +51,13 @@ const DEFAULT_CONFIG: FunctionCallingConfig = {
   verbose: false,
   temperature: 0.7,
   maxTokens: 2048,
+};
+
+const DEFAULT_FUNCTION_CALLING_AUTHORIZATION: MCPAuthorizationContext = {
+  source: 'internal',
+  subject: 'first-party-chat',
+  scopes: [MCP_SCOPES.ANALYSIS_READ],
+  mcpAnalysisEnabled: true,
 };
 
 /** Timeout for individual tool executions (30 seconds) */
@@ -272,6 +285,14 @@ function preFilterTools(tools: MCPTool[], userMessage: string): MCPTool[] {
   return result;
 }
 
+/** Filter model-visible tools through the same policy used by MCP. */
+export function filterAuthorizedMCPTools(
+  tools: MCPTool[],
+  authorization: MCPAuthorizationContext = DEFAULT_FUNCTION_CALLING_AUTHORIZATION
+): MCPTool[] {
+  return tools.filter((tool) => authorizeMCPCapability(tool.name, authorization).allowed);
+}
+
 /**
  * Function Calling Service class
  */
@@ -295,9 +316,11 @@ export class FunctionCallingService {
   async chat(
     messages: FunctionCallingMessage[],
     tools: MCPTool[],
-    systemPrompt?: string
+    systemPrompt?: string,
+    authorization: MCPAuthorizationContext = DEFAULT_FUNCTION_CALLING_AUTHORIZATION
   ): Promise<FunctionCallingResponse> {
     const toolCalls: ToolCallResult[] = [];
+    const authorizedTools = filterAuthorizedMCPTools(tools, authorization);
 
     // Build messages array with system prompt
     const fullMessages: FunctionCallingMessage[] = [];
@@ -308,7 +331,7 @@ export class FunctionCallingService {
 
     // Pre-filter tools based on user message to stay within context limits
     const userMessage = messages.find((m) => m.role === 'user')?.content || '';
-    const filteredTools = preFilterTools(tools, userMessage);
+    const filteredTools = preFilterTools(authorizedTools, userMessage);
     this.log.debug(
       `[FunctionCallingService] Filtered from ${tools.length} to ${filteredTools.length} tools`
     );
@@ -320,6 +343,10 @@ export class FunctionCallingService {
     const trackedTools = cloudflareTools.map((tool) => ({
       ...tool,
       function: async (args: Record<string, unknown>) => {
+        const decision = authorizeMCPCapability(tool.name, authorization);
+        if (!decision.allowed) {
+          throw new MCPAuthorizationError(tool.name);
+        }
         const result = await tool.function(args);
         toolCalls.push({
           toolName: tool.name,
@@ -386,7 +413,7 @@ export class FunctionCallingService {
       }
       // Always use autoTrimTools when we have more than 3 tools to stay within context limits
       // The hermes-2-pro model has a 24k token limit
-      if (tools.length > 3) {
+      if (authorizedTools.length > 3) {
         options.trimFunction = autoTrimTools;
       }
 
@@ -505,6 +532,7 @@ export function createFunctionCallingService(
 // Export internals for testing
 export const __testing = {
   preFilterTools,
+  filterAuthorizedMCPTools,
   extractModelChanges,
   withTimeout,
   TOOL_EXECUTION_TIMEOUT_MS,

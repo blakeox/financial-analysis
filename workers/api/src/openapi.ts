@@ -177,6 +177,22 @@ const VersionSchema = z.object({
   version: z.string(),
   environment: z.string(),
   commit: z.string(),
+  mcp: z
+    .object({
+      serverVersion: z.string(),
+      protocolVersion: z.string(),
+      capabilityPolicyVersion: z.string(),
+    })
+    .optional(),
+  controls: z
+    .object({
+      oauthEnabled: z.boolean(),
+      modelEgressEnabled: z.boolean(),
+      budgetEnforcementEnabled: z.boolean(),
+      connectorEgressEnabled: z.boolean(),
+      codeModeEnabled: z.boolean(),
+    })
+    .optional(),
   timestamp: z.string(),
 });
 registry.register('Version', VersionSchema);
@@ -224,6 +240,42 @@ const StorageUploadResponseSchema = z.object({
   size: z.number(),
 });
 registry.register('StorageUploadResponse', StorageUploadResponseSchema);
+
+const StoragePresignResponseSchema = z.object({
+  operation: z.literal('download'),
+  key: z.string(),
+  url: z.string().url(),
+  expiresAt: z.string().datetime(),
+  expiresInSeconds: z.number().int().positive(),
+  contentType: z.string(),
+  sizeBytes: z.number().int().nonnegative(),
+  sha256: z.string(),
+});
+registry.register('StoragePresignResponse', StoragePresignResponseSchema);
+
+const StorageUploadPresignResponseSchema = z.object({
+  operation: z.literal('upload'),
+  uploadId: z.string().uuid(),
+  key: z.string(),
+  url: z.string().url(),
+  expiresAt: z.string().datetime(),
+  expiresInSeconds: z.number().int().positive(),
+  headers: z.object({ 'Content-Type': z.string() }),
+  sizeBytes: z.number().int().positive(),
+  sha256: z.string(),
+});
+registry.register('StorageUploadPresignResponse', StorageUploadPresignResponseSchema);
+
+const StorageFinalizeResponseSchema = z.object({
+  success: z.literal(true),
+  uploadId: z.string().uuid(),
+  documentKey: z.string(),
+  filename: z.string(),
+  contentType: z.string(),
+  sizeBytes: z.number().int().positive(),
+  sha256: z.string(),
+});
+registry.register('StorageFinalizeResponse', StorageFinalizeResponseSchema);
 
 const StorageDeleteResponseSchema = z.object({
   key: z.string(),
@@ -761,12 +813,79 @@ registry.registerPath({
             usedBytes: z.number(),
             locked: z.boolean(),
             scanned: z.number(),
+            complete: z.boolean(),
             timestamp: z.string(),
           }),
         },
       },
     },
     401: { description: 'Unauthorized' },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/v1/storage/presign',
+  request: {
+    body: {
+      description:
+        'Issue a short-lived owner-checked R2 GET URL or a session-bound PUT URL. PUT objects must be finalized before they become stored documents.',
+      content: {
+        'application/json': {
+          schema: z.union([
+            z.object({ operation: z.literal('download'), key: z.string().min(1).max(1024) }),
+            z.object({
+              operation: z.literal('upload'),
+              originalName: z.string().min(1).max(255),
+              contentType: z.string().min(1).max(128),
+              sizeBytes: z.number().int().positive(),
+              sha256: z.string().regex(/^[a-f0-9]{64}$/i),
+            }),
+          ]),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Short-lived signed R2 download or upload URL',
+      content: {
+        'application/json': {
+          schema: z.union([StoragePresignResponseSchema, StorageUploadPresignResponseSchema]),
+        },
+      },
+    },
+    400: { description: 'Invalid operation or object key' },
+    404: { description: 'Object not found or not owned by the caller' },
+    503: { description: 'R2 signing or metadata is not configured' },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/v1/storage/finalize',
+  request: {
+    body: {
+      description:
+        'Finalize a session-bound R2 upload after exact size, content type, and SHA-256 verification.',
+      content: {
+        'application/json': {
+          schema: z.object({ uploadId: z.string().uuid() }),
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'Verified object promoted to stored document metadata',
+      content: { 'application/json': { schema: StorageFinalizeResponseSchema } },
+    },
+    400: { description: 'Invalid finalization request' },
+    403: { description: 'Quota locked or unavailable' },
+    404: { description: 'Upload session not found' },
+    409: { description: 'Upload has not completed or is no longer pending' },
+    422: { description: 'Object metadata or checksum mismatch' },
+    503: { description: 'Storage or metadata unavailable' },
   },
 });
 
@@ -807,6 +926,46 @@ registry.registerPath({
     401: { description: 'Unauthorized' },
     415: { description: 'Unsupported Media Type' },
     503: { description: 'Knowledge reindex queue not configured' },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/v1/admin/knowledge/invalidate',
+  request: {
+    body: {
+      description:
+        'Queue a tombstone-first invalidation for source paths and their derived cache/vector artifacts.',
+      content: {
+        'application/json': {
+          schema: z.object({
+            paths: z.array(z.string()).min(1).max(50),
+            delaySeconds: z.number().int().min(0).max(900).optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    202: {
+      description: 'Knowledge invalidation job accepted for background processing',
+      content: {
+        'application/json': {
+          schema: z.object({
+            status: z.literal('enqueued'),
+            operation: z.literal('invalidate'),
+            backlogCount: z.number(),
+            queuedAt: z.string(),
+            source: z.literal('manual'),
+            pathCount: z.number(),
+          }),
+        },
+      },
+    },
+    400: { description: 'Invalid request body' },
+    401: { description: 'Unauthorized' },
+    415: { description: 'Unsupported Media Type' },
+    503: { description: 'Knowledge invalidation queue not configured' },
   },
 });
 

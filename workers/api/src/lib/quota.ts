@@ -41,14 +41,20 @@ export async function adjustApproxBytes(env: Env, delta: number): Promise<number
 
 export async function reconcileBucketUsage(
   env: Env
-): Promise<{ bytes: number; locked: boolean; scanned: number }> {
+): Promise<{ bytes: number; locked: boolean; scanned: number; complete: boolean }> {
   if (!env.DOCUMENTS || !env.SESSIONS)
-    return { bytes: await getApproxBytes(env), locked: await isQuotaLocked(env), scanned: 0 };
+    return {
+      bytes: await getApproxBytes(env),
+      locked: await isQuotaLocked(env),
+      scanned: 0,
+      complete: false,
+    };
   const bucket: R2Bucket = env.DOCUMENTS;
   const { softLimit } = getThresholds(env);
   let cursor: string | undefined = undefined;
   let total = 0;
   let scanned = 0;
+  let complete = true;
   const MAX_KEYS = 10000;
   do {
     const opts = cursor ? { cursor, limit: 1000 } : { limit: 1000 };
@@ -58,11 +64,16 @@ export async function reconcileBucketUsage(
       scanned++;
       if (scanned >= MAX_KEYS) break;
     }
-    cursor = list.truncated && scanned < MAX_KEYS ? list.cursor : undefined;
+    if (list.truncated && scanned >= MAX_KEYS) {
+      complete = false;
+      cursor = undefined;
+    } else {
+      cursor = list.truncated ? list.cursor : undefined;
+    }
   } while (cursor && scanned < MAX_KEYS);
   await kvPutNumber(env, QUOTA_KEY, total);
   let nextLock: boolean;
-  if (total > softLimit) {
+  if (!complete || total > softLimit) {
     nextLock = true;
   } else if (total < softLimit * 0.8) {
     nextLock = false;
@@ -70,5 +81,5 @@ export async function reconcileBucketUsage(
     nextLock = await isQuotaLocked(env);
   }
   await setQuotaLocked(env, nextLock);
-  return { bytes: total, locked: nextLock, scanned };
+  return { bytes: total, locked: nextLock, scanned, complete };
 }

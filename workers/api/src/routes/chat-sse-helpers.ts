@@ -64,17 +64,23 @@ export function createStreamingSSEStream(
     availableTools: Array<{ name: string; description: string }>;
     message: string;
     formatToolList: (tools: Array<{ name: string; description: string }>) => string;
+    onChunk?: (chunk: string) => void;
+    onComplete?: () => Promise<void> | void;
+    onError?: (error: unknown) => Promise<void> | void;
   }
 ): ReadableStream {
   return new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of stream) {
+          fallbackConfig?.onChunk?.(chunk);
           controller.enqueue(encoder.encode(createSSEMessage({ token: chunk })));
         }
+        await fallbackConfig?.onComplete?.();
         controller.enqueue(encoder.encode(createSSEDone()));
         controller.close();
       } catch (err) {
+        await fallbackConfig?.onError?.(err);
         // Fallback: If AI fails (e.g. local dev) but user asks for tools
         if (
           fallbackConfig &&

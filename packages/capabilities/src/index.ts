@@ -8,13 +8,29 @@ export {
   CurrencyCodeSchema,
   DataClassificationSchema,
   EvidenceSchema,
+  EvidenceEnvelopeSchema,
+  EvidenceTrustClassSchema,
+  EvidenceFreshnessSchema,
+  EvidenceConflictSchema,
   ExecutionScopeSchema,
   FormulaSemanticsSchema,
   LifecycleSchema,
+  NumericClaimSchema,
+  NumericClaimCheckSchema,
   PrecisionSchema,
+  ResponseVerificationSchema,
+  ResponseVerificationStatusSchema,
   ScenarioSchema,
   WarningSchema,
 } from './contracts.js';
+
+export {
+  RESPONSE_VERIFIER_VERSION,
+  verifyNumericClaims,
+  type NumericVerificationOptions,
+  type NumericVerificationResult,
+  type ResponseVerificationIssue,
+} from './response-verification.js';
 
 export type {
   AnalysisRequest,
@@ -24,10 +40,18 @@ export type {
   Capability,
   DataClassification,
   Evidence,
+  EvidenceEnvelope,
+  EvidenceTrustClass,
+  EvidenceFreshness,
+  EvidenceConflict,
   ExecutionScope,
   FormulaSemantics,
   Lifecycle,
+  NumericClaim,
+  NumericClaimCheck,
   Precision,
+  ResponseVerification,
+  ResponseVerificationStatus,
   Scenario,
   Warning,
 } from './contracts.js';

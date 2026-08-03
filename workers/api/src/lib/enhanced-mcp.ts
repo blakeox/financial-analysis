@@ -3,11 +3,29 @@
  * Implements MCP best practices for production deployment
  */
 
-import { handleMCPRequest } from '@financial-analysis/tools';
+import {
+  handleMCPRequest,
+  MCP_PAYLOAD_TOO_LARGE_ERROR_CODE,
+  MCP_POLICY_ERROR_CODE,
+  MCP_PROTOCOL_VERSION,
+  MCP_SERVER_VERSION,
+  MCP_SCOPES,
+  MCP_CAPABILITY_POLICY_VERSION,
+  getMCPCapabilityPolicy,
+  type MCPAuthorizationContext,
+} from '@financial-analysis/tools';
 import { z } from 'zod';
 import type { Env } from '../types';
 import { buildDefaultHeaders } from './headers';
+import { recordMCPAuditEvent, type MCPAuditEvent } from './mcp-audit';
 import { logError, logInfo, logWarn, type RequestContext } from './request-context';
+import {
+  commitBudgetReservation,
+  getDefaultBudgetLimits,
+  getDefaultReservationTtlSeconds,
+  releaseBudgetReservation,
+  reserveBudget,
+} from './usage-budget';
 
 // Enhanced MCP request schema with better validation
 const mcpRequestSchema = z.object({
@@ -16,6 +34,13 @@ const mcpRequestSchema = z.object({
   method: z.enum(['initialize', 'tools/list', 'tools/call']),
   params: z.unknown().optional(),
 });
+
+const mcpCallParamsSchema = z.object({
+  name: z.string().min(1).max(128),
+  arguments: z.unknown().optional(),
+});
+
+export const MCP_MAX_REQUEST_BYTES = 512 * 1024;
 
 // Enhanced MCP response schema
 const mcpResponseSchema = z.object({
@@ -59,6 +84,52 @@ export interface MCPMetrics {
   errorCode?: number;
 }
 
+async function readMCPRequestBody(request: Request): Promise<unknown> {
+  const contentLength = request.headers.get('content-length');
+  if (contentLength !== null) {
+    const declaredLength = Number(contentLength);
+    if (!Number.isSafeInteger(declaredLength) || declaredLength < 0) {
+      throw createMCPError(MCP_ERROR_CODES.INVALID_REQUEST, 'Invalid Content-Length');
+    }
+    if (declaredLength > MCP_MAX_REQUEST_BYTES) {
+      throw createMCPError(MCP_PAYLOAD_TOO_LARGE_ERROR_CODE, 'Request body is too large');
+    }
+  }
+
+  if (!request.body) throw new SyntaxError('Request body is empty');
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MCP_MAX_REQUEST_BYTES) {
+        await reader.cancel();
+        throw createMCPError(MCP_PAYLOAD_TOO_LARGE_ERROR_CODE, 'Request body is too large');
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes));
+  } catch {
+    throw new SyntaxError('Invalid JSON format');
+  }
+}
+
 /**
  * Enhanced MCP handler with comprehensive error handling and monitoring
  */
@@ -69,6 +140,27 @@ export async function handleEnhancedMCPRequest(
 ): Promise<Response> {
   const startTime = Date.now();
   let metrics: MCPMetrics;
+  let parsedRequest: z.infer<typeof mcpRequestSchema> | undefined;
+  let auditEvent: MCPAuditEvent | undefined;
+  let budgetReservationId: string | undefined;
+  let budgetCommitted = false;
+  let authorization: MCPAuthorizationContext = requestContext.auth
+    ? {
+        source:
+          requestContext.auth.source ??
+          (requestContext.auth.tier === 'internal' ? 'internal' : 'api-key'),
+        subject: requestContext.auth.customerId,
+        scopes: requestContext.auth.scopes,
+        mcpAnalysisEnabled: requestContext.auth.mcpAnalysisEnabled !== false,
+        auditCorrelationId: requestContext.runId,
+        budgetDecision: 'not-evaluated',
+      }
+    : {
+        source: env.ENVIRONMENT === 'production' ? 'api-key' : 'development',
+        scopes: env.ENVIRONMENT === 'production' ? [] : [MCP_SCOPES.ANALYSIS_READ],
+        auditCorrelationId: requestContext.runId,
+        budgetDecision: 'not-evaluated',
+      };
 
   try {
     // Validate content type
@@ -81,29 +173,98 @@ export async function handleEnhancedMCPRequest(
     }
 
     // Parse and validate request body
-    const body = await request.json();
-    const mcpRequest = mcpRequestSchema.parse(body);
+    const body = await readMCPRequestBody(request);
+    parsedRequest = mcpRequestSchema.parse(body);
+    if (parsedRequest.method === 'tools/call') {
+      const callParams = mcpCallParamsSchema.safeParse(parsedRequest.params);
+      if (!callParams.success) {
+        throw createMCPError(MCP_ERROR_CODES.INVALID_PARAMS, 'Invalid tools/call parameters');
+      }
+    }
 
-    // Execute MCP request
-    const result = await handleMCPRequest(mcpRequest.method, mcpRequest.params, env);
+    if (env.BUDGET_ENFORCEMENT_ENABLED === 'true' && parsedRequest.method === 'tools/call') {
+      const toolName = getMCPToolName(parsedRequest.params) ?? 'unknown';
+      const now = new Date();
+      const periodStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+      const ttlSeconds = getDefaultReservationTtlSeconds(env.BUDGET_RESERVATION_TTL_SECONDS);
+      const reservation = await reserveBudget(env, {
+        identity: {
+          principalId: requestContext.auth?.customerId ?? 'anonymous',
+          clientId: requestContext.auth?.clientId ?? requestContext.auth?.source ?? 'mcp',
+        },
+        periodStart: periodStart.toISOString(),
+        periodEnd: periodEnd.toISOString(),
+        runId: requestContext.runId,
+        capability: toolName,
+        idempotencyKey: request.headers.get('Idempotency-Key') ?? requestContext.requestId,
+        units: {
+          requestBytes: getSerializedByteLength(parsedRequest) ?? 0,
+          toolCalls: 1,
+        },
+        limits: getDefaultBudgetLimits(env),
+        expiresAt: new Date(now.getTime() + ttlSeconds * 1000).toISOString(),
+        degradedMode: 'deterministic',
+      });
+
+      if (!reservation.allowed) {
+        authorization = { ...authorization, budgetDecision: 'denied' };
+        throw createMCPError(MCP_ERROR_CODES.RATE_LIMITED, 'MCP budget unavailable or exceeded');
+      }
+      if (reservation.reservationId) {
+        budgetReservationId = reservation.reservationId;
+        authorization = { ...authorization, budgetDecision: 'reserved' };
+      }
+    }
+
+    const result = await handleMCPRequest(
+      parsedRequest.method,
+      parsedRequest.params,
+      env,
+      authorization
+    );
 
     // Build successful response
     const response = {
       jsonrpc: '2.0',
-      id: mcpRequest.id,
+      id: parsedRequest.id,
       result,
     };
 
     // Validate response structure
     mcpResponseSchema.parse(response);
 
+    if (budgetReservationId) {
+      const committed = await commitBudgetReservation(env, budgetReservationId, {
+        requestBytes: getSerializedByteLength(parsedRequest) ?? 0,
+        toolCalls: 1,
+      });
+      if (!committed.committed) {
+        authorization = { ...authorization, budgetDecision: 'released' };
+        throw createMCPError(MCP_ERROR_CODES.INTERNAL_ERROR, 'MCP budget commit failed');
+      }
+      budgetCommitted = true;
+      authorization = { ...authorization, budgetDecision: 'committed' };
+    }
+
+    const toolName = getMCPToolName(parsedRequest.params);
     metrics = {
       requestId: requestContext.requestId,
-      method: mcpRequest.method,
-      toolName: mcpRequest.method === 'tools/call' ? (mcpRequest.params as any)?.name : undefined,
+      method: parsedRequest.method,
+      ...(toolName === undefined ? {} : { toolName }),
       executionTimeMs: Date.now() - startTime,
       success: true,
     };
+
+    auditEvent = createMCPAuditEvent(
+      requestContext,
+      authorization,
+      parsedRequest,
+      200,
+      startTime,
+      undefined,
+      result
+    );
 
     // Log successful request
     logInfo(
@@ -121,6 +282,34 @@ export async function handleEnhancedMCPRequest(
     });
   } catch (error) {
     const executionTime = Date.now() - startTime;
+
+    if (error instanceof SyntaxError) {
+      metrics = {
+        requestId: requestContext.requestId,
+        method: 'unknown',
+        executionTimeMs: executionTime,
+        success: false,
+        errorCode: MCP_ERROR_CODES.PARSE_ERROR,
+      };
+
+      logWarn(
+        requestContext,
+        'MCP request JSON parsing failed',
+        metrics as unknown as Record<string, unknown>
+      );
+
+      return new Response(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'unknown',
+          error: createMCPError(MCP_ERROR_CODES.PARSE_ERROR, 'Invalid JSON format'),
+        }),
+        {
+          status: 400,
+          headers: buildDefaultHeaders(env),
+        }
+      );
+    }
 
     // Handle different error types
     if (error instanceof z.ZodError) {
@@ -164,10 +353,24 @@ export async function handleEnhancedMCPRequest(
 
       logWarn(requestContext, 'MCP request failed', { ...metrics, error: error.message });
 
+      if (
+        parsedRequest &&
+        (error.code === MCP_POLICY_ERROR_CODE || error.code === MCP_PAYLOAD_TOO_LARGE_ERROR_CODE)
+      ) {
+        auditEvent = createMCPAuditEvent(
+          requestContext,
+          authorization,
+          parsedRequest,
+          getStatusCodeForMCPError(error.code),
+          startTime,
+          error.code
+        );
+      }
+
       return new Response(
         JSON.stringify({
           jsonrpc: '2.0',
-          id: 'unknown',
+          id: parsedRequest?.id ?? 'unknown',
           error: {
             code: error.code,
             message: 'Request failed',
@@ -196,7 +399,7 @@ export async function handleEnhancedMCPRequest(
     return new Response(
       JSON.stringify({
         jsonrpc: '2.0',
-        id: 'unknown',
+        id: parsedRequest?.id ?? 'unknown',
         error: {
           code: mcpError.code,
           message: 'Internal server error',
@@ -207,7 +410,74 @@ export async function handleEnhancedMCPRequest(
         headers: buildDefaultHeaders(env),
       }
     );
+  } finally {
+    if (budgetReservationId && !budgetCommitted) {
+      await releaseBudgetReservation(env, budgetReservationId);
+    }
+    if (auditEvent) {
+      await recordMCPAuditEvent(env, auditEvent);
+    }
   }
+}
+
+function getMCPToolName(params: unknown): string | undefined {
+  if (typeof params !== 'object' || params === null || !('name' in params)) {
+    return undefined;
+  }
+  const name = (params as { name?: unknown }).name;
+  return typeof name === 'string' ? name : undefined;
+}
+
+function getSerializedByteLength(value: unknown): number | undefined {
+  try {
+    const serialized = JSON.stringify(value ?? null);
+    return encodeURIComponent(serialized).replace(/%[0-9A-F]{2}/gi, 'x').length;
+  } catch {
+    return undefined;
+  }
+}
+
+function createMCPAuditEvent(
+  requestContext: RequestContext,
+  authorization: MCPAuthorizationContext,
+  parsedRequest: z.infer<typeof mcpRequestSchema>,
+  statusCode: number,
+  startTime: number,
+  errorCode?: number,
+  result?: unknown
+): MCPAuditEvent {
+  const apiKeyId =
+    requestContext.auth?.apiKeyId && requestContext.auth.apiKeyId > 0
+      ? requestContext.auth.apiKeyId
+      : undefined;
+  const customerId = requestContext.auth?.customerId;
+  const capability = getMCPToolName(parsedRequest.params);
+  const inputBytes = getSerializedByteLength(parsedRequest.params);
+  const outputBytes = result === undefined ? undefined : getSerializedByteLength(result);
+  const policy = capability ? getMCPCapabilityPolicy(capability) : undefined;
+
+  return {
+    requestId: requestContext.requestId,
+    runId: requestContext.runId,
+    occurredAt: new Date().toISOString(),
+    ...(apiKeyId === undefined ? {} : { apiKeyId }),
+    ...(customerId === undefined ? {} : { customerId }),
+    source: authorization.source,
+    scopes: authorization.scopes,
+    method: parsedRequest.method,
+    ...(capability === undefined ? {} : { capability }),
+    policyVersion: policy?.policyVersion ?? MCP_CAPABILITY_POLICY_VERSION,
+    principalId: authorization.subject ?? 'anonymous',
+    resourceScope: policy?.resourceScope ?? 'system',
+    budgetDecision: authorization.budgetDecision ?? 'not-evaluated',
+    auditCorrelationId: authorization.auditCorrelationId ?? requestContext.runId,
+    decision: errorCode === undefined ? 'allowed' : 'denied',
+    ...(errorCode === undefined ? {} : { errorCode }),
+    statusCode,
+    ...(inputBytes === undefined ? {} : { inputBytes }),
+    ...(outputBytes === undefined ? {} : { outputBytes }),
+    durationMs: Date.now() - startTime,
+  };
 }
 
 /**
@@ -246,6 +516,10 @@ function getStatusCodeForMCPError(code: number): number {
       return 404;
     case MCP_ERROR_CODES.RATE_LIMITED:
       return 429;
+    case MCP_POLICY_ERROR_CODE:
+      return 403;
+    case MCP_PAYLOAD_TOO_LARGE_ERROR_CODE:
+      return 413;
     case MCP_ERROR_CODES.INTERNAL_ERROR:
     case MCP_ERROR_CODES.SERVER_ERROR:
     case MCP_ERROR_CODES.TOOL_EXECUTION_ERROR:
@@ -259,17 +533,18 @@ function getStatusCodeForMCPError(code: number): number {
  */
 export async function handleMCPToolsList(
   env: Env,
-  requestContext: RequestContext
+  requestContext: RequestContext,
+  authorization: MCPAuthorizationContext
 ): Promise<Response> {
   try {
-    const result = await handleMCPRequest('tools/list', undefined, env);
+    const result = await handleMCPRequest('tools/list', undefined, env, authorization);
 
     // Add metadata for better client experience
     const enhancedResult = {
       ...(typeof result === 'object' && result !== null ? result : {}),
       metadata: {
-        serverVersion: '1.0.0',
-        protocolVersion: '2024-11-05',
+        serverVersion: MCP_SERVER_VERSION,
+        protocolVersion: MCP_PROTOCOL_VERSION,
         capabilities: {
           tools: true,
           resources: false,
@@ -283,7 +558,8 @@ export async function handleMCPToolsList(
       headers: {
         ...buildDefaultHeaders(env),
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+        'Cache-Control': 'no-store',
+        Vary: 'Authorization, X-API-Key, X-Internal-API-Token',
       },
     });
   } catch (error) {

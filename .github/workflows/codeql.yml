@@ -43,7 +43,7 @@ jobs:
         id: paths
         uses: ./.github/actions/repo-path-filter
         with:
-          filters: .github/path-filters.yml
+          filters-file: .github/path-filters.yml
 
       - name: Skipped (doc-only or skip-ci)
         if: |

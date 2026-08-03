@@ -6,9 +6,15 @@ import {
   __testing,
 } from '../llm-function-calling';
 import type { Ai } from '@cloudflare/workers-types';
-import type { MCPTool } from '@financial-analysis/tools';
+import { MCP_SCOPES, type MCPTool } from '@financial-analysis/tools';
 
-const { preFilterTools, extractModelChanges, withTimeout, TOOL_EXECUTION_TIMEOUT_MS } = __testing;
+const {
+  preFilterTools,
+  filterAuthorizedMCPTools,
+  extractModelChanges,
+  withTimeout,
+  TOOL_EXECUTION_TIMEOUT_MS,
+} = __testing;
 
 describe('FunctionCallingService', () => {
   let mockAi: { run: ReturnType<typeof vi.fn> };
@@ -216,6 +222,29 @@ describe('preFilterTools (actual function)', () => {
     const result = preFilterTools(tools, 'commercial lease rent analysis cam');
     // analyze_enhanced_lease should score higher with more keyword matches
     expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('filters model-visible tools through the MCP capability policy', () => {
+    const tools = [createMockTool('analyze_lease'), createMockTool('cache_document')];
+    const result = filterAuthorizedMCPTools(tools, {
+      source: 'internal',
+      subject: 'test-agent',
+      scopes: [MCP_SCOPES.ANALYSIS_READ],
+      mcpAnalysisEnabled: true,
+    });
+
+    expect(result.map((tool) => tool.name)).toEqual(['analyze_lease']);
+  });
+
+  it('removes every model-visible tool when the MCP kill switch is off', () => {
+    const result = filterAuthorizedMCPTools([createMockTool('analyze_lease')], {
+      source: 'internal',
+      subject: 'test-agent',
+      scopes: [MCP_SCOPES.ANALYSIS_READ],
+      mcpAnalysisEnabled: false,
+    });
+
+    expect(result).toEqual([]);
   });
 });
 

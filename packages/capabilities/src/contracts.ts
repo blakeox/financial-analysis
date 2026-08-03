@@ -44,15 +44,78 @@ export const WarningSchema = z.object({
   severity: z.enum(['info', 'warning', 'error']),
 });
 
-export const EvidenceSchema = z.object({
+export const NumericClaimSchema = z.object({
   id: IdentifierSchema,
+  outputKey: IdentifierSchema,
+  value: z.number().finite(),
+  unit: z.string().trim().min(1).max(64).optional(),
+});
+
+export const NumericClaimCheckSchema = z.object({
+  id: IdentifierSchema,
+  outputKey: IdentifierSchema,
+  observedValue: z.number().finite(),
+  expectedValue: z.number().finite().optional(),
+  unit: z.string().trim().min(1).max(64).optional(),
+  tolerance: z.number().finite().nonnegative(),
+  status: z.enum(['matched', 'mismatch', 'unsupported']),
+});
+
+export const ResponseVerificationStatusSchema = z.enum([
+  'verified',
+  'partially-verified',
+  'unverified',
+  'rejected',
+]);
+
+export const ResponseVerificationSchema = z.object({
+  contractVersion: VersionSchema,
+  verificationId: IdentifierSchema,
+  analysisRunId: IdentifierSchema,
+  answerId: IdentifierSchema.optional(),
+  verifiedAt: TimestampSchema,
+  verifierVersion: VersionSchema,
+  status: ResponseVerificationStatusSchema,
+  numericClaims: z.array(NumericClaimCheckSchema),
+  issues: z.array(WarningSchema),
+});
+
+export const EvidenceTrustClassSchema = z.enum([
+  'source-fact',
+  'user-claim',
+  'derived-calculation',
+  'model-summary',
+  'untrusted-content',
+]);
+
+export const EvidenceFreshnessSchema = z.enum(['current', 'stale', 'unknown', 'invalidated']);
+export const EvidenceConflictSchema = z.enum(['none', 'conflicting', 'unresolved']);
+
+/**
+ * Evidence is data only. The envelope intentionally carries no authorization
+ * or tool-grant field; retrieved text cannot widen policy or memory authority.
+ */
+export const EvidenceEnvelopeSchema = z.object({
+  id: IdentifierSchema,
+  artifactId: IdentifierSchema,
+  ownerScope: ExecutionScopeSchema,
   kind: z.enum(['calculation', 'document', 'market-data', 'user-input', 'external']),
   title: z.string().trim().min(1).max(256),
   source: z.string().trim().min(1).max(256),
   sourceUri: z.string().url().optional(),
-  retrievedAt: TimestampSchema.optional(),
+  retrievedAt: TimestampSchema,
+  validThrough: TimestampSchema.optional(),
+  contentHash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  parserVersion: VersionSchema,
+  indexVersion: VersionSchema,
+  trustClass: EvidenceTrustClassSchema,
+  freshness: EvidenceFreshnessSchema,
+  conflict: EvidenceConflictSchema,
+  instructionAuthority: z.literal('data-only'),
   dataClassification: DataClassificationSchema,
 });
+
+export const EvidenceSchema = EvidenceEnvelopeSchema;
 
 export const FormulaSemanticsSchema = z.object({
   formulaVersion: VersionSchema,
@@ -202,7 +265,15 @@ export type Lifecycle = z.infer<typeof LifecycleSchema>;
 export type Precision = z.infer<typeof PrecisionSchema>;
 export type Assumption = z.infer<typeof AssumptionSchema>;
 export type Warning = z.infer<typeof WarningSchema>;
+export type NumericClaim = z.infer<typeof NumericClaimSchema>;
+export type NumericClaimCheck = z.infer<typeof NumericClaimCheckSchema>;
+export type ResponseVerificationStatus = z.infer<typeof ResponseVerificationStatusSchema>;
+export type ResponseVerification = z.infer<typeof ResponseVerificationSchema>;
 export type Evidence = z.infer<typeof EvidenceSchema>;
+export type EvidenceEnvelope = z.infer<typeof EvidenceEnvelopeSchema>;
+export type EvidenceTrustClass = z.infer<typeof EvidenceTrustClassSchema>;
+export type EvidenceFreshness = z.infer<typeof EvidenceFreshnessSchema>;
+export type EvidenceConflict = z.infer<typeof EvidenceConflictSchema>;
 export type FormulaSemantics = z.infer<typeof FormulaSemanticsSchema>;
 export type Scenario = z.infer<typeof ScenarioSchema>;
 export type Capability = z.infer<typeof CapabilitySchema>;

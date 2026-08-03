@@ -30,6 +30,14 @@ function getOrCreateSessionName(): string {
   return created;
 }
 
+function getApiOrigin(): string {
+  if (window.location.hostname === 'localhost') return 'http://localhost:8787';
+  if (window.location.hostname === 'fanalyx-web-preview.blakeoxford.workers.dev') {
+    return 'https://fanalyx-api-preview.blakeoxford.workers.dev';
+  }
+  return 'https://fanalyx-api-production.blakeoxford.workers.dev';
+}
+
 function getMessageText(message: { parts: Array<{ type: string; text?: string }> }): string {
   return message.parts
     .filter((part) => part.type === 'text' && typeof part.text === 'string')
@@ -40,9 +48,16 @@ function getMessageText(message: { parts: Array<{ type: string; text?: string }>
 export function AgentChatPanel() {
   const [input, setInput] = useState('');
   const sessionName = useMemo(() => getOrCreateSessionName(), []);
+  const apiOrigin = useMemo(() => getApiOrigin(), []);
+  const loginUrl = useMemo(
+    () =>
+      `${apiOrigin}/oauth/login?return_to=${encodeURIComponent(`${window.location.origin}/agent`)}`,
+    [apiOrigin]
+  );
   const agent = useAgent({
     agent: 'FinancialAnalysisAgent',
     name: sessionName,
+    host: apiOrigin,
   });
   const { messages, sendMessage, status } = useAgentChat({ agent });
 
@@ -66,6 +81,12 @@ export function AgentChatPanel() {
               Powered by Cloudflare Project Think with persistent agent sessions and deterministic
               finance tools.
             </p>
+            <a
+              href={loginUrl}
+              className="mt-2 inline-flex text-sm font-semibold text-violet-700 underline-offset-4 hover:underline dark:text-violet-300"
+            >
+              Sign in with Clerk to use private Agent memory
+            </a>
           </div>
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-3 py-1 text-xs font-medium text-slate-700 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />

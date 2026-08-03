@@ -73,4 +73,39 @@ describe('checkRateLimit', () => {
     expect(result.allowed).toBe(false);
     expect(result.remaining).toBe(0);
   });
+
+  it('should fail closed in production when KV is unavailable', async () => {
+    env.ENVIRONMENT = 'production';
+    const request = new Request('https://api.example.com/v1/chat/enhanced');
+    mockKV.get.mockRejectedValue(new Error('KV unavailable'));
+
+    const result = await checkRateLimit(request, env);
+
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
+    expect(result.limit).toBe(20);
+  });
+
+  it('should fail closed in production when the KV binding is missing', async () => {
+    env = { ENVIRONMENT: 'production' } as Env;
+    const request = new Request('https://api.example.com/v1/chat/enhanced');
+
+    const result = await checkRateLimit(request, env);
+
+    expect(result.allowed).toBe(false);
+    expect(result.remaining).toBe(0);
+    expect(result.limit).toBe(20);
+  });
+
+  it('should preserve graceful fallback outside production when KV is unavailable', async () => {
+    env.ENVIRONMENT = 'preview';
+    const request = new Request('https://api.example.com/v1/chat/enhanced');
+    mockKV.get.mockRejectedValue(new Error('KV unavailable'));
+
+    const result = await checkRateLimit(request, env);
+
+    expect(result.allowed).toBe(true);
+    expect(result.remaining).toBe(1000);
+    expect(result.limit).toBe(1000);
+  });
 });

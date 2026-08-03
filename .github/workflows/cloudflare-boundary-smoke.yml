@@ -1,0 +1,45 @@
+name: Cloudflare Boundary Smoke
+
+on:
+  schedule:
+    - cron: '15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-boundary-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: ${{ matrix.environment }} API boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: preview
+            url: https://fanalyx-api-preview.blakeoxford.workers.dev
+          - environment: production
+            url: https://fanalyx-api-production.blakeoxford.workers.dev
+    env:
+      API_URL: ${{ matrix.url }}
+      ENVIRONMENT: ${{ matrix.environment }}
+      CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-${{ matrix.environment }}.json
+    steps:
+      - name: Checkout smoke harness
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Run machine-readable boundary conformance
+        run: node scripts/cloudflare-boundary-smoke.mjs
+
+      - name: Upload boundary receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-boundary-${{ matrix.environment }}
+          path: boundary-receipt-${{ matrix.environment }}.json
+          if-no-files-found: error

@@ -5,6 +5,7 @@ import {
   type ExtractedLeaseData,
 } from '@financial-analysis/analysis';
 import { z } from 'zod';
+import { CloudflareWorkersAIProvider, isModelEgressEnabled } from './model-provider';
 
 // AI prompt for lease extraction
 const LEASE_EXTRACTION_PROMPT = `You are a financial analyst AI specialized in extracting lease agreement data. Analyze the provided lease document text and extract structured financial and property information.
@@ -113,9 +114,12 @@ ${options.preferredLeaseType ? `Preferred lease type hint: ${options.preferredLe
 Extract lease data as JSON:`;
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ai = env.AI as any;
-    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const modelProvider = new CloudflareWorkersAIProvider(
+      env.AI,
+      env.AI_GATEWAY_ID,
+      isModelEgressEnabled(env.AI_EGRESS_ENABLED)
+    );
+    const response = await modelProvider.run('@cf/meta/llama-3.1-8b-instruct', {
       messages: [
         {
           role: 'system',
@@ -131,8 +135,11 @@ Extract lease data as JSON:`;
     let aiResponse = '';
     if (typeof response === 'string') {
       aiResponse = response;
-    } else if (response && typeof response === 'object' && 'response' in response) {
-      aiResponse = String(response.response);
+    } else if (response && typeof response === 'object') {
+      const responseRecord = response as Record<string, unknown>;
+      if ('response' in responseRecord) {
+        aiResponse = String(responseRecord.response);
+      }
     }
 
     // Clean and parse AI response

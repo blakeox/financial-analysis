@@ -66,6 +66,14 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Apply API D1 migrations (production)
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler d1 migrations apply DB --config wrangler.toml --env=production --remote
+
       - name: Deploy API (production)
         working-directory: workers/api
         env:
@@ -87,11 +95,15 @@ jobs:
       - name: Smoke-test production deployment
         env:
           API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
+          ENVIRONMENT: production
+          CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-production.json
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
         run: |
           set -euo pipefail
+
+          node scripts/cloudflare-boundary-smoke.mjs
 
           fetch_json() {
             curl \
@@ -129,3 +141,11 @@ jobs:
             <<<"${web_version}" >/dev/null
 
           echo "Production smoke checks passed for ${EXPECTED_SHA}"
+
+      - name: Upload production boundary receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-boundary-production
+          path: boundary-receipt-production.json
+          if-no-files-found: error

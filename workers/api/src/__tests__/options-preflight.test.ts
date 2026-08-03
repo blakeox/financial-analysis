@@ -19,7 +19,9 @@ describe('OPTIONS preflight headers', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('access-control-allow-origin')).toBe('*');
     expect(res.headers.get('access-control-allow-methods')).toBe('GET, POST, PUT, DELETE, OPTIONS');
-    expect(res.headers.get('access-control-allow-headers')).toBe('Content-Type, Authorization');
+    expect(res.headers.get('access-control-allow-headers')).toBe(
+      'Content-Type, Authorization, X-API-Key, X-Internal-API-Token, X-Request-ID, X-Correlation-ID, X-Parent-Request-ID, X-Analysis-Run-ID, Idempotency-Key'
+    );
     expect(res.headers.get('vary')).toBe('Origin');
     expect(res.headers.get('allow')).toBe('POST, OPTIONS');
   });
