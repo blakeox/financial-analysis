@@ -132,6 +132,11 @@ To skip preview deploys, remove the label or don’t add it.
   explicitly dispatches a rollback using a known-good main SHA. Do not treat the
   GitHub job result alone as proof that Cloudflare is serving the expected SHA.
 
+The preview environment deployment-branch allowlist includes the active
+development branch and `main`. This permits a successful main-commit preview
+receipt to be used as the production promotion prerequisite without allowing
+arbitrary branches to consume preview credentials.
+
 ## Free-Tier Edge Hardening
 
 The `fanalyx.com` zone has one active Cloudflare Response Header Transform Rule:
