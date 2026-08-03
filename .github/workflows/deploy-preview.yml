@@ -122,12 +122,28 @@ jobs:
 
           echo "Preview API and web receipts verified for ${EXPECTED_SHA}"
 
+      - name: Run preview OAuth conformance
+        env:
+          API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
+          ENVIRONMENT: preview
+          EXPECT_OAUTH_ENABLED: 'true'
+          CLOUDFLARE_OAUTH_RECEIPT: cloudflare-oauth-conformance-preview.json
+        run: node scripts/cloudflare-oauth-conformance.mjs
+
       - name: Upload preview boundary receipt
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cloudflare-boundary-preview
           path: boundary-receipt-preview.json
+          if-no-files-found: ignore
+
+      - name: Upload preview OAuth receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-oauth-conformance-preview
+          path: cloudflare-oauth-conformance-preview.json
           if-no-files-found: ignore
 
       - name: Record preview deployment on pull request
