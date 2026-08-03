@@ -11,7 +11,8 @@ The authenticated Wrangler token currently has `zone (read)` but does not have
 Cloudflare `Zone WAF Read` or `Zone WAF Write`. The repository therefore does
 not apply live WAF mutations from the application deploy path.
 
-Run the read-only audit when a token with WAF read access is available:
+Run the read-only audit when a token with WAF read access is available in the
+protected GitHub `production` environment:
 
 ```bash
 CLOUDFLARE_API_TOKEN='(process environment only)' \

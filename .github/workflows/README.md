@@ -92,7 +92,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 1. **General → Allow auto-merge** — required for Dependabot auto-merge
 2. **Actions → Run workflows from Dependabot pull requests** — full CI on dependency PRs
 3. **Branch protection** — auto-synced from [.github/branch-protection.json](../branch-protection.json) (`PR gate`, `Secret scan`, `CI gate`, `Build and test`, `E2E smoke`, `CodeQL`, `MCP policy`)
-4. **Secrets** — Cloudflare tokens for deploy; optional `CODECOV_TOKEN`; Slack for monitors
+4. **Secrets** — Cloudflare deploy tokens, protected production `CLOUDFLARE_WAF_READ_TOKEN`, optional `CODECOV_TOKEN`; Slack for monitors
 5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
 6. **Clerk OAuth** — add `CLERK_SECRET_KEY` only to the selected protected GitHub environment before running [provision-clerk-oauth.yml](./provision-clerk-oauth.yml); use dry-run first and require production confirmation for apply
 
