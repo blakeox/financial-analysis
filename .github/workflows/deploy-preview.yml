@@ -101,6 +101,7 @@ jobs:
           API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
           ENVIRONMENT: preview
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
+          EXPECTED_OAUTH_ENABLED: 'true'
           CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-preview.json
           WEB_URL: https://fanalyx-web-preview.blakeoxford.workers.dev
         run: |

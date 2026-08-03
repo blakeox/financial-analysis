@@ -6,6 +6,7 @@ import { writeFile } from 'node:fs/promises';
 const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
+const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
 const receiptPath =
   process.env.CLOUDFLARE_BOUNDARY_RECEIPT?.trim() || 'cloudflare-boundary-receipt.json';
 
@@ -118,7 +119,7 @@ async function main() {
     });
     record(
       'fail-closed canaries',
-      version.json?.controls?.oauthEnabled === false &&
+      version.json?.controls?.oauthEnabled === expectedOAuthEnabled &&
         version.json?.controls?.budgetEnforcementEnabled === false &&
         version.json?.controls?.connectorEgressEnabled === false &&
         version.json?.controls?.codeModeEnabled === false,
@@ -173,16 +174,20 @@ async function main() {
 
     const method = await readResponse(await fetchWithRetry('/health', { method: 'PATCH' }));
     const methodCode = method.json?.code ?? method.json?.error?.code;
-    record(
-      'method allow-list',
-      method.status === 405 && methodCode === 'METHOD_NOT_ALLOWED',
-      { status: method.status, code: methodCode, allow: method.headers.allow }
-    );
+    record('method allow-list', method.status === 405 && methodCode === 'METHOD_NOT_ALLOWED', {
+      status: method.status,
+      code: methodCode,
+      allow: method.headers.allow,
+    });
 
     const oauth = await readResponse(
       await fetchWithRetry('/.well-known/oauth-authorization-server')
     );
-    record('OAuth kill switch', oauth.status === 404, { status: oauth.status });
+    const expectedOAuthDiscoveryStatus = expectedOAuthEnabled ? 200 : 404;
+    record('OAuth discovery boundary', oauth.status === expectedOAuthDiscoveryStatus, {
+      expectedStatus: expectedOAuthDiscoveryStatus,
+      status: oauth.status,
+    });
 
     const agent = await readResponse(
       await fetchWithRetry('/agents/FinancialAnalysisAgent/smoke-thread')
