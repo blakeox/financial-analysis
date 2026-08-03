@@ -48,10 +48,10 @@ Current gates:
   available.
 - (✅) Dedicated preview and production `OAUTH_KV` namespaces provisioned and
   bound.
-- (🟡) Existing MCP/OAuth audit migrations are applied to remote preview and
-  production D1; the additive `0007_mcp_audit_run_id.sql` and
-  `0008_mcp_audit_policy_receipt.sql` migrations remain pending in both
-  environments and are gated by the deployment workflows.
+- (🟡) Existing MCP/OAuth audit migrations and additive migrations
+  `0007_mcp_audit_run_id.sql` and `0008_mcp_audit_policy_receipt.sql` are now
+  applied to remote preview D1. Production migration application remains
+  gated by the protected production deployment workflow.
 - (🟡) Local authoritative CI gate passes: duplicate guard, smoke, typecheck,
   lint, format, audit, and full workspace tests. The duplicate guard still
   reports 541 nonblocking macOS Finder duplicates under `node_modules`.
@@ -71,10 +71,11 @@ Current gates:
   independent OAuth/model-egress/budget-enforcement/connector-egress control state for
   deployment receipts; the boundary smoke test now fails closed when the
   expected fail-closed canary states are absent or enabled unexpectedly.
-- (🟡) Preview deployment now verifies the API `/health` and `/version` receipt,
-  checks the preview web title, and records the verified commit on the pull
-  request; hosted execution of the workflow is still required for the first
-  promotion receipt.
+- (✅) Preview deployment verifies the API `/health` and `/version` receipt,
+  checks the preview web title, uploads a SHA-bound boundary receipt, and
+  passed independently after propagation on the published Worker. The preview
+  environment allows only explicitly registered preview branches; production
+  remains protected.
 - (✅) OAuth remains fail-closed in live environments: `OAUTH_ENABLED=false`
   yields no public discovery or authorization endpoints until the identity
   provider gate is complete.
