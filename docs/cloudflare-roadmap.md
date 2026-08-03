@@ -119,6 +119,11 @@ Current gates:
 - (🟡) Deploy the canary with `OAUTH_ENABLED=false`, then run preview conformance.
 - (🔜) Enable preview OAuth, validate ChatGPT/Codex/local-client discovery and
   revocation, then promote the same configuration pattern to production.
+- (✅) Added a credential-free OAuth conformance harness and manual workflow
+  covering the disabled kill switch, authorization/resource discovery, HTTPS
+  endpoint metadata, supported formula scope, and dynamic public-client
+  registration. Browser login, token exchange, and grant retention remain
+  intentionally outside this probe.
 - (✅) Add the shared D1 usage-budget reservation contract for model tokens,
   estimated cost, tool calls, bytes, queue work, retention, and concurrency;
   identities are pseudonymous and retries are idempotent.

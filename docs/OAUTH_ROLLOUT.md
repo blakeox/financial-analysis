@@ -174,6 +174,12 @@ an opaque verified-owner hash before selecting the Durable Object.
 
 ## Enablement gate
 
+The credential-free [OAuth conformance harness](../scripts/cloudflare-oauth-conformance.mjs)
+and its manual workflow validate both the disabled kill-switch state and the
+enabled discovery/resource-registration contract. They never perform a browser
+login, exchange a token, or retain a grant. Run the enabled mode only after the
+Clerk/OIDC provider gate is complete.
+
 Do not enable OAuth in preview or production until all of the following are true:
 
 1. A configured OIDC provider or Cloudflare Access protects `/oauth/authorize` and supplies a verified assertion.
