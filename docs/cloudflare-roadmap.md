@@ -56,11 +56,10 @@ Current gates:
   lint, format, audit, and full workspace tests. The duplicate guard still
   reports 541 nonblocking macOS Finder duplicates under `node_modules`.
 - (✅) Preview `/health` and `/version` return 200 and a SHA-bound receipt for
-  `6348054474a4aff9839c6285d3d467f5cc96e4d4`, including the current MCP
-  protocol/policy identifiers, OIDC readiness, and fail-closed controls.
-  Independent hosted smoke passed in deployment run `30806544436`;
-  production remains protected and intentionally awaits the matching preview
-  promotion gate.
+  `a97590ac6fc20d93189906fe8958ddd58518676b`, including the current MCP
+  protocol/policy identifiers, OIDC readiness, OAuth-enabled state, and
+  fail-closed controls. Hosted deployment run `30862200877` passed the API,
+  web, boundary, and OAuth receipts; production remains protected.
 - (✅) Protected MCP responses are explicitly non-cacheable and vary on all
   supported credentials (`Authorization`, `X-API-Key`, and
   `X-Internal-API-Token`); anonymous `tools/list` is empty and anonymous
@@ -77,17 +76,21 @@ Current gates:
   control, and the hosted boundary smoke rejects an enabled OAuth deployment
   whose browser OIDC configuration is incomplete.
 - (✅) Preview deployment verifies the API `/health` and `/version` receipt,
-  checks the preview web title, uploads a SHA-bound boundary receipt, and
-  passed independently after propagation on the published Worker at
-  `6348054474a4aff9839c6285d3d467f5cc96e4d4`. The preview environment allows
-  only explicitly registered preview branches, including `main`; production
-  remains protected.
-- (✅) OAuth remains fail-closed in live environments: `OAUTH_ENABLED=false`
-  yields no public discovery or authorization endpoints until the identity
-  provider gate is complete.
+  checks the preview web title, uploads SHA-bound boundary and OAuth receipts,
+  and runs enabled-mode OAuth conformance on every deployment. The preview
+  environment allows only explicitly registered preview branches, including
+  `main`; production remains protected.
+- (✅) Preview OAuth is enabled against Clerk's public PKCE configuration;
+  discovery, protected-resource metadata, and dynamic public-client
+  registration pass hosted conformance. Production remains fail-closed with
+  `OAUTH_ENABLED=false` until its separate promotion gate is approved.
 - (✅) Credential-free hosted boundary smoke checks run hourly for both
   environments: health/version receipt, unauthenticated MCP/storage rejection,
-  method allow-listing, and OAuth discovery fail-closed behavior.
+  method allow-listing, environment-specific OAuth discovery state, and
+  foreign-origin Agent denial.
+- (✅) Preview API and web Workers now enable 100% invocation logging through
+  Wrangler observability configuration, matching the existing production
+  logging posture; external log export remains a separate future control.
 - (✅) The production Workers monitor now emits a bounded, read-only JSON health
   receipt as a retained workflow artifact and job summary. Hosted run
   `30807488844` passed on `6a7c76b960f3b61e21c20b7c9d99e31103010306` with a
@@ -98,7 +101,8 @@ Current gates:
   isolation, method controls, and OAuth kill-switch behavior; deployment jobs
   upload the receipt as an artifact and fail before publication evidence is
   accepted when a boundary regresses.
-- (🟡) Configure a real Clerk OAuth application and Worker secrets.
+- (✅) Configure real Clerk OAuth applications and public Worker OIDC
+  configuration; no client secret is required for the public PKCE flow.
 - (✅) Added a protected, dry-run-first
   `.github/workflows/provision-clerk-oauth.yml` workflow that reconciles the
   environment-specific Clerk application, requires explicit production
@@ -116,9 +120,12 @@ Current gates:
 - (✅) Browser OIDC login now fails closed unless issuer, JWKS, authorization,
   token, and callback endpoints are all HTTPS; focused login and resource-owner
   tests cover each rejected endpoint configuration.
-- (🟡) Deploy the canary with `OAUTH_ENABLED=false`, then run preview conformance.
-- (🔜) Enable preview OAuth, validate ChatGPT/Codex/local-client discovery and
-  revocation, then promote the same configuration pattern to production.
+- (✅) Deploy the canary with `OAUTH_ENABLED=false`, then run preview
+  conformance.
+- (✅) Enable preview OAuth and validate ChatGPT/Codex/local-client discovery
+  and public PKCE registration through the protected deployment workflow.
+  Production promotion, grant revocation testing, and identity-provider
+  sign-in remain separate protected gates.
 - (✅) Added a credential-free OAuth conformance harness and manual workflow
   covering the disabled kill switch, authorization/resource discovery, HTTPS
   endpoint metadata, supported formula scope, and dynamic public-client

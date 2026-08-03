@@ -120,6 +120,12 @@ host = "localhost"
 # Preview environment
 [env.preview]
 name = "fanalyx-api-preview"
+
+[env.preview.observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
 [env.preview.vars]
 ENVIRONMENT = "preview"
 ALLOWED_ORIGIN = "https://fanalyx-web-preview.blakeoxford.workers.dev"

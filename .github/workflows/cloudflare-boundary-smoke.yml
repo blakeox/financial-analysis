@@ -23,11 +23,14 @@ jobs:
         include:
           - environment: preview
             url: https://fanalyx-api-preview.blakeoxford.workers.dev
+            expected_oauth_enabled: true
           - environment: production
             url: https://fanalyx-api-production.blakeoxford.workers.dev
+            expected_oauth_enabled: false
     env:
       API_URL: ${{ matrix.url }}
       ENVIRONMENT: ${{ matrix.environment }}
+      EXPECTED_OAUTH_ENABLED: ${{ matrix.expected_oauth_enabled }}
       CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-${{ matrix.environment }}.json
     steps:
       - name: Checkout smoke harness

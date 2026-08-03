@@ -26,6 +26,12 @@ API_DEV_ORIGIN = "http://localhost:8787"
 # Preview environment
 [env.preview]
 name = "fanalyx-web-preview"
+
+[env.preview.observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
 [env.preview.vars]
 ENVIRONMENT = "preview"
 API_ORIGIN = "https://fanalyx-api-preview.blakeoxford.workers.dev"
