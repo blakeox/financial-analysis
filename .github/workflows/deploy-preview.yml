@@ -38,7 +38,10 @@ jobs:
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "CLOUDFLARE_PREVIEW_API_TOKEN is required" >&2; exit 1; }
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "CLOUDFLARE_ACCOUNT_ID is required" >&2; exit 1; }
 
-      - name: Verify Cloudflare target account
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Verify Cloudflare target D1
         working-directory: workers/api
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_PREVIEW_API_TOKEN }}
@@ -46,9 +49,6 @@ jobs:
         run: |
           set -euo pipefail
           pnpm dlx wrangler d1 migrations list DB --config wrangler.toml --env=preview --remote
-
-      - name: Setup monorepo
-        uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
         run: pnpm run build:libs
