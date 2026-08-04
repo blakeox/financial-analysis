@@ -10,8 +10,8 @@ security headers; it never sends user data or credentials.
 The receipt covers:
 
 - health and environment identity;
-- `/version` protocol, policy, commit, OIDC-readiness, and fail-closed canary
-  controls;
+- `/version` protocol, policy, commit, OIDC-readiness, and environment-specific
+  fail-closed canary controls;
 - anonymous MCP denial and credential-aware `no-store`/`Vary` headers;
 - anonymous storage presign/finalize denial;
 - Worker method allow-listing;
@@ -49,6 +49,13 @@ Receipts are not proof that OAuth is ready. OAuth enablement additionally
 requires the Clerk/OIDC configuration, consent, PKCE, token lifecycle,
 revocation, cross-tenant, and external-client conformance gates in
 `docs/OAUTH_ROLLOUT.md`.
+
+When budget enforcement is enabled in preview, the protected
+`cloudflare-budget-conformance.yml` workflow uses the server-only internal
+credential to execute one deterministic MCP formula call. It records only
+status, protocol, control, and run-header metadata; it never retains the
+formula result or credential. Production remains disabled until this receipt
+and the promotion gates are reviewed.
 
 ## Failure handling
 

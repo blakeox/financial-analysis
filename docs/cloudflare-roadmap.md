@@ -138,7 +138,8 @@ Current gates:
   response headers, CORS, and MCP budget reservations; derive it from
   `X-Correlation-ID` or `X-Request-ID` when callers do not supply one.
 - (🟡) MCP `tools/call` now has a canary-gated reservation/commit/release adapter;
-  the gate remains disabled in all environments until hosted conformance passes.
+  preview is the first enabled environment with a protected hosted
+  reservation/settlement receipt, while development and production remain off.
 - (🟡) Enhanced REST chat and streaming chat now have canary-gated reservation,
   measured commit, and failure-release paths for request bytes and model-token
   ceilings; OAuth, Agent, Code Mode, connectors, documents, and queues remain
@@ -477,6 +478,9 @@ Deliverables:
 - (✅) Shared D1 reservation ledger contract for per-principal/client/workspace
   budgets, model tokens, estimated cost, tool calls, bytes, queues, retention,
   and concurrency; see `docs/USAGE_BUDGET_OPERATIONS.md`
+- (🟡) Preview MCP budget enforcement is enabled behind the environment control;
+  hourly boundary smoke checks the flag and the protected budget workflow proves
+  one D1-backed reservation/settlement. Production remains disabled.
 - (🟡) Wire the contract into REST, MCP, OAuth, Agent, Code Mode, connectors,
   document processing, and queue consumers with common run IDs
 - Per-tenant/session quotas for API calls and storage

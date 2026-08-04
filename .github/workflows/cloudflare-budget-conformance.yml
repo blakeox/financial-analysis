@@ -1,0 +1,41 @@
+name: Cloudflare Budget Conformance
+
+on:
+  schedule:
+    - cron: '45 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-budget-conformance-preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Preview D1 budget reservation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: preview
+    env:
+      API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
+      ENVIRONMENT: preview
+      EXPECTED_BUDGET_ENFORCEMENT_ENABLED: 'true'
+      EXPECTED_SHA: ''
+      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+      CLOUDFLARE_BUDGET_RECEIPT: cloudflare-budget-conformance-preview.json
+    steps:
+      - name: Checkout conformance harness
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Run hosted budget conformance
+        run: node scripts/cloudflare-budget-conformance.mjs
+
+      - name: Upload budget receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-budget-conformance-preview
+          path: cloudflare-budget-conformance-preview.json
+          if-no-files-found: error

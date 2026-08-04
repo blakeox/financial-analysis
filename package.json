@@ -46,6 +46,7 @@
     "clean": "pnpm --recursive run clean",
     "smoke": "node scripts/smoke.mjs",
     "cloudflare:boundary:smoke": "node scripts/cloudflare-boundary-smoke.mjs",
+    "cloudflare:budget:conformance": "node scripts/cloudflare-budget-conformance.mjs",
     "backup:d1": "node scripts/export-d1-backup.mjs",
     "restore:drill": "node scripts/d1-restore-drill.mjs",
     "replay:formula-vectors": "tsx scripts/replay-formula-vectors.ts",

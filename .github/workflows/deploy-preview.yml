@@ -102,6 +102,7 @@ jobs:
           ENVIRONMENT: preview
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
           EXPECTED_OAUTH_ENABLED: 'true'
+          EXPECTED_BUDGET_ENFORCEMENT_ENABLED: 'true'
           CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-preview.json
           WEB_URL: https://fanalyx-web-preview.blakeoxford.workers.dev
         run: |
@@ -158,7 +159,7 @@ jobs:
               '- Web: https://fanalyx-web-preview.blakeoxford.workers.dev',
               `- Commit: \`${context.sha}\``,
               '- Receipt: API `/health` and `/version` plus the web title matched the preview deployment contract.',
-              '- OAuth remains disabled in preview until the Clerk/OIDC gate is explicitly completed.',
+              '- Preview OAuth and the D1 budget reservation canary are enabled; production remains separately gated.',
             ].join('\n');
             await github.rest.issues.createComment({
               owner: context.repo.owner,

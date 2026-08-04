@@ -8,6 +8,7 @@ const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
+const expectedBudgetEnforcementEnabled = process.env.EXPECTED_BUDGET_ENFORCEMENT_ENABLED === 'true';
 const receiptPath =
   process.env.CLOUDFLARE_BOUNDARY_RECEIPT?.trim() || 'cloudflare-boundary-receipt.json';
 
@@ -127,7 +128,7 @@ async function main() {
     record(
       'fail-closed canaries',
       version.json?.controls?.oauthEnabled === expectedOAuthEnabled &&
-        version.json?.controls?.budgetEnforcementEnabled === false &&
+        version.json?.controls?.budgetEnforcementEnabled === expectedBudgetEnforcementEnabled &&
         version.json?.controls?.connectorEgressEnabled === false &&
         version.json?.controls?.codeModeEnabled === false,
       { controls: version.json?.controls ?? null }
@@ -293,6 +294,8 @@ async function main() {
     publicUrl,
     environment,
     expectedSha,
+    expectedOAuthEnabled,
+    expectedBudgetEnforcementEnabled,
     startedAt,
     completedAt: new Date().toISOString(),
     passed: checks.length > 0 && checks.every((check) => check.passed),

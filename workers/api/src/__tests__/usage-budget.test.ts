@@ -26,13 +26,14 @@ function request(overrides: Partial<BudgetReservationRequest> = {}): BudgetReser
     idempotencyKey: 'run-1:analysis.read',
     units: { modelTokens: 10, toolCalls: 1 },
     limits: limits({ modelTokens: 100, toolCalls: 10 }),
-    expiresAt: '2026-08-04T00:05:00.000Z',
+    expiresAt: '2099-01-01T00:00:00.000Z',
     ...overrides,
   };
 }
 
 function createDb() {
   const prepareCalls: Array<{ sql: string; args: unknown[] }> = [];
+  const expiresAt = '2099-01-01T00:00:00.000Z';
   const db = {
     prepare: vi.fn((sql: string) => {
       const statement = {
@@ -49,7 +50,7 @@ function createDb() {
               reservation_id: 'reservation-1',
               budget_key: 'budget-key-1',
               state: 'reserved',
-              expires_at: '2026-08-04T00:05:00.000Z',
+              expires_at: expiresAt,
               request_bytes: 0,
               model_tokens: 10,
               cost_micros: 0,

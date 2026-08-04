@@ -29,18 +29,19 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 
 ## Scheduled / manual
 
-| Workflow                                                               | Schedule               | Purpose                                                                                   |
-| ---------------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
-| [e2e-web.yml](./e2e-web.yml)                                           | Mon 12:00 UTC          | Weekly web smoke                                                                          |
-| [coverage.yml](./coverage.yml)                                         | Mon 06:00 UTC          | Analysis + web coverage (Codecov when `CODECOV_TOKEN` is set)                             |
-| [mutation.yml](./mutation.yml)                                         | 1st of month 08:00 UTC | Analysis mutation tests                                                                   |
-| [monitor-workers-health.yml](./monitor-workers-health.yml)             | Daily                  | Workers health with bounded JSON receipt                                                  |
-| [cloudflare-boundary-smoke.yml](./cloudflare-boundary-smoke.yml)       | Hourly                 | Machine-readable health, version, MCP, storage, Agent, method, and OAuth boundary receipt |
-| [cloudflare-oauth-conformance.yml](./cloudflare-oauth-conformance.yml) | Manual                 | Credential-free OAuth discovery, resource metadata, and dynamic registration conformance  |
-| [cloudflare-waf-audit.yml](./cloudflare-waf-audit.yml)                 | Daily + manual         | Read-only Cloudflare WAF inventory, custom-WAF baseline gate, receipt, and issue alert    |
-| [provision-clerk-oauth.yml](./provision-clerk-oauth.yml)               | Manual                 | Dry-run or explicitly applied Clerk OIDC/OAuth application reconciliation per environment |
-| [link-clerk-user-email.yml](./link-clerk-user-email.yml)               | Manual                 | Dry-run or confirmed same-user email association; never verifies or creates users         |
-| [monitor-r2-quotas.yml](./monitor-r2-quotas.yml)                       | Daily                  | R2 quota checks                                                                           |
+| Workflow                                                                 | Schedule               | Purpose                                                                                   |
+| ------------------------------------------------------------------------ | ---------------------- | ----------------------------------------------------------------------------------------- |
+| [e2e-web.yml](./e2e-web.yml)                                             | Mon 12:00 UTC          | Weekly web smoke                                                                          |
+| [coverage.yml](./coverage.yml)                                           | Mon 06:00 UTC          | Analysis + web coverage (Codecov when `CODECOV_TOKEN` is set)                             |
+| [mutation.yml](./mutation.yml)                                           | 1st of month 08:00 UTC | Analysis mutation tests                                                                   |
+| [monitor-workers-health.yml](./monitor-workers-health.yml)               | Daily                  | Workers health with bounded JSON receipt                                                  |
+| [cloudflare-boundary-smoke.yml](./cloudflare-boundary-smoke.yml)         | Hourly                 | Machine-readable health, version, MCP, storage, Agent, method, and OAuth boundary receipt |
+| [cloudflare-oauth-conformance.yml](./cloudflare-oauth-conformance.yml)   | Manual                 | Credential-free OAuth discovery, resource metadata, and dynamic registration conformance  |
+| [cloudflare-budget-conformance.yml](./cloudflare-budget-conformance.yml) | Hourly + manual        | Protected preview D1 reservation/settlement canary; no production write or enablement     |
+| [cloudflare-waf-audit.yml](./cloudflare-waf-audit.yml)                   | Daily + manual         | Read-only Cloudflare WAF inventory, custom-WAF baseline gate, receipt, and issue alert    |
+| [provision-clerk-oauth.yml](./provision-clerk-oauth.yml)                 | Manual                 | Dry-run or explicitly applied Clerk OIDC/OAuth application reconciliation per environment |
+| [link-clerk-user-email.yml](./link-clerk-user-email.yml)                 | Manual                 | Dry-run or confirmed same-user email association; never verifies or creates users         |
+| [monitor-r2-quotas.yml](./monitor-r2-quotas.yml)                         | Daily                  | R2 quota checks                                                                           |
 
 ## Deploy
 

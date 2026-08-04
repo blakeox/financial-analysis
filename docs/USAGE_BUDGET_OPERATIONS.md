@@ -46,6 +46,9 @@ values are policy inputs for adapters. `BUDGET_ENFORCEMENT_ENABLED=false` is
 the default canary gate; MCP `tools/call`, REST chat/streaming, and Project
 Think Agent turn adapters now share the reservation contract, and each must be
 explicitly enabled only after its hosted conformance receipt is reviewed.
+Preview is the first enabled canary and is checked by the protected
+`cloudflare-budget-conformance.yml` workflow. Development and production remain
+disabled until promotion evidence is approved.
 Adding the ledger tables alone does not silently change existing endpoint
 behavior. Each adapter must be migrated and tested before it is marked active.
 
@@ -53,6 +56,9 @@ behavior. Each adapter must be migrated and tested before it is marked active.
 
 - Migration: `0006_usage_budget_ledger.sql`.
 - Contract tests: `workers/api/src/__tests__/usage-budget.test.ts`.
+- Hosted contract: `scripts/cloudflare-budget-conformance.mjs` executes one
+  deterministic MCP formula call through the deployed reservation and
+  commit/release lifecycle without retaining result data.
 - The scheduled handler purges expired reservations hourly.
 - Operators should monitor reservation denial, degraded deterministic runs,
   model egress, tool failures, and cost burn by run ID and deployment version.
