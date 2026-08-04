@@ -30,7 +30,10 @@ export function formatViolations(
 export async function expectNoA11yViolations(page: Page, path: string): Promise<void> {
   const response = await page.goto(path);
   expect(response?.ok(), `expected ${path} to return 2xx`).toBeTruthy();
-  await page.waitForLoadState('networkidle');
+  // `networkidle` is not a stable readiness signal for pages with analytics,
+  // polling, or browser-specific resource behavior. `goto` already waits for
+  // the load event, which is sufficient before scanning the rendered DOM.
+  await page.waitForLoadState('load');
   await waitForPageAnimations(page);
 
   const accessibilityScanResults = await new AxeBuilder({ page })
@@ -45,7 +48,7 @@ export async function expectNoA11yViolations(page: Page, path: string): Promise<
 
 export async function expectNoColorContrastViolations(page: Page, path: string): Promise<void> {
   await page.goto(path);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('load');
   await waitForPageAnimations(page);
 
   const contrastResults = await new AxeBuilder({ page }).withRules(['color-contrast']).analyze();
