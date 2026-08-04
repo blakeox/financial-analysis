@@ -25,7 +25,8 @@ export const A11Y_MODEL_TOOL_PATHS = [
   '/bond-pricing',
   '/ma-analysis',
   '/scenario-analysis',
-  '/amortization',
+  // Legacy alias redirects to the canonical calculator route. Its redirect
+  // contract is covered separately; scan the canonical page below.
   '/commercial-real-estate-lease',
   '/enhanced-lease',
   '/cash-flow-analysis',

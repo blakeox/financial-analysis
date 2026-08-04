@@ -3,14 +3,29 @@ import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 async function waitForPageAnimations(page: Page): Promise<void> {
-  await page.evaluate(async () => {
-    const animations = document.getAnimations().filter((animation) => {
-      const timing = animation.effect?.getComputedTiming();
-      return timing?.iterations !== Infinity;
-    });
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await page.evaluate(async () => {
+        const animations = document.getAnimations().filter((animation) => {
+          const timing = animation.effect?.getComputedTiming();
+          return timing?.iterations !== Infinity;
+        });
 
-    await Promise.all(animations.map((animation) => animation.finished.catch(() => undefined)));
-  });
+        await Promise.all(animations.map((animation) => animation.finished.catch(() => undefined)));
+      });
+      return;
+    } catch (error) {
+      const message = String(error);
+      const contextWasDestroyed = message.includes('Execution context was destroyed');
+      if (!contextWasDestroyed || attempt === 1) {
+        throw error;
+      }
+
+      // A client-side redirect can begin immediately after `load`. Let the
+      // replacement document settle before retrying the DOM-backed check.
+      await page.waitForLoadState('load');
+    }
+  }
 }
 
 export function formatViolations(
