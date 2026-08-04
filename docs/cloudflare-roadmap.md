@@ -90,7 +90,9 @@ Current gates:
   Worker route plus production Clerk callback now target that hostname. The
   route is not live until the protected production deployment publishes the
   current branch; before that deployment the hostname correctly remains
-  outside the release evidence set.
+  outside the release evidence set. Preview deploy `30868538356` and commit
+  `69718d96b639d3e044212ac757cc7a9a12b093fe` passed the equivalent direct-API
+  boundary and OAuth conformance gates.
 - (✅) Credential-free hosted boundary smoke checks run hourly for both
   environments: health/version receipt, unauthenticated MCP/storage rejection,
   method allow-listing, environment-specific OAuth discovery state, and
@@ -109,10 +111,10 @@ Current gates:
   upload the receipt as an artifact and fail before publication evidence is
   accepted when a boundary regresses.
 - (🟡) Preview has a real Clerk OAuth/OIDC configuration and public PKCE flow;
-  production metadata accepts the existing client’s authorization request but
-  the canonical API route and exact Clerk callback reconciliation still require
-  the protected promotion gate. No client secret is required for the public
-  PKCE flow.
+  production metadata accepts the existing client’s authorization request,
+  including the canonical callback URI, but the live route, consent/token flow,
+  and exact callback reconciliation still require the protected promotion gate.
+  No client secret is required for the public PKCE flow.
 - (✅) Added a protected, dry-run-first
   `.github/workflows/provision-clerk-oauth.yml` workflow that reconciles the
   environment-specific Clerk application, requires explicit production
@@ -447,8 +449,8 @@ Goal: Reliable data evolution.
   fail with `MISSING_KEY`.
 - (🟡) Production boundary smoke and web-to-API forwarding now target
   `api.fanalyx.com`, so OAuth/MCP metadata and WAF coverage share one canonical
-  API hostname. The first live receipt remains pending the protected route
-  deployment.
+  API hostname. Preview direct-API boundary smoke passed on commit `69718d9`;
+  the first production receipt remains pending the protected route deployment.
 - (🟡) Preview direct API conformance passes, but the preview `workers.dev`
   asset host still returns HTML 404s for API/MCP paths despite Worker-first
   routing metadata. A dedicated preview hostname/route is required before
