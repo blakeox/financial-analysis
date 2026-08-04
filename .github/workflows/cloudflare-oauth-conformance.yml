@@ -31,7 +31,7 @@ jobs:
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     env:
-      API_URL: ${{ inputs.environment == 'preview' && 'https://fanalyx-api-preview.blakeoxford.workers.dev' || 'https://fanalyx-api-production.blakeoxford.workers.dev' }}
+      API_URL: ${{ inputs.environment == 'preview' && 'https://fanalyx-api-preview.blakeoxford.workers.dev' || 'https://api.fanalyx.com' }}
       ENVIRONMENT: ${{ inputs.environment }}
       EXPECT_OAUTH_ENABLED: ${{ inputs.expect_oauth_enabled }}
       CLOUDFLARE_OAUTH_RECEIPT: cloudflare-oauth-conformance.json
@@ -49,6 +49,7 @@ jobs:
             '.schemaVersion == "1.0.0" and
              .kind == "cloudflare-oauth-conformance" and
              .readOnly == true and
+             .mutatesOAuthState == false and
              (.checks | length >= 3) and
              (.passed == true)' \
             cloudflare-oauth-conformance.json >/dev/null

@@ -4,8 +4,10 @@
  * Credential-free conformance checks for the public Fanalyx OAuth boundary.
  *
  * This never performs a browser login, exchanges a token, or stores a grant.
- * It verifies the discovery/resource contracts and dynamic client registration
- * so ChatGPT, Codex, and local MCP clients have a stable preflight receipt.
+ * It verifies the discovery/resource contracts so ChatGPT, Codex, and local
+ * MCP clients have a stable, state-free preflight receipt. Dynamic client
+ * registration is covered by the Worker runtime lifecycle tests because the
+ * hosted registration endpoint intentionally persists a client in OAUTH_KV.
  */
 
 const apiUrl = (process.env.API_URL || '').replace(/\/$/, '');
@@ -100,27 +102,6 @@ if (!expectedEnabled) {
     }
   );
 
-  const registration = await read('/oauth/register', {
-    method: 'POST',
-    body: JSON.stringify({
-      client_name: 'Fanalyx credential-free conformance probe',
-      redirect_uris: ['https://example.com/fanalyx-oauth-callback'],
-      grant_types: ['authorization_code'],
-      response_types: ['code'],
-      token_endpoint_auth_method: 'none',
-    }),
-  });
-  record(
-    'dynamic registration accepts a public PKCE client',
-    [200, 201].includes(registration.response.status) &&
-      typeof registration.json?.client_id === 'string' &&
-      Array.isArray(registration.json?.redirect_uris),
-    {
-      status: registration.response.status,
-      clientRegistered: typeof registration.json?.client_id === 'string',
-      redirectUriCount: registration.json?.redirect_uris?.length ?? 0,
-    }
-  );
 }
 
 const passed = checks.every((check) => check.passed);
@@ -134,6 +115,7 @@ const receipt = {
   expectedOAuthEnabled: expectedEnabled,
   passed,
   readOnly: true,
+  mutatesOAuthState: false,
   checks,
 };
 

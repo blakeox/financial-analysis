@@ -72,8 +72,10 @@ and the promotion gates are reviewed.
 
 Public formula MCP checks validate the canonical Cloudflare web facade,
 including edge response, no-store behavior, and protocol initialization. The
-same public path must reject storage access with `MISSING_KEY`; a web proxy
-credential is never a user-data identity.
+production API/MCP/OAuth hostname is `https://api.fanalyx.com`; the direct
+`*.workers.dev` API origin is retained only as an implementation and recovery
+surface. The same public path must reject storage access with `MISSING_KEY`; a
+web proxy credential is never a user-data identity.
 
 The production custom-domain facade is the authoritative public-edge check.
 The preview `workers.dev` asset host currently returns an HTML 404 for API/MCP

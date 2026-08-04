@@ -67,9 +67,10 @@ and stateless MCP capabilities remain available while model-backed routes fail
 closed.
 
 The API Worker binds separate `OAUTH_KV` namespaces for preview and production.
-The OAuth kill switch remains `OAUTH_ENABLED=false` until the Clerk OAuth
-application, callback, consent flow, and external MCP client conformance test
-are verified in preview.
+The OAuth kill switch remains `OAUTH_ENABLED=false` in production until the
+canonical `api.fanalyx.com` route, production Clerk OAuth application callback,
+consent flow, and external MCP client conformance test are verified. Preview
+is the enabled canary environment.
 
 The manual [`provision-clerk-oauth.yml`](../.github/workflows/provision-clerk-oauth.yml)
 workflow runs the repository reconciler in dry-run mode by default. It uploads

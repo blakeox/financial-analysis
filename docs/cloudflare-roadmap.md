@@ -81,9 +81,16 @@ Current gates:
   environment allows only explicitly registered preview branches, including
   `main`; production remains protected.
 - (✅) Preview OAuth is enabled against Clerk's public PKCE configuration;
-  discovery, protected-resource metadata, and dynamic public-client
-  registration pass hosted conformance. Production remains fail-closed with
-  `OAUTH_ENABLED=false` until its separate promotion gate is approved.
+  discovery and protected-resource metadata pass the state-free hosted
+  conformance receipt, while dynamic registration is covered by the Worker
+  lifecycle tests without adding recurring clients to preview `OAUTH_KV`.
+  Production remains fail-closed with `OAUTH_ENABLED=false` until its separate
+  promotion gate is approved.
+- (🟡) The proxied `api.fanalyx.com` DNS record is provisioned and the API
+  Worker route plus production Clerk callback now target that hostname. The
+  route is not live until the protected production deployment publishes the
+  current branch; before that deployment the hostname correctly remains
+  outside the release evidence set.
 - (✅) Credential-free hosted boundary smoke checks run hourly for both
   environments: health/version receipt, unauthenticated MCP/storage rejection,
   method allow-listing, environment-specific OAuth discovery state, and
@@ -101,8 +108,11 @@ Current gates:
   isolation, method controls, and OAuth kill-switch behavior; deployment jobs
   upload the receipt as an artifact and fail before publication evidence is
   accepted when a boundary regresses.
-- (✅) Configure real Clerk OAuth applications and public Worker OIDC
-  configuration; no client secret is required for the public PKCE flow.
+- (🟡) Preview has a real Clerk OAuth/OIDC configuration and public PKCE flow;
+  production metadata accepts the existing client’s authorization request but
+  the canonical API route and exact Clerk callback reconciliation still require
+  the protected promotion gate. No client secret is required for the public
+  PKCE flow.
 - (✅) Added a protected, dry-run-first
   `.github/workflows/provision-clerk-oauth.yml` workflow that reconciles the
   environment-specific Clerk application, requires explicit production
@@ -126,11 +136,12 @@ Current gates:
   and public PKCE registration through the protected deployment workflow.
   Production promotion, grant revocation testing, and identity-provider
   sign-in remain separate protected gates.
-- (✅) Added a credential-free OAuth conformance harness and manual workflow
-  covering the disabled kill switch, authorization/resource discovery, HTTPS
-  endpoint metadata, supported formula scope, and dynamic public-client
-  registration. Browser login, token exchange, and grant retention remain
-  intentionally outside this probe.
+- (✅) Added a state-free OAuth conformance harness and manual workflow covering
+  the disabled kill switch, authorization/resource discovery, HTTPS endpoint
+  metadata, and supported formula scope. Dynamic public-client registration is
+  covered by the Worker lifecycle tests because hosted registration persists a
+  client in `OAUTH_KV`; browser login, token exchange, and grant retention
+  remain separate promotion gates.
 - (✅) Add the shared D1 usage-budget reservation contract for model tokens,
   estimated cost, tool calls, bytes, queue work, retention, and concurrency;
   identities are pseudonymous and retries are idempotent.
@@ -430,10 +441,14 @@ Goal: Reliable data evolution.
   formula/MCP facade. Storage, upload, extraction, billing, and other
   user-owned routes fail closed unless a real caller API key or identity is
   present.
-- (✅) Boundary receipts now exercise both the direct API Worker and, for
+- (✅) Boundary receipts exercise both the direct API Worker and, for
   production, the canonical `fanalyx.com` Cloudflare facade: formula MCP
   initialization must succeed at the edge while public storage access must
   fail with `MISSING_KEY`.
+- (🟡) Production boundary smoke and web-to-API forwarding now target
+  `api.fanalyx.com`, so OAuth/MCP metadata and WAF coverage share one canonical
+  API hostname. The first live receipt remains pending the protected route
+  deployment.
 - (🟡) Preview direct API conformance passes, but the preview `workers.dev`
   asset host still returns HTML 404s for API/MCP paths despite Worker-first
   routing metadata. A dedicated preview hostname/route is required before
@@ -470,8 +485,9 @@ Goal: Reliable data evolution.
 ### Acceptance criteria (Phase 8)
 
 - (🔜) Basic WAF in place with allow-listing for methods and known routes;
-  first resolve the public API-hostname boundary because the current audit
-  covers `fanalyx.com` while direct `*.workers.dev` API traffic bypasses the
+  the canonical `api.fanalyx.com` hostname is now provisioned in DNS and must
+  be deployed and verified before the WAF ruleset is described as covering the
+  public API. Direct `*.workers.dev` traffic remains a recovery surface outside
   zone rulesets.
   application-level method and route controls are already active while the
   Cloudflare ruleset gate is open.

@@ -277,7 +277,7 @@ OIDC_AUDIENCE = "DDJFAqXNRUddvZJl"
 OIDC_JWKS_URI = "https://clerk.fanalyx.com/.well-known/jwks.json"
 OIDC_AUTHORIZATION_ENDPOINT = "https://clerk.fanalyx.com/oauth/authorize"
 OIDC_TOKEN_ENDPOINT = "https://clerk.fanalyx.com/oauth/token"
-OIDC_REDIRECT_URI = "https://fanalyx-api-production.blakeoxford.workers.dev/oauth/callback"
+OIDC_REDIRECT_URI = "https://api.fanalyx.com/oauth/callback"
 OIDC_CLIENT_ID = "DDJFAqXNRUddvZJl"
 OIDC_SCOPES = "openid profile email"
 OIDC_SESSION_TTL_SECONDS = "28800"
@@ -291,6 +291,13 @@ BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 
 [env.production.triggers]
 crons = ["0 * * * *", "0 0 * * *"]
+
+# Canonical public API/MCP/OAuth hostname. The zone DNS record is proxied to
+# the Worker and keeps public protocol metadata and WAF coverage off the
+# workers.dev implementation hostname.
+[[env.production.routes]]
+pattern = "api.fanalyx.com/*"
+zone_id = "8b74875a9a9edb1d7572c9d41e9e2016"
 
 [[env.production.d1_databases]]
 binding = "DB"

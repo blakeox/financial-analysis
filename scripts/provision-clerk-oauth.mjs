@@ -16,7 +16,7 @@ const environments = {
     name: 'Fanalyx Worker OIDC (preview)',
   },
   production: {
-    redirectUri: 'https://fanalyx-api-production.blakeoxford.workers.dev/oauth/callback',
+    redirectUri: 'https://api.fanalyx.com/oauth/callback',
     name: 'Fanalyx Worker OIDC (production)',
   },
 };

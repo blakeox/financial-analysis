@@ -5,9 +5,10 @@ This repository uses Cloudflare's maintained [`workers-oauth-provider`](https://
 ## Current state
 
 - API-key clients continue to use `POST /mcp`.
-- Preview and production Workers are deployed with the OAuth implementation,
-  but `OAUTH_ENABLED=false`; live health checks pass and OAuth discovery remains
-  intentionally unavailable until the provider gate is complete.
+- Preview is enabled behind the Clerk/OIDC canary and its credential-free
+  discovery conformance passes. Production remains `OAUTH_ENABLED=false` until
+  the canonical API hostname, production Clerk callback, consent flow, and
+  external MCP client conformance are verified.
 - OAuth clients will use the canary route `POST /oauth/mcp`.
 - Discovery and token endpoints are available only when `OAUTH_ENABLED=true`:
   - `/.well-known/oauth-authorization-server`
@@ -62,7 +63,7 @@ Create one Clerk OAuth application for the Worker browser-login callback. Use
 the canonical API Worker URL, for example:
 
 ```text
-https://fanalyx-api-production.blakeoxford.workers.dev/oauth/callback
+https://api.fanalyx.com/oauth/callback
 ```
 
 Copy the issuer, authorization endpoint, token endpoint, and JWKS URI from the
@@ -175,9 +176,10 @@ an opaque verified-owner hash before selecting the Durable Object.
 ## Enablement gate
 
 The credential-free [OAuth conformance harness](../scripts/cloudflare-oauth-conformance.mjs)
-and its manual workflow validate both the disabled kill-switch state and the
-enabled discovery/resource-registration contract. They never perform a browser
-login, exchange a token, or retain a grant. Run the enabled mode only after the
+and its manual workflow validate the kill-switch and discovery/resource
+contracts. Registration is covered by the Worker runtime lifecycle tests; the
+hosted discovery harness must remain state-free because dynamic registration
+creates a persistent OAuth client. Run the enabled mode only after the
 Clerk/OIDC provider gate is complete.
 
 Do not enable OAuth in preview or production until all of the following are true:

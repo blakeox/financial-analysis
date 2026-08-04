@@ -51,11 +51,12 @@ GitHub workflow validates and uploads that receipt. It never prints the token,
 expressions, or full Cloudflare response and never creates, updates, or deletes
 a ruleset.
 
-The zone audit covers traffic arriving through `fanalyx.com` and does not
-protect the direct `*.workers.dev` API hostname. Public MCP/OAuth metadata and
-token exchange should move behind a reviewed custom API hostname in the zone
-before WAF protection is described as end-to-end. Until then, Worker-level
-authentication, method, quota, and rate controls remain the primary API boundary.
+The zone audit covers traffic arriving through `fanalyx.com` and the canonical
+`api.fanalyx.com` API hostname. The direct `*.workers.dev` API hostname remains
+an implementation and recovery surface outside zone WAF coverage; public MCP,
+OAuth metadata, and token exchange should use `api.fanalyx.com`. Until the
+canonical route is deployed and verified, Worker-level authentication, method,
+quota, and rate controls remain the primary API boundary.
 
 The web-to-API internal token is deliberately narrower than a user identity:
 it may serve the stateless, caller-input-only formula/MCP facade, but it is

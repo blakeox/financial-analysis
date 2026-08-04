@@ -162,7 +162,7 @@ jobs:
       - name: Smoke-test production deployment
         id: production_smoke
         env:
-          API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
+          API_URL: https://api.fanalyx.com
           ENVIRONMENT: production
           PUBLIC_URL: https://fanalyx.com
           CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-production.json
