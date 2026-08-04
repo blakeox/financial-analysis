@@ -450,6 +450,10 @@ Goal: Reliable data evolution.
 - (✅) The WAF audit workflow now verifies that its dedicated read token is
   active before calling zone ruleset APIs; it never falls back to a deployment
   token or grants write authority.
+- (🟡) The protected WAF workflow is present on the modernization branch but
+  is not yet dispatchable from the repository default branch. The next hosted
+  control receipt must run from `main`/the configured default branch before the
+  WAF baseline can be treated as continuously monitored.
 - CSP review (docs viewer done; add for web worker output if needed)
 - Secrets rotation cadence
 - (✅) File-type validation for PDF, DOCX, and UTF-8 text now performs byte-level

@@ -22,6 +22,14 @@ WAF phase as a control failure and opens or updates a GitHub alert. No WAF
 write authority is present in the application deployment token or audit
 workflow.
 
+The audit workflow is currently on the modernization branch and is not yet
+available from the repository default branch. GitHub therefore cannot dispatch
+the protected production audit until the workflow is merged or otherwise
+published to the default branch. This is an evidence-availability gap, not
+evidence that the WAF baseline has changed. Do not mark the WAF control green
+until a hosted run produces a receipt from the protected `production`
+environment.
+
 Run the read-only audit from the repository with the protected token available
 in the process environment:
 
