@@ -142,8 +142,15 @@ describe('MCP cross-tenant authorization', () => {
     expect(auditCalls.length).toBeGreaterThanOrEqual(3);
     expect(auditCalls.some(({ values }) => values.includes('tenant-a'))).toBe(true);
     expect(auditCalls.some(({ values }) => values.includes('tenant-b'))).toBe(true);
-    expect(
-      auditCalls.every(({ values }) => !values.includes('https://private.example/sensitive-report'))
-    ).toBe(true);
+    const isSensitiveReportUrl = (value: unknown) => {
+      if (typeof value !== 'string') return false;
+      try {
+        const url = new URL(value);
+        return url.origin === 'https://private.example' && url.pathname === '/sensitive-report';
+      } catch {
+        return false;
+      }
+    };
+    expect(auditCalls.every(({ values }) => !values.some(isSensitiveReportUrl))).toBe(true);
   });
 });

@@ -88,7 +88,6 @@ function summarize(application) {
     authorizeUrl: value('authorizeUrl', 'authorize_url'),
     tokenFetchUrl: value('tokenFetchUrl', 'token_fetch_url'),
     redirectUris: value('redirectUris', 'redirect_uris'),
-    scopes: application.scopes,
     isPublic: value('isPublic', 'is_public'),
     pkceRequired: value('pkceRequired', 'pkce_required'),
     consentScreenEnabled: value('consentScreenEnabled', 'consent_screen_enabled'),
@@ -116,7 +115,7 @@ function validateProvisionedApplication(application) {
     failures.push('redirect URI does not exactly match the environment callback');
   }
 
-  const scopes = normalizedScopes(summary.scopes);
+  const scopes = normalizedScopes(application.scopes);
   for (const requiredScope of ['profile', 'email']) {
     if (!scopes.has(requiredScope)) failures.push(`missing ${requiredScope} scope`);
   }
@@ -215,7 +214,14 @@ console.log(
     {
       environment,
       apply,
-      requested,
+      requested: {
+        name: requested.name,
+        public: requested.public,
+        pkce_required: requested.pkce_required,
+        consent_screen_enabled: requested.consent_screen_enabled,
+        redirect_uris: requested.redirect_uris,
+        scopes: '(redacted; profile/email validated)',
+      },
       application: application ? summarize(application) : null,
       oidcWorkerConfig: discovery
         ? {

@@ -22,7 +22,7 @@ const checks = [];
 function record(name, passed, details = {}) {
   const check = { name, passed, ...details };
   checks.push(check);
-  if (!passed) console.error(`Boundary check failed: ${name}`, details);
+  if (!passed) console.error(`Boundary check failed: ${name}`);
   return passed;
 }
 
