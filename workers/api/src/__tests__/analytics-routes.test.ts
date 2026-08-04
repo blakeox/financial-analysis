@@ -20,6 +20,7 @@ describe('Analytics Routes', () => {
       ANALYTICS: {
         writeDataPoint: vi.fn(),
       } as unknown as AnalyticsEngineDataset,
+      ANALYTICS_HASH_SALT: 'test-only-salt',
     } as Env;
   });
 
@@ -96,11 +97,17 @@ describe('Analytics Routes', () => {
 
       expect(mockEnv.ANALYTICS?.writeDataPoint).toHaveBeenCalledWith(
         expect.objectContaining({
-          indexes: expect.arrayContaining(['api_result', '/analysis', 'sess_123', 'vis_456']),
+          indexes: expect.arrayContaining(['api_result', '/analysis']),
           doubles: expect.any(Array),
           blobs: expect.any(Array),
         })
       );
+      const point = (mockEnv.ANALYTICS?.writeDataPoint as ReturnType<typeof vi.fn>).mock
+        .calls[0]?.[0];
+      expect(point.indexes).not.toContain('sess_123');
+      expect(point.indexes).not.toContain('vis_456');
+      expect(JSON.stringify(point.blobs)).toContain('metadataKeyCount');
+      expect(JSON.stringify(point.blobs)).not.toContain('150');
     });
 
     it('rejects invalid payload', async () => {
@@ -154,6 +161,29 @@ describe('Analytics Routes', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
+      expect(data.analyticsWritten).toBe(false);
+    });
+
+    it('does not write identity-collapsed points when the hash salt is missing', async () => {
+      registerAnalyticsRoutes(mockRouter);
+      const handler = mockRouter.post.mock.calls[0]?.[1];
+      if (!handler) throw new Error('Handler not registered');
+
+      const response = await handler(
+        new Request('http://localhost/v1/api/analytics/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: 'sess_123',
+            visitorId: 'vis_456',
+            events: [{ type: 'page_view', page: '/analysis', timestamp: Date.now() }],
+          }),
+        }),
+        { ...mockEnv, ANALYTICS_HASH_SALT: undefined }
+      );
+
+      expect(response.status).toBe(200);
+      expect(mockEnv.ANALYTICS?.writeDataPoint as ReturnType<typeof vi.fn>).not.toHaveBeenCalled();
     });
   });
 
@@ -181,7 +211,8 @@ describe('Analytics Routes', () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.sessionId).toBe('sess_123');
+      expect(data.sessionRef).toMatch(/^[0-9a-f]{32}$/);
+      expect(data.sessionRef).not.toBe('sess_123');
       expect(data.message).toBeTruthy();
     });
   });

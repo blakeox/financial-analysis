@@ -20,6 +20,7 @@ describe('Chat Analytics Routes', () => {
       ANALYTICS: {
         writeDataPoint: vi.fn(),
       } as unknown as AnalyticsEngineDataset,
+      ANALYTICS_HASH_SALT: 'test-only-salt',
     } as Env;
   });
 

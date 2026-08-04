@@ -264,7 +264,15 @@ export async function buildSecurityContext(
       0,
       ['session_unavailable'],
       false,
-      requestContext.path
+      requestContext.path,
+      {
+        requestId: requestContext.requestId,
+        runId: requestContext.runId,
+        principalId: fingerprint,
+        source: 'security-middleware',
+        outcome: 'denied',
+        ...(requestContext.correlationId ? { correlationId: requestContext.correlationId } : {}),
+      }
     );
 
     return context;
@@ -296,7 +304,15 @@ export async function buildSecurityContext(
       ipAddress,
       requestContext.path,
       'open',
-      sessionDOFailureCount
+      sessionDOFailureCount,
+      {
+        requestId: requestContext.requestId,
+        runId: requestContext.runId,
+        principalId: fingerprint,
+        source: 'security-middleware',
+        outcome: isProduction ? 'denied' : 'degraded',
+        ...(requestContext.correlationId ? { correlationId: requestContext.correlationId } : {}),
+      }
     );
 
     return context;
@@ -343,7 +359,15 @@ export async function buildSecurityContext(
         recheckResult.trustScore,
         recheckResult.flags,
         recheckResult.allowed,
-        requestContext.path
+        requestContext.path,
+        {
+          requestId: requestContext.requestId,
+          runId: requestContext.runId,
+          principalId: fingerprint,
+          source: 'security-middleware',
+          outcome: recheckResult.allowed ? 'allowed' : 'denied',
+          ...(requestContext.correlationId ? { correlationId: requestContext.correlationId } : {}),
+        }
       );
 
       return context;
@@ -371,7 +395,15 @@ export async function buildSecurityContext(
       checkResult.trustScore,
       checkResult.flags,
       checkResult.allowed,
-      requestContext.path
+      requestContext.path,
+      {
+        requestId: requestContext.requestId,
+        runId: requestContext.runId,
+        principalId: fingerprint,
+        source: 'security-middleware',
+        outcome: checkResult.allowed ? 'allowed' : 'denied',
+        ...(requestContext.correlationId ? { correlationId: requestContext.correlationId } : {}),
+      }
     );
 
     return context;
@@ -405,7 +437,15 @@ export async function buildSecurityContext(
       isProduction ? 0 : 50,
       ['session-do-error'],
       !isProduction,
-      requestContext.path
+      requestContext.path,
+      {
+        requestId: requestContext.requestId,
+        runId: requestContext.runId,
+        principalId: fingerprint,
+        source: 'security-middleware',
+        outcome: isProduction ? 'denied' : 'degraded',
+        ...(requestContext.correlationId ? { correlationId: requestContext.correlationId } : {}),
+      }
     );
 
     return context;

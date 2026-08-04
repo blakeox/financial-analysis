@@ -5,6 +5,7 @@
 
 import { LLMRetryHandler } from './llm-retry';
 import { toolMetadata } from '@financial-analysis/tools';
+import type { ModelProvider } from './model-provider';
 
 export interface ToolRecommendation {
   primaryTool?: string;
@@ -16,7 +17,7 @@ export interface ToolRecommendation {
 
 export class IntelligentToolSelector {
   constructor(
-    private ai: any,
+    private modelProvider: ModelProvider,
     private retry: LLMRetryHandler = new LLMRetryHandler()
   ) {}
 
@@ -35,13 +36,17 @@ export class IntelligentToolSelector {
       // Call AI with retry logic
       const response = await this.retry.callWithRetry(
         async () => {
-          return await this.ai.run('@cf/meta/llama-3.1-8b-instruct', { prompt });
+          return await this.modelProvider.run('@cf/meta/llama-3.1-8b-instruct', { prompt });
         },
         { maxRetries: 2 }
       );
 
       // Parse response
-      const text = response?.response || response?.text || '';
+      const responseRecord =
+        response && typeof response === 'object'
+          ? (response as Record<string, unknown>)
+          : undefined;
+      const text = String(responseRecord?.response || responseRecord?.text || '');
       const parsed = this.parseToolRecommendation(text);
 
       return parsed;

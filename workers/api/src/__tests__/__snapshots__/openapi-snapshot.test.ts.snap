@@ -1178,6 +1178,94 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
         ],
         "type": "object",
       },
+      "StorageFinalizeResponse": {
+        "properties": {
+          "contentType": {
+            "type": "string",
+          },
+          "documentKey": {
+            "type": "string",
+          },
+          "filename": {
+            "type": "string",
+          },
+          "sha256": {
+            "type": "string",
+          },
+          "sizeBytes": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "integer",
+          },
+          "success": {
+            "enum": [
+              true,
+            ],
+            "type": "boolean",
+          },
+          "uploadId": {
+            "format": "uuid",
+            "type": "string",
+          },
+        },
+        "required": [
+          "success",
+          "uploadId",
+          "documentKey",
+          "filename",
+          "contentType",
+          "sizeBytes",
+          "sha256",
+        ],
+        "type": "object",
+      },
+      "StoragePresignResponse": {
+        "properties": {
+          "contentType": {
+            "type": "string",
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+          },
+          "expiresInSeconds": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "integer",
+          },
+          "key": {
+            "type": "string",
+          },
+          "operation": {
+            "enum": [
+              "download",
+            ],
+            "type": "string",
+          },
+          "sha256": {
+            "type": "string",
+          },
+          "sizeBytes": {
+            "minimum": 0,
+            "type": "integer",
+          },
+          "url": {
+            "format": "uri",
+            "type": "string",
+          },
+        },
+        "required": [
+          "operation",
+          "key",
+          "url",
+          "expiresAt",
+          "expiresInSeconds",
+          "contentType",
+          "sizeBytes",
+          "sha256",
+        ],
+        "type": "object",
+      },
       "StorageStatus": {
         "properties": {
           "approxBytes": {
@@ -1206,6 +1294,67 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
           "softLimit",
           "hardLimit",
           "locked",
+        ],
+        "type": "object",
+      },
+      "StorageUploadPresignResponse": {
+        "properties": {
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+          },
+          "expiresInSeconds": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "integer",
+          },
+          "headers": {
+            "properties": {
+              "Content-Type": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "Content-Type",
+            ],
+            "type": "object",
+          },
+          "key": {
+            "type": "string",
+          },
+          "operation": {
+            "enum": [
+              "upload",
+            ],
+            "type": "string",
+          },
+          "sha256": {
+            "type": "string",
+          },
+          "sizeBytes": {
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "integer",
+          },
+          "uploadId": {
+            "format": "uuid",
+            "type": "string",
+          },
+          "url": {
+            "format": "uri",
+            "type": "string",
+          },
+        },
+        "required": [
+          "operation",
+          "uploadId",
+          "key",
+          "url",
+          "expiresAt",
+          "expiresInSeconds",
+          "headers",
+          "sizeBytes",
+          "sha256",
         ],
         "type": "object",
       },
@@ -1265,8 +1414,58 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
           "commit": {
             "type": "string",
           },
+          "controls": {
+            "properties": {
+              "budgetEnforcementEnabled": {
+                "type": "boolean",
+              },
+              "codeModeEnabled": {
+                "type": "boolean",
+              },
+              "connectorEgressEnabled": {
+                "type": "boolean",
+              },
+              "modelEgressEnabled": {
+                "type": "boolean",
+              },
+              "oauthEnabled": {
+                "type": "boolean",
+              },
+              "oidcBrowserLoginConfigured": {
+                "type": "boolean",
+              },
+            },
+            "required": [
+              "oauthEnabled",
+              "oidcBrowserLoginConfigured",
+              "modelEgressEnabled",
+              "budgetEnforcementEnabled",
+              "connectorEgressEnabled",
+              "codeModeEnabled",
+            ],
+            "type": "object",
+          },
           "environment": {
             "type": "string",
+          },
+          "mcp": {
+            "properties": {
+              "capabilityPolicyVersion": {
+                "type": "string",
+              },
+              "protocolVersion": {
+                "type": "string",
+              },
+              "serverVersion": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "serverVersion",
+              "protocolVersion",
+              "capabilityPolicyVersion",
+            ],
+            "type": "object",
           },
           "service": {
             "type": "string",
@@ -1347,6 +1546,99 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
               },
             },
             "description": "Lightweight uptime check",
+          },
+        },
+      },
+    },
+    "/v1/admin/knowledge/invalidate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "delaySeconds": {
+                    "maximum": 900,
+                    "minimum": 0,
+                    "type": "integer",
+                  },
+                  "paths": {
+                    "items": {
+                      "type": "string",
+                    },
+                    "maxItems": 50,
+                    "minItems": 1,
+                    "type": "array",
+                  },
+                },
+                "required": [
+                  "paths",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "description": "Queue a tombstone-first invalidation for source paths and their derived cache/vector artifacts.",
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "backlogCount": {
+                      "type": "number",
+                    },
+                    "operation": {
+                      "enum": [
+                        "invalidate",
+                      ],
+                      "type": "string",
+                    },
+                    "pathCount": {
+                      "type": "number",
+                    },
+                    "queuedAt": {
+                      "type": "string",
+                    },
+                    "source": {
+                      "enum": [
+                        "manual",
+                      ],
+                      "type": "string",
+                    },
+                    "status": {
+                      "enum": [
+                        "enqueued",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "status",
+                    "operation",
+                    "backlogCount",
+                    "queuedAt",
+                    "source",
+                    "pathCount",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Knowledge invalidation job accepted for background processing",
+          },
+          "400": {
+            "description": "Invalid request body",
+          },
+          "401": {
+            "description": "Unauthorized",
+          },
+          "415": {
+            "description": "Unsupported Media Type",
+          },
+          "503": {
+            "description": "Knowledge invalidation queue not configured",
           },
         },
       },
@@ -3246,6 +3538,97 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
         },
       },
     },
+    "/v1/storage/finalize": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "uploadId": {
+                    "format": "uuid",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "uploadId",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "description": "Finalize a session-bound R2 upload after exact size, content type, and SHA-256 verification.",
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "contentType": {
+                      "type": "string",
+                    },
+                    "documentKey": {
+                      "type": "string",
+                    },
+                    "filename": {
+                      "type": "string",
+                    },
+                    "sha256": {
+                      "type": "string",
+                    },
+                    "sizeBytes": {
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "type": "integer",
+                    },
+                    "success": {
+                      "enum": [
+                        true,
+                      ],
+                      "type": "boolean",
+                    },
+                    "uploadId": {
+                      "format": "uuid",
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "success",
+                    "uploadId",
+                    "documentKey",
+                    "filename",
+                    "contentType",
+                    "sizeBytes",
+                    "sha256",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "Verified object promoted to stored document metadata",
+          },
+          "400": {
+            "description": "Invalid finalization request",
+          },
+          "403": {
+            "description": "Quota locked or unavailable",
+          },
+          "404": {
+            "description": "Upload session not found",
+          },
+          "409": {
+            "description": "Upload has not completed or is no longer pending",
+          },
+          "422": {
+            "description": "Object metadata or checksum mismatch",
+          },
+          "503": {
+            "description": "Storage or metadata unavailable",
+          },
+        },
+      },
+    },
     "/v1/storage/object/{key}": {
       "delete": {
         "parameters": [
@@ -3441,6 +3824,208 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
         },
       },
     },
+    "/v1/storage/presign": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "properties": {
+                      "key": {
+                        "maxLength": 1024,
+                        "minLength": 1,
+                        "type": "string",
+                      },
+                      "operation": {
+                        "enum": [
+                          "download",
+                        ],
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "operation",
+                      "key",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "properties": {
+                      "contentType": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string",
+                      },
+                      "operation": {
+                        "enum": [
+                          "upload",
+                        ],
+                        "type": "string",
+                      },
+                      "originalName": {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "type": "string",
+                      },
+                      "sha256": {
+                        "pattern": "^[a-f0-9]{64}$/i",
+                        "type": "string",
+                      },
+                      "sizeBytes": {
+                        "exclusiveMinimum": true,
+                        "minimum": 0,
+                        "type": "integer",
+                      },
+                    },
+                    "required": [
+                      "operation",
+                      "originalName",
+                      "contentType",
+                      "sizeBytes",
+                      "sha256",
+                    ],
+                    "type": "object",
+                  },
+                ],
+              },
+            },
+          },
+          "description": "Issue a short-lived owner-checked R2 GET URL or a session-bound PUT URL. PUT objects must be finalized before they become stored documents.",
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "contentType": {
+                          "type": "string",
+                        },
+                        "expiresAt": {
+                          "format": "date-time",
+                          "type": "string",
+                        },
+                        "expiresInSeconds": {
+                          "exclusiveMinimum": true,
+                          "minimum": 0,
+                          "type": "integer",
+                        },
+                        "key": {
+                          "type": "string",
+                        },
+                        "operation": {
+                          "enum": [
+                            "download",
+                          ],
+                          "type": "string",
+                        },
+                        "sha256": {
+                          "type": "string",
+                        },
+                        "sizeBytes": {
+                          "minimum": 0,
+                          "type": "integer",
+                        },
+                        "url": {
+                          "format": "uri",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "operation",
+                        "key",
+                        "url",
+                        "expiresAt",
+                        "expiresInSeconds",
+                        "contentType",
+                        "sizeBytes",
+                        "sha256",
+                      ],
+                      "type": "object",
+                    },
+                    {
+                      "properties": {
+                        "expiresAt": {
+                          "format": "date-time",
+                          "type": "string",
+                        },
+                        "expiresInSeconds": {
+                          "exclusiveMinimum": true,
+                          "minimum": 0,
+                          "type": "integer",
+                        },
+                        "headers": {
+                          "properties": {
+                            "Content-Type": {
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "Content-Type",
+                          ],
+                          "type": "object",
+                        },
+                        "key": {
+                          "type": "string",
+                        },
+                        "operation": {
+                          "enum": [
+                            "upload",
+                          ],
+                          "type": "string",
+                        },
+                        "sha256": {
+                          "type": "string",
+                        },
+                        "sizeBytes": {
+                          "exclusiveMinimum": true,
+                          "minimum": 0,
+                          "type": "integer",
+                        },
+                        "uploadId": {
+                          "format": "uuid",
+                          "type": "string",
+                        },
+                        "url": {
+                          "format": "uri",
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "operation",
+                        "uploadId",
+                        "key",
+                        "url",
+                        "expiresAt",
+                        "expiresInSeconds",
+                        "headers",
+                        "sizeBytes",
+                        "sha256",
+                      ],
+                      "type": "object",
+                    },
+                  ],
+                },
+              },
+            },
+            "description": "Short-lived signed R2 download or upload URL",
+          },
+          "400": {
+            "description": "Invalid operation or object key",
+          },
+          "404": {
+            "description": "Object not found or not owned by the caller",
+          },
+          "503": {
+            "description": "R2 signing or metadata is not configured",
+          },
+        },
+      },
+    },
     "/v1/storage/reconcile": {
       "post": {
         "responses": {
@@ -3449,6 +4034,9 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
               "application/json": {
                 "schema": {
                   "properties": {
+                    "complete": {
+                      "type": "boolean",
+                    },
                     "locked": {
                       "type": "boolean",
                     },
@@ -3466,6 +4054,7 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
                     "usedBytes",
                     "locked",
                     "scanned",
+                    "complete",
                     "timestamp",
                   ],
                   "type": "object",
@@ -3579,8 +4168,58 @@ exports[`OpenAPI snapshot > matches the approved snapshot 1`] = `
                     "commit": {
                       "type": "string",
                     },
+                    "controls": {
+                      "properties": {
+                        "budgetEnforcementEnabled": {
+                          "type": "boolean",
+                        },
+                        "codeModeEnabled": {
+                          "type": "boolean",
+                        },
+                        "connectorEgressEnabled": {
+                          "type": "boolean",
+                        },
+                        "modelEgressEnabled": {
+                          "type": "boolean",
+                        },
+                        "oauthEnabled": {
+                          "type": "boolean",
+                        },
+                        "oidcBrowserLoginConfigured": {
+                          "type": "boolean",
+                        },
+                      },
+                      "required": [
+                        "oauthEnabled",
+                        "oidcBrowserLoginConfigured",
+                        "modelEgressEnabled",
+                        "budgetEnforcementEnabled",
+                        "connectorEgressEnabled",
+                        "codeModeEnabled",
+                      ],
+                      "type": "object",
+                    },
                     "environment": {
                       "type": "string",
+                    },
+                    "mcp": {
+                      "properties": {
+                        "capabilityPolicyVersion": {
+                          "type": "string",
+                        },
+                        "protocolVersion": {
+                          "type": "string",
+                        },
+                        "serverVersion": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "serverVersion",
+                        "protocolVersion",
+                        "capabilityPolicyVersion",
+                      ],
+                      "type": "object",
                     },
                     "service": {
                       "type": "string",

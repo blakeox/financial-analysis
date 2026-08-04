@@ -66,8 +66,8 @@ export default {
     // Serve static assets built by Astro from apps/web/dist
     const url = new URL(request.url);
 
-    // Dev-only proxy: forward API routes to the local API worker to avoid 404/405 from ASSETS.
-    // This keeps the web worker origin as the single frontend origin while ensuring API is reachable in dev.
+    // Forward API, MCP, and OAuth routes to the API Worker before the SPA asset fallback.
+    // This keeps the web worker origin as the single frontend origin in every environment.
     const isDev = env.ENVIRONMENT === 'development';
     const apiBase = (isDev ? env.API_DEV_ORIGIN : env.API_ORIGIN)?.replace(/\/$/, '');
     const pathname = url.pathname;
@@ -77,7 +77,9 @@ export default {
       pathname === '/mcp' ||
       pathname.startsWith('/agents/') ||
       pathname.startsWith('/v1/') ||
-      pathname.startsWith('/api/');
+      pathname.startsWith('/api/') ||
+      pathname.startsWith('/oauth/') ||
+      pathname.startsWith('/.well-known/');
 
     if (isApiPath && apiBase) {
       const forwardUrl = `${apiBase}${pathname}${url.search}`;

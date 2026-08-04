@@ -1,4 +1,11 @@
-import { Think, type Session } from '@cloudflare/think';
+import {
+  Think,
+  type ChatErrorContext,
+  type ChatResponseResult,
+  type Session,
+  type StepContext,
+  type TurnContext,
+} from '@cloudflare/think';
 import {
   AmortizationAnalyzer,
   AmortizationInputSchema,
@@ -9,9 +16,20 @@ import {
   type LeaseAnalysisResult,
 } from '@financial-analysis/analysis';
 import { tool } from 'ai';
-import { createWorkersAI } from 'workers-ai-provider';
 import { z } from 'zod';
 import { DocumentCache } from '../services/document-cache';
+import {
+  getAgentBudgetIdentity,
+  recordAgentBudgetStep,
+  reserveAgentBudget,
+  settleAgentBudget,
+  type AgentBudgetState,
+} from '../lib/agent-budget';
+import {
+  CloudflareWorkersAIProvider,
+  createCloudflareWorkersAIModel,
+  isModelEgressEnabled,
+} from '../services/model-provider';
 import type { Env } from '../types';
 
 type ScheduleEntry = AmortizationResultItem | LeaseAnalysisResult['schedule'][number];
@@ -96,22 +114,66 @@ function compactLeaseResult(result: LeaseAnalysisResult) {
   };
 }
 
-export class FinancialAnalysisAgent extends Think<Env> {
+export class FinancialAnalysisAgent extends Think<Env, unknown, Record<string, unknown>> {
   override maxSteps = 5;
+
+  private agentBudgetState: AgentBudgetState | null = null;
+  private ownerProps: Record<string, unknown> | undefined;
+
+  override async onStart(props?: Record<string, unknown>) {
+    this.ownerProps = props;
+    await super.onStart(props);
+  }
 
   override getModel() {
     if (!this.env.AI) {
       throw new Error('Workers AI binding is required for FinancialAnalysisAgent.');
     }
+    if (!isModelEgressEnabled(this.env.AI_EGRESS_ENABLED)) {
+      throw new Error('MODEL_EGRESS_DISABLED');
+    }
 
-    const workersAI = createWorkersAI({ binding: this.env.AI });
-    return workersAI(this.env.WORKERS_AI_MODEL || DEFAULT_AGENT_MODEL, {
-      sessionAffinity: this.sessionAffinity,
-    });
+    return createCloudflareWorkersAIModel(
+      this.env.AI,
+      this.env.WORKERS_AI_MODEL || DEFAULT_AGENT_MODEL,
+      {
+        ...(this.env.AI_GATEWAY_ID ? { gatewayId: this.env.AI_GATEWAY_ID } : {}),
+        egressEnabled: isModelEgressEnabled(this.env.AI_EGRESS_ENABLED),
+        sessionAffinity: this.sessionAffinity,
+      }
+    );
   }
 
   override getSystemPrompt() {
     return AGENT_SYSTEM_PROMPT;
+  }
+
+  override async beforeTurn(ctx: TurnContext) {
+    if (this.agentBudgetState) return;
+    this.agentBudgetState = await reserveAgentBudget(
+      this.env,
+      getAgentBudgetIdentity(this.ownerProps),
+      ctx.body
+    );
+  }
+
+  override onStepFinish(ctx: StepContext) {
+    if (this.agentBudgetState) {
+      recordAgentBudgetStep(this.agentBudgetState, ctx.usage, ctx.toolCalls?.length ?? 0);
+    }
+  }
+
+  override async onChatResponse(result: ChatResponseResult) {
+    const state = this.agentBudgetState;
+    this.agentBudgetState = null;
+    await settleAgentBudget(this.env, state, result.status);
+  }
+
+  override async onChatError(error: unknown, _ctx?: ChatErrorContext) {
+    const state = this.agentBudgetState;
+    this.agentBudgetState = null;
+    await settleAgentBudget(this.env, state, 'error');
+    return error;
   }
 
   override configureSession(session: Session) {
@@ -152,7 +214,15 @@ export class FinancialAnalysisAgent extends Think<Env> {
         }),
         execute: async ({ query, limit }) => {
           const cache = new DocumentCache({
-            ...(this.env.AI ? { ai: this.env.AI } : {}),
+            ...(this.env.AI
+              ? {
+                  ai: new CloudflareWorkersAIProvider(
+                    this.env.AI,
+                    this.env.AI_GATEWAY_ID,
+                    isModelEgressEnabled(this.env.AI_EGRESS_ENABLED)
+                  ),
+                }
+              : {}),
             ...(this.env.KV ? { kv: this.env.KV } : {}),
             ...(this.env.DOCUMENTS ? { r2Bucket: this.env.DOCUMENTS } : {}),
             ...(this.env.VECTORIZE ? { vectorize: this.env.VECTORIZE } : {}),

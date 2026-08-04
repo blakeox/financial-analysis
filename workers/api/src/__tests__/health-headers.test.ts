@@ -16,4 +16,18 @@ describe('/health headers', () => {
     expect(res.headers.has('x-ratelimit-remaining')).toBe(false);
     expect(res.headers.has('x-ratelimit-reset')).toBe(false);
   });
+
+  it('rejects methods outside the Worker allowlist before routing', async () => {
+    const { env, ctx } = makeTestEnv();
+    const res = await api.fetch(
+      new Request('https://example.com/health', { method: 'PATCH' }),
+      env,
+      ctx
+    );
+    expect(res.status).toBe(405);
+    expect(res.headers.get('allow')).toBe('GET, HEAD, POST, PUT, DELETE, OPTIONS');
+    await expect(res.json()).resolves.toMatchObject({
+      error: { code: 'METHOD_NOT_ALLOWED' },
+    });
+  });
 });

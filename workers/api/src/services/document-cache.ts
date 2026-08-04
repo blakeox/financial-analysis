@@ -5,16 +5,17 @@
  */
 
 import type {
-  Ai,
   AiSearchInstance,
   AiSearchJobInfo,
   AiSearchNamespace,
   VectorizeIndex,
 } from '@cloudflare/workers-types';
 import { renderPageToHtml } from './browser-render';
+import type { ModelProvider } from './model-provider';
 
 const FRESHNESS_DAYS = 7;
 const FRESHNESS_MS = FRESHNESS_DAYS * 24 * 60 * 60 * 1000;
+const INVALIDATION_TTL_SECONDS = 30 * 24 * 60 * 60;
 
 export interface CachedDocument {
   url: string;
@@ -34,7 +35,7 @@ export interface DocumentCacheConfig {
   r2Bucket?: R2Bucket;
   vectorize?: VectorizeIndex;
   kv?: KVNamespace;
-  ai?: Ai;
+  ai?: ModelProvider;
   browser?: Fetcher;
   browserRenderingEnabled?: boolean;
   browserRenderingPathPrefixes?: string[];
@@ -51,11 +52,19 @@ export interface FetchResult {
   url: string;
 }
 
+export interface DocumentInvalidationResult {
+  url: string;
+  tombstoneWritten: boolean;
+  r2Deleted: boolean;
+  cacheDeleted: boolean;
+  vectorDeleted: boolean;
+}
+
 export class DocumentCache {
   private r2: R2Bucket | undefined;
   private vectorize: VectorizeIndex | undefined;
   private kv: KVNamespace | undefined;
-  private ai: Ai | undefined;
+  private modelProvider: ModelProvider | undefined;
   private browser: Fetcher | undefined;
   private browserRenderingEnabled: boolean;
   private browserRenderingPathPrefixes: string[];
@@ -68,7 +77,7 @@ export class DocumentCache {
     this.r2 = config.r2Bucket;
     this.vectorize = config.vectorize;
     this.kv = config.kv;
-    this.ai = config.ai;
+    this.modelProvider = config.ai;
     this.browser = config.browser;
     this.browserRenderingEnabled = config.browserRenderingEnabled ?? false;
     this.browserRenderingPathPrefixes = config.browserRenderingPathPrefixes ?? [];
@@ -81,6 +90,10 @@ export class DocumentCache {
    * Get document from cache or fetch live
    */
   async get(url: string): Promise<FetchResult> {
+    if (await this.isInvalidated(url)) {
+      throw new Error('DOCUMENT_INVALIDATED');
+    }
+
     // Try cache first
     const cached = await this.getFromCache(url);
 
@@ -113,7 +126,8 @@ export class DocumentCache {
 
   async refresh(url: string, metadata?: CachedDocument['metadata']): Promise<FetchResult> {
     const liveContent = await this.fetchLive(url);
-    await this.store(url, liveContent, metadata);
+    await this.store(url, liveContent, metadata, true);
+    await this.clearInvalidation(url);
 
     return {
       content: liveContent,
@@ -127,7 +141,16 @@ export class DocumentCache {
   /**
    * Store document in cache
    */
-  async store(url: string, content: string, metadata?: CachedDocument['metadata']): Promise<void> {
+  async store(
+    url: string,
+    content: string,
+    metadata?: CachedDocument['metadata'],
+    allowInvalidated = false
+  ): Promise<void> {
+    if (!allowInvalidated && (await this.isInvalidated(url))) {
+      return;
+    }
+
     const now = Date.now();
     const doc: CachedDocument = {
       url,
@@ -181,7 +204,16 @@ export class DocumentCache {
   ): Promise<{ documents: CachedDocument[]; source: 'ai-search' | 'cache' | 'none' }> {
     const aiSearchDocuments = await this.searchAiSearch(query, limit);
     if (aiSearchDocuments.length > 0) {
-      return { documents: aiSearchDocuments, source: 'ai-search' };
+      const visibleDocuments: CachedDocument[] = [];
+      for (const document of aiSearchDocuments) {
+        if (!(await this.isInvalidated(document.url))) {
+          visibleDocuments.push(document);
+        }
+      }
+      return {
+        documents: visibleDocuments,
+        source: visibleDocuments.length > 0 ? 'ai-search' : 'none',
+      };
     }
 
     if (!this.vectorize) {
@@ -202,7 +234,7 @@ export class DocumentCache {
       const documents: CachedDocument[] = [];
       for (const match of results.matches) {
         const url = match.metadata?.url as string;
-        if (url) {
+        if (url && !(await this.isInvalidated(url))) {
           const doc = await this.getFromCache(url);
           if (doc && this.isFresh(doc)) {
             documents.push(doc);
@@ -218,6 +250,38 @@ export class DocumentCache {
       console.error('Vector search failed:', error);
       return { documents: [], source: 'none' };
     }
+  }
+
+  /**
+   * Tombstone a source before deleting derived artifacts. A tombstone makes
+   * stale AI Search chunks non-authoritative while its asynchronous index job
+   * catches up. Any deletion failure is thrown so a queue caller can retry.
+   */
+  async invalidate(url: string): Promise<DocumentInvalidationResult> {
+    const tombstoneWritten = await this.writeInvalidation(url);
+    let r2Deleted = false;
+    let cacheDeleted = false;
+    let vectorDeleted = false;
+
+    try {
+      if (this.r2) {
+        await this.r2.delete(this.getR2Key(url));
+        r2Deleted = true;
+      }
+      if (this.kv) {
+        await this.kv.delete(this.getKVKey(url));
+        cacheDeleted = true;
+      }
+      if (this.vectorize) {
+        await this.vectorize.deleteByIds([await this.hashContent(url)]);
+        vectorDeleted = true;
+      }
+    } catch (error) {
+      console.error('Document invalidation failed:', error);
+      throw new Error('DOCUMENT_INVALIDATION_INCOMPLETE', { cause: error });
+    }
+
+    return { url, tombstoneWritten, r2Deleted, cacheDeleted, vectorDeleted };
   }
 
   /**
@@ -252,6 +316,41 @@ export class DocumentCache {
     }
 
     return null;
+  }
+
+  private getTombstoneKey(url: string): string {
+    return `autorag:tombstone:${this.simpleHash(url)}`;
+  }
+
+  private async isInvalidated(url: string): Promise<boolean> {
+    if (!this.kv) return false;
+    const value = await this.kv.get(this.getTombstoneKey(url), 'text');
+    if (!value) return false;
+    try {
+      return (JSON.parse(value) as { type?: string }).type === 'invalidation-tombstone';
+    } catch {
+      return false;
+    }
+  }
+
+  private async writeInvalidation(url: string): Promise<boolean> {
+    if (!this.kv) return false;
+    await this.kv.put(
+      this.getTombstoneKey(url),
+      JSON.stringify({
+        type: 'invalidation-tombstone',
+        url,
+        invalidatedAt: new Date().toISOString(),
+      }),
+      { expirationTtl: INVALIDATION_TTL_SECONDS }
+    );
+    return true;
+  }
+
+  private async clearInvalidation(url: string): Promise<void> {
+    if (this.kv) {
+      await this.kv.delete(this.getTombstoneKey(url));
+    }
   }
 
   /**
@@ -504,10 +603,10 @@ export class DocumentCache {
     // Truncate to reasonable length for embedding
     const truncated = text.slice(0, 8000);
 
-    if (this.ai) {
+    if (this.modelProvider) {
       try {
         // Use bge-small-en-v1.5 for 384 dimensions to match existing index/stub
-        const response = (await this.ai.run('@cf/baai/bge-small-en-v1.5', {
+        const response = (await this.modelProvider.run('@cf/baai/bge-small-en-v1.5', {
           text: [truncated],
         })) as { data: number[][] };
 

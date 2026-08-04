@@ -1,0 +1,9 @@
+name = "financial-analysis-mcp-integration"
+main = "../../index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "development"
+OAUTH_ENABLED = "false"
+AI_EGRESS_ENABLED = "false"

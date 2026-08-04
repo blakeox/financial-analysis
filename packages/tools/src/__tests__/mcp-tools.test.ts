@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { createMCPTools, handleMCPRequest } from '../mcp/tools';
 import { AmortizationTool } from '../tools/amortization';
 import { CacheDocumentTool } from '../tools/autorag-documents';
+import { MCP_SCOPES, type MCPAuthorizationContext } from '../mcp/capabilities';
+
+const analysisAuthorization: MCPAuthorizationContext = {
+  source: 'internal',
+  subject: 'test-internal',
+  scopes: [MCP_SCOPES.ANALYSIS_READ],
+};
 
 describe('MCP tool contracts', () => {
   it('registers a unique MCP tool entry for each exposed tool', () => {
@@ -26,13 +33,26 @@ describe('MCP tool contracts', () => {
       },
       serverInfo: {
         name: 'financial-analysis-mcp',
-        version: '0.1.0',
+        version: '1.0.0',
       },
     });
   });
 
   it('lists tools with concise descriptions and schemas', async () => {
     const result = (await handleMCPRequest('tools/list', {})) as {
+      tools: Array<{ name: string; description: string; inputSchema: unknown }>;
+    };
+
+    expect(result.tools).toEqual([]);
+  });
+
+  it('lists only capabilities allowed by an explicit authorization context', async () => {
+    const result = (await handleMCPRequest(
+      'tools/list',
+      undefined,
+      undefined,
+      analysisAuthorization
+    )) as {
       tools: Array<{ name: string; description: string; inputSchema: unknown }>;
     };
 
@@ -43,33 +63,36 @@ describe('MCP tool contracts', () => {
           description: 'Calculate loan payments and amortization schedule',
           inputSchema: AmortizationTool.inputSchema,
         }),
-        expect.objectContaining({
-          name: CacheDocumentTool.toolName,
-          description:
-            'Cache a website or document URL for 7-day retrieval with automatic freshness checking',
-          inputSchema: CacheDocumentTool.inputSchema,
-        }),
       ])
     );
   });
 
   it('dispatches tool calls to the registered executor', async () => {
-    const result = (await handleMCPRequest('tools/call', {
-      name: CacheDocumentTool.toolName,
-      arguments: {
-        url: 'https://example.com/doc',
+    const result = (await handleMCPRequest(
+      'tools/call',
+      {
+        name: AmortizationTool.toolName,
+        arguments: {
+          principal: 10000,
+          annualRate: 0.05,
+          termMonths: 12,
+        },
       },
-    })) as {
-      success: boolean;
-      url: string;
-      fetchedAt: number;
-      expiresAt: number;
-    };
+      undefined,
+      analysisAuthorization
+    )) as { monthlyPayment: number; schedule: unknown[] };
 
-    expect(result.success).toBe(true);
-    expect(result.url).toBe('https://example.com/doc');
-    expect(result.fetchedAt).toBeGreaterThan(0);
-    expect(result.expiresAt).toBeGreaterThan(result.fetchedAt);
+    expect(result.monthlyPayment).toBeGreaterThan(0);
+    expect(result.schedule).toHaveLength(12);
+  });
+
+  it('rejects anonymous tool execution', async () => {
+    await expect(
+      handleMCPRequest('tools/call', {
+        name: AmortizationTool.toolName,
+        arguments: { principal: 10000, annualRate: 0.05, termMonths: 12 },
+      })
+    ).rejects.toMatchObject({ code: -32004 });
   });
 
   it('rejects calls to unknown tools', async () => {

@@ -35,7 +35,7 @@ jobs:
         id: filter
         uses: ./.github/actions/repo-path-filter
         with:
-          filters: .github/path-filters.yml
+          filters-file: .github/path-filters.yml
 
   duplicate-check:
     name: Duplicate file check

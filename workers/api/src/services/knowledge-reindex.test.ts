@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildKnowledgeReindexUrls,
+  enqueueKnowledgeInvalidation,
   enqueueKnowledgeReindex,
   handleKnowledgeQueue,
+  processKnowledgeInvalidation,
   processKnowledgeReindex,
 } from './knowledge-reindex';
 import type { Env, KnowledgeReindexMessage } from '../types';
@@ -53,6 +55,21 @@ describe('knowledge reindex service', () => {
       expect.objectContaining({ contentType: 'json' })
     );
     expect(result.backlogCount).toBe(4);
+  });
+
+  it('enqueues an explicit source invalidation job', async () => {
+    const send = vi.fn().mockResolvedValue({ metadata: { metrics: { backlogCount: 2 } } });
+
+    const result = await enqueueKnowledgeInvalidation(
+      { KNOWLEDGE_JOBS: { send } as unknown as Queue<KnowledgeReindexMessage> },
+      { source: 'manual', paths: ['/deleted'], delaySeconds: 30 }
+    );
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'site-invalidate', paths: ['/deleted'] }),
+      expect.objectContaining({ contentType: 'json', delaySeconds: 30 })
+    );
+    expect(result.message.type).toBe('site-invalidate');
   });
 
   it('processes a knowledge reindex job by warming cache and triggering AI Search', async () => {
@@ -108,6 +125,55 @@ describe('knowledge reindex service', () => {
     expect(jobsCreate).toHaveBeenCalledWith({
       description: 'knowledge-reindex:manual:2026-04-22T00:00:00.000Z',
     });
+  });
+
+  it('tombstones cached derivatives and triggers a post-invalidation search job', async () => {
+    const put = vi.fn().mockResolvedValue(undefined);
+    const del = vi.fn().mockResolvedValue(undefined);
+    const deleteByIds = vi.fn().mockResolvedValue({ mutationId: 'mutation-1' });
+    const jobsCreate = vi.fn().mockResolvedValue({ id: 'job-invalidate' });
+    const info = vi.fn().mockResolvedValue({ id: 'fanalyx-site' });
+
+    const result = await processKnowledgeInvalidation(
+      {
+        type: 'site-invalidate',
+        source: 'manual',
+        requestedAt: '2026-04-22T00:00:00.000Z',
+        paths: ['/deleted'],
+      },
+      {
+        KV: { get: vi.fn().mockResolvedValue(null), put, delete: del } as unknown as Env['KV'],
+        VECTORIZE: { deleteByIds } as unknown as Env['VECTORIZE'],
+        AI_SEARCH: {
+          get: vi.fn().mockReturnValue({ info, jobs: { create: jobsCreate } }),
+        } as unknown as Env['AI_SEARCH'],
+        AI_SEARCH_INSTANCE_NAME: 'fanalyx-site',
+        AI_SEARCH_SOURCE_DOMAIN: 'https://fanalyx.com',
+      } as Pick<
+        Env,
+        | 'AI'
+        | 'KV'
+        | 'DOCUMENTS'
+        | 'VECTORIZE'
+        | 'BROWSER'
+        | 'BROWSER_RENDERING_ENABLED'
+        | 'BROWSER_RENDERING_PATH_PREFIXES'
+        | 'AI_SEARCH'
+        | 'AI_SEARCH_INSTANCE_NAME'
+        | 'AI_SEARCH_SOURCE_DOMAIN'
+        | 'BASE_URL'
+        | 'ANALYTICS'
+      >
+    );
+
+    expect(result.invalidatedCount).toBe(1);
+    expect(result.aiSearchJobId).toBe('job-invalidate');
+    expect(put).toHaveBeenCalledWith(
+      expect.stringContaining('autorag:tombstone:'),
+      expect.stringContaining('invalidation-tombstone'),
+      expect.any(Object)
+    );
+    expect(deleteByIds).toHaveBeenCalledWith([expect.any(String)]);
   });
 
   it('retries failed queue messages before eventually acknowledging them', async () => {

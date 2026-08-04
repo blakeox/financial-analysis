@@ -1,4 +1,5 @@
 import { routeAgentRequest } from 'agents';
+import type { OAuthProvider } from '@cloudflare/workers-oauth-provider';
 import {
   AccountsPayableOptimizationInputSchema,
   AccountsPayableOptimizer,
@@ -133,7 +134,13 @@ import {
   WorkingCapitalInputSchema,
   WorkingCapitalOptimizer,
 } from '@financial-analysis/analysis';
-import { handleMCPRequest } from '@financial-analysis/tools';
+import {
+  handleMCPRequest,
+  MCP_CAPABILITY_POLICY_VERSION,
+  MCP_PROTOCOL_VERSION,
+  MCP_SERVER_VERSION,
+  type MCPAuthorizationContext,
+} from '@financial-analysis/tools';
 import { Router } from 'itty-router';
 import { z } from 'zod';
 import { getOpenApiDocument } from './openapi';
@@ -142,7 +149,9 @@ import type { Env } from './types';
 import {
   adjustApproxBytes,
   attachRateLimitHeaders,
+  buildRequestContext,
   buildDefaultHeaders,
+  codeModePolicyFromConfig,
   checkRateLimit,
   getAllCircuitStates,
   getAnalysisCacheTtl,
@@ -150,21 +159,47 @@ import {
   getCorsHeaders,
   getDefaultCache,
   getMaxJsonBytes,
+  getOrCreateAnalysisRunId,
   getSecurityHeaders,
   getThresholds,
   isQuotaLocked,
+  purgeExpiredBudgetReservations,
   reconcileBucketUsage,
   setQuotaLocked,
   sha256Hex,
+  sha256HexBytes,
   stableStringify,
   withErrorHandler,
   type RateLimitInfo,
 } from './lib';
+import { handleEnhancedMCPRequest } from './lib/enhanced-mcp';
+import {
+  abortDocumentUploadSession,
+  cleanupExpiredDocumentUploads,
+  createDocumentUploadSession,
+  finalizeDocumentUpload,
+  getOwnedDocumentMetadata,
+  getOwnedDocumentUploadSession,
+  getPendingDocumentUploadBytes,
+  markDocumentDeleted,
+  recordDocumentMetadata,
+} from './lib/document-metadata';
+import { purgeExpiredMCPAuditEvents } from './lib/mcp-audit';
+import { purgeExpiredOAuthAuditEvents } from './lib/oauth-audit';
+import { isOidcBrowserLoginConfigured } from './lib/oauth-oidc-login';
+import { isOAuthEnabled } from './lib/oauth-policy';
+import { hasExpectedUploadSignature } from './lib/upload-validation';
+import { createR2PresignedUrl, getR2PresignConfig } from './lib/r2-presign';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
-import { enqueueKnowledgeReindex, handleKnowledgeQueue } from './services/knowledge-reindex';
+import {
+  enqueueKnowledgeInvalidation,
+  enqueueKnowledgeReindex,
+  handleKnowledgeQueue,
+} from './services/knowledge-reindex';
 import { getKnowledgePipelineStatus } from './services/knowledge-status';
+import { CloudflareWorkersAIProvider, isModelEgressEnabled } from './services/model-provider';
 
 // Helper: get Cloudflare Workers default Cache if available
 const router = Router();
@@ -664,16 +699,28 @@ import {
   createAuthErrorResponse,
   trackApiUsage,
   validateApiKey,
+  resolveMCPScopes,
   type ApiKeyInfo,
 } from './lib/auth';
 import { createApiKey, getKeyUsage, listApiKeys, revokeApiKey } from './routes/api-keys';
 
 // Stripe Integration endpoints
 import { stripeRouter } from './routes/stripe';
+import { authorizeAgentRequest } from './lib/agent-access';
 
 /**
  * Middleware to require API key authentication
  */
+function allowsPublicInternalAccess(pathname: string): boolean {
+  return (
+    pathname === '/mcp' ||
+    pathname === '/api/v1/mcp/tools' ||
+    pathname.startsWith('/v1/api/analysis/') ||
+    pathname.startsWith('/api/analyze-') ||
+    pathname === '/api/multi-model-scenario-analysis'
+  );
+}
+
 function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
@@ -702,6 +749,20 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
       return createAuthErrorResponse(authResult);
     }
 
+    // The web Worker uses a server-only token for the stateless public formula
+    // facade. It must never turn a browser request into an owner for storage,
+    // uploads, document extraction, billing, or other user-data routes.
+    if (
+      authResult.keyInfo.tier === 'internal' &&
+      !allowsPublicInternalAccess(new URL(request.url).pathname)
+    ) {
+      return createAuthErrorResponse({
+        success: false,
+        error: 'A caller API key or user identity is required for this resource.',
+        errorCode: 'MISSING_KEY',
+      });
+    }
+
     try {
       const response = await handler(request, env, authResult.keyInfo);
       const responseTime = Date.now() - startTime;
@@ -715,6 +776,10 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
 
       // Add rate limit headers
       const headers = new Headers(response.headers);
+      headers.set('Cache-Control', 'no-store');
+      headers.append('Vary', 'Authorization');
+      headers.append('Vary', 'X-API-Key');
+      headers.append('Vary', 'X-Internal-API-Token');
       headers.set('X-RateLimit-Limit', String(authResult.keyInfo.rateLimitPerSec));
       headers.set('X-RateLimit-Remaining', '0'); // Would need to fetch from KV
       headers.set('X-API-Key-Tier', authResult.keyInfo.tier);
@@ -728,6 +793,20 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
       console.error('Handler error:', error);
       throw error;
     }
+  };
+}
+
+function buildMCPAuthorizationContext(keyInfo: ApiKeyInfo, env: Env): MCPAuthorizationContext {
+  return {
+    source:
+      keyInfo.tier === 'internal'
+        ? 'internal'
+        : keyInfo.tier === 'test'
+          ? 'development'
+          : 'api-key',
+    subject: keyInfo.customerId,
+    scopes: resolveMCPScopes(keyInfo),
+    mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',
   };
 }
 
@@ -845,6 +924,26 @@ router.get('/version', (_req: Request, env: Env) => {
       version: 'v1',
       environment: env.ENVIRONMENT,
       commit: env.COMMIT_SHA ?? 'unknown',
+      mcp: {
+        serverVersion: MCP_SERVER_VERSION,
+        protocolVersion: MCP_PROTOCOL_VERSION,
+        capabilityPolicyVersion: MCP_CAPABILITY_POLICY_VERSION,
+      },
+      controls: {
+        oauthEnabled: isOAuthEnabled(env),
+        oidcBrowserLoginConfigured: isOidcBrowserLoginConfigured(env),
+        modelEgressEnabled: isModelEgressEnabled(env.AI_EGRESS_ENABLED),
+        budgetEnforcementEnabled: env.BUDGET_ENFORCEMENT_ENABLED === 'true',
+        connectorEgressEnabled: env.CONNECTOR_EGRESS_ENABLED === 'true',
+        codeModeEnabled: codeModePolicyFromConfig({
+          enabled: env.CODE_MODE_ENABLED,
+          allowedCapabilities: env.CODE_MODE_ALLOWED_CAPABILITIES,
+          connectorEgressEnabled: env.CONNECTOR_EGRESS_ENABLED,
+          maxToolCalls: env.CODE_MODE_MAX_TOOL_CALLS,
+          maxOutputBytes: env.CODE_MODE_MAX_OUTPUT_BYTES,
+          maxWallTimeMs: env.CODE_MODE_MAX_WALL_TIME_MS,
+        }).enabled,
+      },
       timestamp: new Date().toISOString(),
     }),
     { headers: buildDefaultHeaders(env) }
@@ -978,6 +1077,408 @@ router.get(
   )
 );
 
+const R2PresignRequestSchema = z.discriminatedUnion('operation', [
+  z.object({
+    operation: z.literal('download'),
+    key: z.string().min(1).max(1024),
+  }),
+  z.object({
+    operation: z.literal('upload'),
+    originalName: z.string().min(1).max(255),
+    contentType: z.string().min(1).max(128),
+    sizeBytes: z.number().int().positive(),
+    sha256: z.string().regex(/^[a-f0-9]{64}$/i),
+  }),
+]);
+
+const R2FinalizeUploadRequestSchema = z.object({
+  uploadId: z.string().uuid(),
+});
+
+/**
+ * Issue a short-lived, owner-checked R2 GET URL.
+ *
+ * Direct PUT URLs are session-bound. The object is not promoted to the
+ * documents table until /v1/storage/finalize verifies the R2 bytes.
+ */
+router.post(
+  '/v1/storage/presign',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
+      const config = getR2PresignConfig(env);
+      if (!config) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'R2 URL signing is not configured.',
+              code: 'STORAGE_SIGNING_NOT_CONFIGURED',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (!env.DOCUMENTS || !env.DB) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Document ownership metadata is temporarily unavailable.',
+              code: 'METADATA_UNAVAILABLE',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const parsedBody = await readJsonBodyWithinLimit(request, env);
+      if (parsedBody.error) return parsedBody.error;
+      const parsed = R2PresignRequestSchema.safeParse(parsedBody.body);
+      if (!parsed.success) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Invalid R2 presign request.',
+              code: 'BAD_REQUEST',
+            },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      if (parsed.data.operation === 'download') {
+        const { key } = parsed.data;
+        if (key.endsWith('/') || hasControlChars(key) || /(^|\/)\.\.(\/|$)/.test(key)) {
+          return new Response(
+            JSON.stringify({ error: { message: 'Unsafe object key', code: 'BAD_KEY' } }),
+            { status: 400, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const metadata = await getOwnedDocumentMetadata(env, key, keyInfo.customerId);
+        if (!metadata) {
+          return new Response(
+            JSON.stringify({ error: { message: 'Object not found', code: 'OBJECT_NOT_FOUND' } }),
+            { status: 404, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const object = await env.DOCUMENTS.head(key);
+        if (!object) {
+          return new Response(
+            JSON.stringify({ error: { message: 'Object not found', code: 'OBJECT_NOT_FOUND' } }),
+            { status: 404, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        const signed = await createR2PresignedUrl(config, 'get', key);
+        return new Response(
+          JSON.stringify({
+            operation: 'download',
+            key,
+            url: signed.url,
+            expiresAt: signed.expiresAt,
+            expiresInSeconds: signed.expiresInSeconds,
+            contentType: metadata.contentType,
+            sizeBytes: metadata.sizeBytes,
+            sha256: metadata.sha256,
+          }),
+          { status: 200, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const { originalName, contentType, sizeBytes, sha256 } = parsed.data;
+      if (hasControlChars(originalName) || hasControlChars(contentType)) {
+        return new Response(
+          JSON.stringify({ error: { message: 'Invalid upload metadata', code: 'BAD_REQUEST' } }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const allowedTypes = new Set([
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+      ]);
+      if (!allowedTypes.has(contentType)) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' },
+          }),
+          { status: 415, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (env.ALLOWED_UPLOAD_MIME_PREFIXES) {
+        const prefixes = env.ALLOWED_UPLOAD_MIME_PREFIXES.split(',')
+          .map((value) => value.trim())
+          .filter(Boolean);
+        if (prefixes.length > 0 && !prefixes.some((prefix) => contentType.startsWith(prefix))) {
+          return new Response(
+            JSON.stringify({
+              error: { message: 'Unsupported media type', code: 'UNSUPPORTED_MEDIA_TYPE' },
+            }),
+            { status: 415, headers: buildDefaultHeaders(env) }
+          );
+        }
+      }
+
+      const { softLimit, hardLimit, maxObjectSize } = getThresholds(env);
+      if (sizeBytes > maxObjectSize) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: `Object too large. Max ${maxObjectSize} bytes`,
+              code: 'OBJECT_TOO_LARGE',
+            },
+          }),
+          { status: 413, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const pendingBytes = await getPendingDocumentUploadBytes(env, keyInfo.customerId);
+      if (!Number.isFinite(pendingBytes)) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Upload quota is temporarily unavailable.',
+              code: 'QUOTA_UNAVAILABLE',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const approx = await getApproxBytes(env);
+      const locked = await isQuotaLocked(env);
+      if (locked || approx + pendingBytes + sizeBytes > hardLimit) {
+        await setQuotaLocked(env, true);
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Storage locked due to quota', code: 'QUOTA_LOCKED' },
+          }),
+          { status: 403, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (approx + pendingBytes + sizeBytes > softLimit) {
+        await setQuotaLocked(env, true);
+        return new Response(
+          JSON.stringify({ error: { message: 'Approaching quota', code: 'SOFT_LIMIT' } }),
+          { status: 403, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const uploadId = crypto.randomUUID();
+      const extension = originalName.includes('.')
+        ? `.${originalName
+            .split('.')
+            .pop()
+            ?.toLowerCase()
+            .replace(/[^a-z0-9]/g, '')}`
+        : '';
+      const key = `lease-documents/${uploadId}${extension}`;
+      const expiresAt = new Date(Date.now() + config.ttlSeconds * 1000).toISOString();
+      const created = await createDocumentUploadSession(env, {
+        uploadId,
+        objectKey: key,
+        customerId: keyInfo.customerId,
+        originalName,
+        contentType,
+        sizeBytes,
+        sha256: sha256.toLowerCase(),
+        expiresAt,
+      });
+      if (!created) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Upload session unavailable.', code: 'UPLOAD_SESSION_UNAVAILABLE' },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      try {
+        const signed = await createR2PresignedUrl(config, 'put', key, contentType);
+        return new Response(
+          JSON.stringify({
+            operation: 'upload',
+            uploadId,
+            key,
+            url: signed.url,
+            expiresAt: signed.expiresAt,
+            expiresInSeconds: signed.expiresInSeconds,
+            headers: { 'Content-Type': contentType },
+            sizeBytes,
+            sha256: sha256.toLowerCase(),
+          }),
+          { status: 201, headers: buildDefaultHeaders(env) }
+        );
+      } catch (error) {
+        await abortDocumentUploadSession(env, uploadId, keyInfo.customerId);
+        console.error('R2 presign failed:', error);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'R2 URL signing is temporarily unavailable.',
+              code: 'STORAGE_SIGNING_UNAVAILABLE',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+    })
+  )
+);
+
+router.post(
+  '/v1/storage/finalize',
+  withErrorHandler(
+    withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
+      if (!env.DOCUMENTS || !env.DB) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Document storage is temporarily unavailable.',
+              code: 'METADATA_UNAVAILABLE',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const parsedBody = await readJsonBodyWithinLimit(request, env);
+      if (parsedBody.error) return parsedBody.error;
+      const parsed = R2FinalizeUploadRequestSchema.safeParse(parsedBody.body);
+      if (!parsed.success) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Invalid upload finalization request.', code: 'BAD_REQUEST' },
+          }),
+          { status: 400, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const session = await getOwnedDocumentUploadSession(
+        env,
+        parsed.data.uploadId,
+        keyInfo.customerId
+      );
+      if (!session) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Upload session not found.', code: 'UPLOAD_NOT_FOUND' },
+          }),
+          { status: 404, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (session.status !== 'pending') {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Upload session is no longer pending.', code: 'UPLOAD_NOT_PENDING' },
+          }),
+          { status: 409, headers: buildDefaultHeaders(env) }
+        );
+      }
+      if (Date.parse(session.expiresAt) <= Date.now()) {
+        await abortDocumentUploadSession(env, session.uploadId, keyInfo.customerId);
+        return new Response(
+          JSON.stringify({ error: { message: 'Upload URL expired.', code: 'UPLOAD_EXPIRED' } }),
+          { status: 410, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const head = await env.DOCUMENTS.head(session.objectKey);
+      if (!head) {
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Uploaded object not found.', code: 'UPLOAD_NOT_COMPLETE' },
+          }),
+          { status: 409, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const actualContentType = head.httpMetadata?.contentType;
+      if (head.size !== session.sizeBytes || actualContentType !== session.contentType) {
+        await env.DOCUMENTS.delete(session.objectKey);
+        await abortDocumentUploadSession(env, session.uploadId, keyInfo.customerId);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Uploaded object metadata does not match the session.',
+              code: 'UPLOAD_METADATA_MISMATCH',
+            },
+          }),
+          { status: 422, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const object = await env.DOCUMENTS.get(session.objectKey);
+      if (!object) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Uploaded object disappeared before verification.',
+              code: 'UPLOAD_NOT_COMPLETE',
+            },
+          }),
+          { status: 409, headers: buildDefaultHeaders(env) }
+        );
+      }
+      const actualSha256 = await sha256HexBytes(await object.arrayBuffer());
+      if (actualSha256 !== session.sha256) {
+        await env.DOCUMENTS.delete(session.objectKey);
+        await abortDocumentUploadSession(env, session.uploadId, keyInfo.customerId);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Uploaded object checksum mismatch.',
+              code: 'UPLOAD_CHECKSUM_MISMATCH',
+            },
+          }),
+          { status: 422, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const pendingBytes = await getPendingDocumentUploadBytes(
+        env,
+        keyInfo.customerId,
+        session.uploadId
+      );
+      const approx = await getApproxBytes(env);
+      const { softLimit } = getThresholds(env);
+      if (!Number.isFinite(pendingBytes) || approx + pendingBytes + session.sizeBytes > softLimit) {
+        await env.DOCUMENTS.delete(session.objectKey);
+        await abortDocumentUploadSession(env, session.uploadId, keyInfo.customerId);
+        return new Response(
+          JSON.stringify({
+            error: { message: 'Storage quota is no longer available.', code: 'QUOTA_LOCKED' },
+          }),
+          { status: 403, headers: buildDefaultHeaders(env) }
+        );
+      }
+
+      const finalized = await finalizeDocumentUpload(env, session);
+      if (!finalized) {
+        await env.DOCUMENTS.delete(session.objectKey);
+        await abortDocumentUploadSession(env, session.uploadId, keyInfo.customerId);
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'Document metadata storage is temporarily unavailable.',
+              code: 'METADATA_UNAVAILABLE',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+      await adjustApproxBytes(env, session.sizeBytes);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          uploadId: session.uploadId,
+          documentKey: session.objectKey,
+          filename: session.originalName,
+          contentType: session.contentType,
+          sizeBytes: session.sizeBytes,
+          sha256: actualSha256,
+        }),
+        { status: 201, headers: buildDefaultHeaders(env) }
+      );
+    })
+  )
+);
+
 // Admin-only reconcile endpoint (requires Authorization: Bearer <ADMIN_API_TOKEN>)
 router.post(
   '/v1/storage/reconcile',
@@ -994,6 +1495,7 @@ router.post(
         usedBytes: result.bytes,
         locked: result.locked,
         scanned: result.scanned,
+        complete: result.complete,
         timestamp: new Date().toISOString(),
       }),
       { status: 200, headers: buildDefaultHeaders(env) }
@@ -1004,6 +1506,11 @@ router.post(
 const KnowledgeReindexRequestSchema = z.object({
   paths: z.array(z.string().min(1)).max(50).optional(),
   warmCache: z.boolean().optional(),
+  delaySeconds: z.number().int().min(0).max(900).optional(),
+});
+
+const KnowledgeInvalidationRequestSchema = z.object({
+  paths: z.array(z.string().min(1)).min(1).max(50),
   delaySeconds: z.number().int().min(0).max(900).optional(),
 });
 
@@ -1090,6 +1597,84 @@ router.post(
         queuedAt: result.message.requestedAt,
         source: result.message.source,
         warmCache: result.message.warmCache ?? true,
+        pathCount: result.message.paths?.length ?? 0,
+      }),
+      { status: 202, headers: buildDefaultHeaders(env) }
+    );
+  })
+);
+
+router.post(
+  '/v1/admin/knowledge/invalidate',
+  withErrorHandler(async (request: Request, env: Env) => {
+    if (!isAuthorizedAdminRequest(request, env)) {
+      return new Response(
+        JSON.stringify({ error: { message: 'Unauthorized', code: 'UNAUTHORIZED' } }),
+        { status: 401, headers: buildDefaultHeaders(env) }
+      );
+    }
+    if (!env.KNOWLEDGE_JOBS) {
+      return new Response(
+        JSON.stringify({
+          error: { message: 'Knowledge invalidation queue is not configured', code: 'NO_QUEUE' },
+        }),
+        { status: 503, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const contentType = request.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({
+          error: { message: 'Content-Type must be application/json', code: 'INVALID_CONTENT_TYPE' },
+        }),
+        { status: 415, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    let requestBody: unknown;
+    try {
+      requestBody = await request.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: { message: 'Invalid JSON body', code: 'BAD_REQUEST' } }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+    const parsed = KnowledgeInvalidationRequestSchema.safeParse(requestBody);
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            message: 'Invalid invalidation request',
+            code: 'BAD_REQUEST',
+            issues: parsed.error.issues.map((issue) => ({
+              path: issue.path.join('.'),
+              message: issue.message,
+              code: issue.code,
+            })),
+          },
+        }),
+        { status: 400, headers: buildDefaultHeaders(env) }
+      );
+    }
+
+    const result = await enqueueKnowledgeInvalidation(env, {
+      source: 'manual',
+      paths: parsed.data.paths,
+      ...(request.headers.get('X-Request-ID')
+        ? { requestId: request.headers.get('X-Request-ID') as string }
+        : {}),
+      ...(parsed.data.delaySeconds !== undefined ? { delaySeconds: parsed.data.delaySeconds } : {}),
+    });
+
+    return new Response(
+      JSON.stringify({
+        status: 'enqueued',
+        operation: 'invalidate',
+        backlogCount: result.backlogCount,
+        queuedAt: result.message.requestedAt,
+        source: result.message.source,
         pathCount: result.message.paths?.length ?? 0,
       }),
       { status: 202, headers: buildDefaultHeaders(env) }
@@ -1255,7 +1840,7 @@ router.put(
 router.delete(
   '/v1/storage/object/:key',
   withErrorHandler(
-    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+    withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
       if (!env.DOCUMENTS) {
         return new Response(
           JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
@@ -1272,6 +1857,9 @@ router.delete(
       }
       const head = await env.DOCUMENTS.head(key);
       await env.DOCUMENTS.delete(key);
+      if (env.DB) {
+        await markDocumentDeleted(env, key, keyInfo.customerId);
+      }
       if (head && typeof head.size === 'number') {
         await adjustApproxBytes(env, -head.size);
       }
@@ -1286,54 +1874,44 @@ router.delete(
 // MCP server endpoint for LLM integration
 router.post(
   '/mcp',
-  withErrorHandler(async (request: Request, env: Env) => {
-    const contentType = request.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      throw new Error('Content-Type must be application/json');
-    }
+  withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
+    return withErrorHandler(async (request: Request, env: Env) => {
+      const requestContext = buildRequestContext(request, env.ENVIRONMENT);
+      requestContext.auth = {
+        apiKeyId: keyInfo.id,
+        customerId: keyInfo.customerId,
+        clientId: `api-key:${keyInfo.id}`,
+        tier: keyInfo.tier,
+        scopes: resolveMCPScopes(keyInfo),
+        mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',
+      };
 
-    const body = await request.json();
-
-    // Enhanced MCP protocol validation
-    const mcpRequestSchema = z.object({
-      jsonrpc: z.literal('2.0'),
-      id: z.union([z.string(), z.number()]),
-      method: z.enum(['initialize', 'tools/list', 'tools/call']),
-      params: z.any().optional(),
-    });
-
-    const mcpRequest = mcpRequestSchema.parse(body);
-
-    // Use the MCP tools handler
-    const result = await handleMCPRequest(mcpRequest.method, mcpRequest.params, env);
-
-    return new Response(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: mcpRequest.id,
-        result,
-      }),
-      {
-        headers: buildDefaultHeaders(env),
-      }
-    );
+      return handleEnhancedMCPRequest(request, env, requestContext);
+    })(request, env);
   })
 );
 
 // MCP tools listing endpoint for chat interface
 router.get(
   '/api/v1/mcp/tools',
-  withErrorHandler(async (_request: Request, env: Env) => {
-    // Use the MCP handler to list tools
-    const result = await handleMCPRequest('tools/list', undefined, env);
+  withErrorHandler(
+    withAuth(async (_request: Request, env: Env, keyInfo: ApiKeyInfo) => {
+      // Use the MCP handler to list tools
+      const result = await handleMCPRequest(
+        'tools/list',
+        undefined,
+        env,
+        buildMCPAuthorizationContext(keyInfo, env)
+      );
 
-    return new Response(JSON.stringify(result), {
-      headers: {
-        ...buildDefaultHeaders(env),
-        'Content-Type': 'application/json',
-      },
-    });
-  })
+      return new Response(JSON.stringify(result), {
+        headers: {
+          ...buildDefaultHeaders(env),
+          'Content-Type': 'application/json',
+        },
+      });
+    })
+  )
 );
 
 // API routes for financial analysis (v1)
@@ -1711,7 +2289,7 @@ router.post(
 router.post(
   '/v1/api/upload/lease',
   withErrorHandler(
-    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+    withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
       if (!env.DOCUMENTS) {
         return new Response(
           JSON.stringify({ error: { message: 'Storage not configured', code: 'NO_BUCKET' } }),
@@ -1782,21 +2360,74 @@ router.post(
         const quotaError = await getUploadQuotaError(env, file.size);
         if (quotaError) return quotaError;
 
+        const arrayBuffer = await file.arrayBuffer();
+        if (!hasExpectedUploadSignature(file.type, new Uint8Array(arrayBuffer))) {
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'File content does not match the declared file type.',
+                code: 'FILE_SIGNATURE_MISMATCH',
+              },
+            }),
+            { status: 415, headers: buildDefaultHeaders(env) }
+          );
+        }
+
         // Generate unique key for the file
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2);
         const extension = file.name.split('.').pop() || 'bin';
         const key = `lease-documents/${timestamp}-${random}.${extension}`;
 
-        // Upload to R2
-        const arrayBuffer = await file.arrayBuffer();
-        await env.DOCUMENTS.put(key, arrayBuffer, {
-          httpMetadata: { contentType: file.type },
-          customMetadata: {
+        // Upload to R2. A configured storage failure is not a successful
+        // analysis upload; fail closed so callers cannot lose the document
+        // while believing it was persisted.
+        try {
+          await env.DOCUMENTS.put(key, arrayBuffer, {
+            httpMetadata: { contentType: file.type },
+            customMetadata: {
+              originalName: file.name,
+              uploadedAt: new Date().toISOString(),
+            },
+          });
+        } catch (error) {
+          console.error('R2 upload failed; refusing to report success:', error);
+          return new Response(
+            JSON.stringify({
+              error: {
+                message: 'Document storage is temporarily unavailable.',
+                code: 'STORAGE_UNAVAILABLE',
+              },
+            }),
+            { status: 503, headers: buildDefaultHeaders(env) }
+          );
+        }
+
+        if (env.DB) {
+          const recorded = await recordDocumentMetadata(env, {
+            id: crypto.randomUUID(),
+            objectKey: key,
+            customerId: keyInfo.customerId,
             originalName: file.name,
-            uploadedAt: new Date().toISOString(),
-          },
-        });
+            contentType: file.type,
+            sizeBytes: file.size,
+            sha256: await sha256HexBytes(arrayBuffer),
+          });
+          if (!recorded) {
+            await env.DOCUMENTS.delete(key).catch((rollbackError) => {
+              console.error('Failed to roll back R2 object after metadata failure:', rollbackError);
+            });
+            return new Response(
+              JSON.stringify({
+                error: {
+                  message: 'Document metadata storage is temporarily unavailable.',
+                  code: 'METADATA_UNAVAILABLE',
+                },
+              }),
+              { status: 503, headers: buildDefaultHeaders(env) }
+            );
+          }
+        }
         await adjustApproxBytes(env, file.size);
 
         // Determine document type for extraction
@@ -2667,7 +3298,16 @@ router.post(
             });
             await adjustApproxBytes(env, file.size);
           } catch (r2Error) {
-            console.warn('R2 upload failed, continuing without storage:', r2Error);
+            console.error('R2 upload failed; refusing to report success:', r2Error);
+            return new Response(
+              JSON.stringify({
+                error: {
+                  message: 'Document storage is temporarily unavailable.',
+                  code: 'STORAGE_UNAVAILABLE',
+                },
+              }),
+              { status: 503, headers: buildDefaultHeaders(env) }
+            );
           }
         }
 
@@ -2783,11 +3423,14 @@ router.post(
             // Use Workers AI to extract text from PDF
             try {
               if (env.AI) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const ai = env.AI as any;
-                const result = await ai.run('@cf/browsershot/text-extract', {
+                const modelProvider = new CloudflareWorkersAIProvider(
+                  env.AI,
+                  env.AI_GATEWAY_ID,
+                  isModelEgressEnabled(env.AI_EGRESS_ENABLED)
+                );
+                const result = (await modelProvider.run('@cf/browsershot/text-extract', {
                   blob: new Uint8Array(fileBuffer),
-                });
+                })) as { text?: string };
                 extractedText = result.text || '';
               } else {
                 extractedText = generateSampleLeaseText();
@@ -3467,7 +4110,7 @@ createAnalysisEndpoint(
 router.post(
   '/api/multi-model-scenario-analysis',
   withErrorHandler(
-    withAuth(async (request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+    withAuth(async (request: Request, env: Env, keyInfo: ApiKeyInfo) => {
       const contentType = request.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
         return new Response(
@@ -3503,10 +4146,15 @@ router.post(
       }
 
       // Use MCP tool for multi-model scenario analysis
-      const result = await handleMCPRequest('tools/call', {
-        name: 'multi_model_scenario_analysis',
-        arguments: body,
-      });
+      const result = await handleMCPRequest(
+        'tools/call',
+        {
+          name: 'multi_model_scenario_analysis',
+          arguments: body,
+        },
+        env,
+        buildMCPAuthorizationContext(keyInfo, env)
+      );
 
       return new Response(JSON.stringify(result), {
         status: 200,
@@ -3526,14 +4174,33 @@ router.all(
     })
 );
 
-export default {
+const apiWorker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const startTime = Date.now();
     const requestId = crypto.randomUUID
       ? crypto.randomUUID()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    const runId = getOrCreateAnalysisRunId(request, requestId);
 
     logRequest(request, env, undefined, requestId);
+
+    // Worker-level method allowlist. Route-level handlers remain authoritative,
+    // but rejecting TRACE/CONNECT/PATCH/etc. here reduces attack surface and
+    // prevents future catch-all routes from accidentally accepting them.
+    const allowedMethods = new Set(['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+    if (!allowedMethods.has(request.method)) {
+      const headers = new Headers(buildDefaultHeaders(env));
+      headers.set('Allow', 'GET, HEAD, POST, PUT, DELETE, OPTIONS');
+      headers.set('X-Request-ID', requestId);
+      headers.set('X-Analysis-Run-ID', runId);
+      logRequest(request, env, startTime, requestId);
+      return new Response(
+        JSON.stringify({
+          error: { message: 'HTTP method is not allowed.', code: 'METHOD_NOT_ALLOWED' },
+        }),
+        { status: 405, headers }
+      );
+    }
 
     let rateInfo: RateLimitInfo | undefined;
     if (
@@ -3550,6 +4217,7 @@ export default {
           'Retry-After': String(Math.ceil((rateInfo.resetTime - Date.now()) / 1000)),
         });
         headers.set('X-Request-ID', requestId);
+        headers.set('X-Analysis-Run-ID', runId);
         attachRateLimitHeaders(headers, rateInfo);
         return new Response(
           JSON.stringify({
@@ -3563,7 +4231,30 @@ export default {
       }
     }
 
-    const agentResponse = await routeAgentRequest(request, env);
+    let agentRequest = request;
+    let agentProps: Record<string, unknown> | undefined;
+    if (new URL(request.url).pathname.startsWith('/agents/')) {
+      const authorized = await authorizeAgentRequest(request, env);
+      if (authorized instanceof Response) {
+        logRequest(request, env, startTime, requestId);
+        const headers = new Headers(authorized.headers);
+        headers.set('X-Request-ID', requestId);
+        headers.set('X-Analysis-Run-ID', runId);
+        return new Response(authorized.body, {
+          status: authorized.status,
+          statusText: authorized.statusText,
+          headers,
+        });
+      }
+      agentRequest = authorized.request;
+      agentProps = { ...authorized.props };
+    }
+
+    const agentResponse = await routeAgentRequest(
+      agentRequest,
+      env,
+      agentProps ? { props: agentProps } : undefined
+    );
     let response = agentResponse ?? (await router.fetch(request, env, ctx));
 
     const isWebSocketUpgrade = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
@@ -3575,6 +4266,7 @@ export default {
 
     const newHeaders = new Headers(response.headers);
     newHeaders.set('X-Request-ID', requestId);
+    newHeaders.set('X-Analysis-Run-ID', runId);
     // Echo Cloudflare tracing info for correlation (if present)
     const cfRay = request.headers.get('CF-RAY');
     if (cfRay) newHeaders.set('CF-RAY', cfRay);
@@ -3597,6 +4289,16 @@ export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     // Daily log analysis at midnight
     if (event.cron === '0 0 * * *') {
+      const auditPurgePromise = purgeExpiredMCPAuditEvents(env);
+      ctx.waitUntil(auditPurgePromise);
+
+      const oauthAuditPurgePromise = purgeExpiredOAuthAuditEvents(env);
+      ctx.waitUntil(oauthAuditPurgePromise);
+
+      if (env.ENVIRONMENT === 'test') {
+        await auditPurgePromise;
+      }
+
       const logAnalysisPromise = import('./cron/analyze-logs').then((m) =>
         m.handleDailyLogAnalysis(env)
       );
@@ -3619,13 +4321,75 @@ export default {
     const reconcilePromise = reconcileBucketUsage(env);
     ctx.waitUntil(reconcilePromise);
 
+    const uploadCleanupPromise = cleanupExpiredDocumentUploads(env).then((result) => {
+      console.log('[R2] Expired upload cleanup', JSON.stringify(result));
+      return result;
+    });
+    ctx.waitUntil(uploadCleanupPromise);
+
+    const budgetCleanupPromise = purgeExpiredBudgetReservations(env).then((count) => {
+      console.log('[Budget] Expired reservation cleanup', JSON.stringify({ count }));
+      return count;
+    });
+    ctx.waitUntil(budgetCleanupPromise);
+
     // In production, run asynchronously; in tests, await so assertions see updates.
     if (env.ENVIRONMENT === 'test') {
       await reconcilePromise;
+      await uploadCleanupPromise;
+      await budgetCleanupPromise;
     }
   },
   async queue(batch: MessageBatch<import('./types').KnowledgeReindexMessage>, env: Env) {
     await handleKnowledgeQueue(batch, env);
+  },
+};
+
+let oauthProviderPromise: Promise<OAuthProvider<Env>> | undefined;
+
+async function getOAuthProvider() {
+  oauthProviderPromise ??= import('./lib/oauth-provider').then(({ createOAuthProvider }) =>
+    createOAuthProvider(apiWorker)
+  );
+  return oauthProviderPromise;
+}
+
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    if (isOAuthEnabled(env)) {
+      if (!env.OAUTH_KV) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              message: 'OAuth is enabled but its dedicated token namespace is not configured.',
+              code: 'OAUTH_STORAGE_NOT_CONFIGURED',
+            },
+          }),
+          { status: 503, headers: buildDefaultHeaders(env) }
+        );
+      }
+      return (await getOAuthProvider()).fetch(request, env, ctx);
+    }
+    return apiWorker.fetch(request, env, ctx);
+  },
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    await apiWorker.scheduled(event, env, ctx);
+
+    if (isOAuthEnabled(env) && env.OAUTH_KV) {
+      const purgePromise = getOAuthProvider()
+        .then((provider) => provider.purgeExpiredData(env, { batchSize: 100 }))
+        .then((result) => {
+          console.log('[OAuth] Purge completed', JSON.stringify(result));
+        })
+        .catch((error) => {
+          console.error('[OAuth] Purge failed', error);
+        });
+      ctx.waitUntil(purgePromise);
+      if (env.ENVIRONMENT === 'test') await purgePromise;
+    }
+  },
+  async queue(batch: MessageBatch<import('./types').KnowledgeReindexMessage>, env: Env) {
+    await apiWorker.queue(batch, env);
   },
 };
 

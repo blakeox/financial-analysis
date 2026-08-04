@@ -12,6 +12,9 @@ outputs:
   web:
     description: Web stack paths changed
     value: ${{ steps.filter.outputs.web }}
+  mcp:
+    description: MCP, OAuth, identity, or authorization paths changed
+    value: ${{ steps.filter.outputs.mcp }}
 runs:
   using: composite
   steps:
@@ -30,6 +33,7 @@ runs:
         else
           echo "code=true" >> "$GITHUB_OUTPUT"
           echo "web=true" >> "$GITHUB_OUTPUT"
+          echo "mcp=true" >> "$GITHUB_OUTPUT"
           exit 0
         fi
 
@@ -37,6 +41,7 @@ runs:
 
         code=false
         web=false
+        mcp=false
         is_doc_only() {
           local f="$1"
           [[ "$f" =~ \.md$ ]] && return 0
@@ -59,6 +64,38 @@ runs:
           [[ "$f" == pnpm-workspace.yaml ]] && return 0
           return 1
         }
+        is_mcp_path() {
+          local f="$1"
+          [[ "$f" == packages/tools/src/* ]] && return 0
+          [[ "$f" == workers/api/src/index.ts ]] && return 0
+          [[ "$f" == workers/api/src/types.ts ]] && return 0
+          [[ "$f" == workers/api/src/lib/mcp-* ]] && return 0
+          [[ "$f" == workers/api/src/lib/oauth-* ]] && return 0
+          [[ "$f" == workers/api/src/lib/resource-owner-identity.ts ]] && return 0
+          [[ "$f" == workers/api/src/lib/cloudflare-access-identity.ts ]] && return 0
+          [[ "$f" == workers/api/src/__tests__/mcp-* ]] && return 0
+          [[ "$f" == workers/api/src/__tests__/oauth-* ]] && return 0
+          [[ "$f" == workers/api/src/__tests__/resource-owner-identity.test.ts ]] && return 0
+          [[ "$f" == workers/api/src/__tests__/cloudflare-access-identity.test.ts ]] && return 0
+          [[ "$f" == workers/api/src/__tests__/fixtures/oauth-provider-* ]] && return 0
+          [[ "$f" == workers/api/migrations/0002_* ]] && return 0
+          [[ "$f" == workers/api/migrations/0003_* ]] && return 0
+          [[ "$f" == workers/api/schema.sql ]] && return 0
+          [[ "$f" == workers/api/package.json ]] && return 0
+          [[ "$f" == scripts/cloudflare-oauth-conformance.mjs ]] && return 0
+          [[ "$f" == scripts/link-clerk-user-email.mjs ]] && return 0
+          [[ "$f" == scripts/provision-clerk-oauth.mjs ]] && return 0
+          [[ "$f" == pnpm-lock.yaml ]] && return 0
+          [[ "$f" == docs/MCP_CAPABILITY_POLICY.md ]] && return 0
+          [[ "$f" == docs/OAUTH_ROLLOUT.md ]] && return 0
+          [[ "$f" == .github/actions/repo-path-filter/action.yml ]] && return 0
+          [[ "$f" == .github/path-filters.yml ]] && return 0
+          [[ "$f" == .github/workflows/mcp-policy.yml ]] && return 0
+          [[ "$f" == .github/workflows/cloudflare-oauth-conformance.yml ]] && return 0
+          [[ "$f" == .github/workflows/link-clerk-user-email.yml ]] && return 0
+          [[ "$f" == .github/workflows/provision-clerk-oauth.yml ]] && return 0
+          return 1
+        }
 
         for f in "${files[@]}"; do
           if ! is_doc_only "$f"; then
@@ -67,7 +104,11 @@ runs:
           if is_web_path "$f"; then
             web=true
           fi
+          if is_mcp_path "$f"; then
+            mcp=true
+          fi
         done
 
         echo "code=$code" >> "$GITHUB_OUTPUT"
         echo "web=$web" >> "$GITHUB_OUTPUT"
+        echo "mcp=$mcp" >> "$GITHUB_OUTPUT"

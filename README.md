@@ -409,8 +409,14 @@ GitHub Actions:
 
 Required GitHub secrets (Repository Settings → Secrets and variables → Actions):
 
-- `CLOUDFLARE_API_TOKEN`: API token with permissions for Workers Writes, KV Read/Write, R2 Read/Write, and D1 Edit.
+- `CLOUDFLARE_PREVIEW_API_TOKEN`: Preview-only token with Workers Scripts Write; it is not a production credential.
+- `CLOUDFLARE_API_TOKEN`: Production deployment token with only the Workers and zone-route permissions required by `deploy-production.yml`.
+- `CLOUDFLARE_OBSERVABILITY_TOKEN`: Read-only token for the production health monitor.
 - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID.
+
+The preview GitHub environment currently allows protected branches only. The
+`deploy-preview` label path therefore remains unavailable for ordinary feature
+branches until that environment policy is deliberately changed.
 
 How to find Cloudflare resource IDs with Wrangler:
 

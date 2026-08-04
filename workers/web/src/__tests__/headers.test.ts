@@ -5,10 +5,14 @@ function makeEnv(environment: string) {
   const env: { ASSETS: Fetcher; ENVIRONMENT: string } = {
     ENVIRONMENT: environment,
     ASSETS: {
-      fetch: async (_req: Request) =>
-        new Response('<html><body>Hello</body></html>', {
+      fetch: async (req: Request) =>
+        new Response(req.url.includes('/_astro/') ? 'asset' : '<html><body>Hello</body></html>', {
           status: 200,
-          headers: { 'content-type': 'text/html; charset=utf-8' },
+          headers: {
+            'content-type': req.url.includes('/_astro/')
+              ? 'application/javascript'
+              : 'text/html; charset=utf-8',
+          },
         }),
     } as unknown as Fetcher,
   };
@@ -39,5 +43,18 @@ describe('web worker security headers', () => {
     expect(hsts).toContain('includeSubDomains');
     expect(hsts).toContain('preload');
     expect(res.headers.get('access-control-allow-origin')).toBe('https://fanalyx.com');
+  });
+
+  it('caches hashed production assets but not HTML entrypoints', async () => {
+    const { env, ctx } = makeEnv('production');
+    const asset = await web.fetch(
+      new Request('https://example.com/_astro/app.abc123.js'),
+      env,
+      ctx
+    );
+    const html = await web.fetch(new Request('https://example.com/'), env, ctx);
+
+    expect(asset.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
+    expect(html.headers.get('cache-control')).toBe('no-store');
   });
 });

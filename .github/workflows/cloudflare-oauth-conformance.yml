@@ -1,0 +1,63 @@
+name: Cloudflare OAuth Conformance
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Worker environment to validate
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+      expect_oauth_enabled:
+        description: Expect the OAuth discovery boundary to be enabled
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-oauth-conformance-${{ inputs.environment }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    name: OAuth conformance (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.environment }}
+    env:
+      API_URL: ${{ inputs.environment == 'preview' && 'https://fanalyx-api-preview.blakeoxford.workers.dev' || 'https://api.fanalyx.com' }}
+      ENVIRONMENT: ${{ inputs.environment }}
+      EXPECT_OAUTH_ENABLED: ${{ inputs.expect_oauth_enabled }}
+      CLOUDFLARE_OAUTH_RECEIPT: cloudflare-oauth-conformance.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Run credential-free OAuth conformance
+        run: node scripts/cloudflare-oauth-conformance.mjs
+
+      - name: Validate receipt
+        run: |
+          set -euo pipefail
+          jq -e \
+            '.schemaVersion == "1.0.0" and
+             .kind == "cloudflare-oauth-conformance" and
+             .readOnly == true and
+             .mutatesOAuthState == false and
+             (.checks | length >= 3) and
+             (.passed == true)' \
+            cloudflare-oauth-conformance.json >/dev/null
+
+      - name: Upload conformance receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-oauth-conformance-${{ inputs.environment }}
+          path: cloudflare-oauth-conformance.json
+          if-no-files-found: ignore

@@ -1,0 +1,102 @@
+name: Provision Clerk OAuth
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Clerk application environment to reconcile
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+      apply:
+        description: Apply the reviewed Clerk OAuth application changes
+        required: true
+        type: boolean
+        default: false
+      confirm_production:
+        description: Required when applying production changes
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clerk-oauth-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    name: Reconcile Clerk OAuth (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Verify production confirmation
+        if: inputs.environment == 'production' && (inputs.apply != true || inputs.confirm_production != true)
+        run: |
+          echo 'Production requires apply=true and confirm_production=true.' >&2
+          exit 1
+
+      - name: Verify Clerk secret availability
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${CLERK_SECRET_KEY:-}" || {
+            echo 'CLERK_SECRET_KEY is required in the selected GitHub environment.' >&2
+            exit 1
+          }
+
+      - name: Reconcile Clerk OAuth application
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          args=("--environment=${{ inputs.environment }}")
+          if [[ "${{ inputs.apply }}" == 'true' ]]; then
+            args+=(--apply)
+          fi
+          node scripts/provision-clerk-oauth.mjs "${args[@]}" > clerk-oauth-reconciliation.json
+
+      - name: Validate sanitized reconciliation receipt
+        run: |
+          set -euo pipefail
+          jq -e \
+            '.environment == "${{ inputs.environment }}" and
+             .apply == ${{ inputs.apply }} and
+             (.requested.redirect_uris | length == 1) and
+             (.oidcWorkerConfig == null or
+               (.oidcWorkerConfig.OIDC_CLIENT_SECRET == "(omit for public PKCE application)"))' \
+            clerk-oauth-reconciliation.json >/dev/null
+          if grep -Eqi 'CLERK_SECRET_KEY|sk_(live|test)_[A-Za-z0-9]+' clerk-oauth-reconciliation.json; then
+            echo 'Sanitized reconciliation receipt contains a credential-like value.' >&2
+            exit 1
+          fi
+
+      - name: Publish reconciliation summary
+        if: always()
+        run: |
+          {
+            echo "## Clerk OAuth reconciliation"
+            echo
+            echo "- Environment: \`${{ inputs.environment }}\`"
+            echo "- Apply requested: \`${{ inputs.apply }}\`"
+            echo "- Production confirmation: \`${{ inputs.confirm_production }}\`"
+            echo "- The receipt is sanitized; no Clerk secret or client secret is emitted."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload sanitized reconciliation receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: clerk-oauth-reconciliation-${{ inputs.environment }}
+          path: clerk-oauth-reconciliation.json
+          if-no-files-found: ignore

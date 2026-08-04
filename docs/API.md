@@ -71,6 +71,13 @@ Get the health status of the API.
 
 Every response includes an `X-Request-ID` header for traceability. Include this value when reporting issues.
 
+### Deployment Receipt
+
+`GET /version` returns the deployed environment, commit (when supplied by CI),
+MCP protocol/server/policy identifiers, and independent OAuth/model-egress
+control state. Promotion checks should record this response; `commit: "unknown"`
+means the Worker was deployed outside the commit-aware CI path.
+
 ### MCP Endpoint
 
 Programmatic MCP access is exposed at `POST /mcp` using JSON-RPC 2.0.
@@ -219,7 +226,23 @@ Handle MCP protocol requests for AI integration.
 
 ```http
 Content-Type: application/json
+Authorization: Bearer <API_KEY>
 ```
+
+Production MCP requests require an API key. Clients may provide the key with
+`Authorization: Bearer <API_KEY>` or `X-API-Key: <API_KEY>`. Local development
+and test environments use the repository's existing test bypass.
+
+Protected MCP responses are marked `Cache-Control: no-store` and vary on
+`Authorization`, `X-API-Key`, and `X-Internal-API-Token`. Anonymous callers do
+not receive capabilities and cannot execute tools.
+
+OAuth 2.1 interoperability is staged on `POST /oauth/mcp` and is disabled by
+default. When the canary is enabled, clients can discover the provider through
+the standard `.well-known` endpoints and use `analysis:read`. Consent requires
+a verified resource-owner identity from Cloudflare Access or a configured OIDC
+provider and explicit CSRF-protected approval; see
+[`docs/OAUTH_ROLLOUT.md`](./OAUTH_ROLLOUT.md).
 
 **Request Body:**
 
@@ -383,6 +406,13 @@ The worker requires the following environment variables:
 - `DB`: D1 Database binding
 - `SESSIONS`: KV Namespace for session storage
 - `DOCUMENTS`: R2 Bucket for document storage
+- R2 signed access: `POST /v1/storage/presign` issues owner-checked, 15-minute
+  maximum GET URLs or session-bound PUT URLs when `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`,
+  `R2_PRESIGN_ACCESS_KEY_ID`, and `R2_PRESIGN_SECRET_ACCESS_KEY` are configured.
+  The access key and secret are Worker secrets created from a least-privilege R2
+  API token. PUT callers must call `POST /v1/storage/finalize` after upload;
+  the object is not treated as a stored document until size, content type, and
+  SHA-256 verification passes.
 - `ENVIRONMENT`: Current environment (development/production)
 
 ## Monitoring & Logging

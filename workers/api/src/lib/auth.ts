@@ -6,6 +6,7 @@
  */
 
 import type { Env } from '../types';
+import { MCP_SCOPES } from '@financial-analysis/tools';
 
 export type ApiTier = 'free' | 'pro' | 'enterprise' | 'test' | 'internal';
 
@@ -29,6 +30,33 @@ export interface AuthResult {
   keyInfo?: ApiKeyInfo;
   error?: string;
   errorCode?: 'MISSING_KEY' | 'INVALID_KEY' | 'REVOKED_KEY' | 'QUOTA_EXCEEDED' | 'RATE_LIMITED';
+}
+
+const VALID_MCP_SCOPES = new Set<string>(Object.values(MCP_SCOPES));
+
+/**
+ * Resolve MCP scopes from API-key metadata.
+ *
+ * Existing keys without metadata retain the reviewed analysis scope. Once a
+ * key contains `mcpScopes`, only recognized scopes in that list are honored;
+ * malformed or empty lists fail closed.
+ */
+export function resolveMCPScopes(keyInfo: ApiKeyInfo): string[] {
+  const configuredScopes = keyInfo.metadata?.mcpScopes;
+  if (configuredScopes === undefined) {
+    return [MCP_SCOPES.ANALYSIS_READ];
+  }
+  if (!Array.isArray(configuredScopes)) {
+    return [];
+  }
+
+  return [
+    ...new Set(
+      configuredScopes.filter(
+        (scope): scope is string => typeof scope === 'string' && VALID_MCP_SCOPES.has(scope)
+      )
+    ),
+  ];
 }
 
 const INTERNAL_API_TOKEN_HEADER = 'x-internal-api-token';
@@ -443,6 +471,8 @@ export function createAuthErrorResponse(authResult: AuthResult): Response {
       status: statusCode,
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+        Vary: 'Authorization, X-API-Key, X-Internal-API-Token',
         'X-Error-Code': authResult.errorCode || 'UNAUTHORIZED',
       },
     }

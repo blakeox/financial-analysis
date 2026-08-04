@@ -9,6 +9,8 @@ import { randomUUID } from 'crypto';
 
 export interface RequestContext {
   requestId: string;
+  /** Stable correlation key for one analysis across retries and adapters. */
+  runId: string;
   timestamp: string;
   method: string;
   path: string;
@@ -17,6 +19,104 @@ export interface RequestContext {
   environment: string;
   parentRequestId?: string;
   correlationId?: string;
+  auth?: RequestAuthContext;
+}
+
+/**
+ * Non-sensitive identity metadata for request correlation.
+ * Never place API keys, hashes, or customer email addresses in this context.
+ */
+export interface RequestAuthContext {
+  apiKeyId: number;
+  customerId: string;
+  /** Stable authenticated client boundary used for budget accounting. */
+  clientId?: string;
+  tier: string;
+  scopes: readonly string[];
+  mcpAnalysisEnabled?: boolean;
+  source?: 'api-key' | 'oauth' | 'internal';
+}
+
+const TELEMETRY_SENSITIVE_FIELDS = new Set([
+  'access_token',
+  'accessToken',
+  'api_key',
+  'apiKey',
+  'authorization',
+  'body',
+  'content',
+  'cookie',
+  'credential',
+  'credentials',
+  'document',
+  'email',
+  'input',
+  'memory',
+  'password',
+  'private_key',
+  'privateKey',
+  'prompt',
+  'query',
+  'raw_input',
+  'raw_output',
+  'refresh_token',
+  'refreshToken',
+  'secret',
+  'session',
+  'set_cookie',
+  'setCookie',
+  'token',
+  'provider_token',
+  'providerToken',
+]);
+const MAX_TELEMETRY_STRING_LENGTH = 512;
+
+function isSensitiveTelemetryField(key: string): boolean {
+  const normalized = key.replace(/[-_]/g, '').toLowerCase();
+  return Array.from(TELEMETRY_SENSITIVE_FIELDS).some(
+    (field) => field.replace(/[-_]/g, '').toLowerCase() === normalized
+  );
+}
+
+function redactTelemetryString(value: string): string {
+  const redacted = value
+    .replace(/Bearer\s+[A-Za-z0-9._~+\-/]+=*/gi, 'Bearer [REDACTED]')
+    .replace(/\b(?:sk|rk|pk|fk)_(?:live|test)_[A-Za-z0-9_-]+\b/g, '[REDACTED_TOKEN]')
+    .replace(/\b(?:ghp|github_pat|xoxb|xoxp)[-_][A-Za-z0-9_-]+\b/g, '[REDACTED_TOKEN]')
+    .replace(
+      /-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g,
+      '[REDACTED_PRIVATE_KEY]'
+    );
+  if (redacted.length <= MAX_TELEMETRY_STRING_LENGTH) return redacted;
+  return `${redacted.slice(0, MAX_TELEMETRY_STRING_LENGTH)}…[TRUNCATED]`;
+}
+
+/**
+ * Remove payloads and credentials before metadata crosses the log boundary.
+ * This is intentionally synchronous so every log call has the same fail-closed
+ * behavior in Workers and tests.
+ */
+export function redactTelemetryValue(
+  value: unknown,
+  key?: string,
+  seen = new WeakSet<object>()
+): unknown {
+  if (key && isSensitiveTelemetryField(key)) return '[REDACTED]';
+  if (typeof value === 'string') return redactTelemetryString(value);
+  if (value === null || typeof value !== 'object') return value;
+  if (seen.has(value)) return '[CIRCULAR]';
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    return value.map((item) => redactTelemetryValue(item, undefined, seen));
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([entryKey, entryValue]) => [
+      entryKey,
+      redactTelemetryValue(entryValue, entryKey, seen),
+    ])
+  );
 }
 
 /**
@@ -62,15 +162,31 @@ export function getParentRequestId(request: Request): string | undefined {
 }
 
 /**
+ * Reuse a caller-supplied analysis run ID when valid; otherwise derive the
+ * run from the correlation/request boundary without trusting arbitrary text.
+ */
+export function getOrCreateAnalysisRunId(request: Request, requestId?: string): string {
+  const existing = request.headers.get('X-Analysis-Run-ID');
+  if (existing && isValidRequestId(existing)) return existing;
+
+  const correlationId = getCorrelationId(request);
+  if (correlationId) return correlationId;
+
+  return requestId ?? getOrCreateRequestId(request);
+}
+
+/**
  * Build complete request context from Request object
  */
 export function buildRequestContext(request: Request, environment: string): RequestContext {
   const url = new URL(request.url);
   const parentRequestId = getParentRequestId(request);
   const correlationId = getCorrelationId(request);
+  const requestId = getOrCreateRequestId(request);
 
   const context: RequestContext = {
-    requestId: getOrCreateRequestId(request),
+    requestId,
+    runId: getOrCreateAnalysisRunId(request, requestId),
     timestamp: new Date().toISOString(),
     method: request.method,
     path: url.pathname,
@@ -117,11 +233,14 @@ export function createLogEntry(
   message: string,
   metadata?: Record<string, unknown>
 ): string {
+  const safeMetadata =
+    (redactTelemetryValue(metadata) as Record<string, unknown> | undefined) ?? {};
+  const safeContext = redactTelemetryValue(context) as RequestContext;
   const logEntry = {
+    ...safeMetadata,
     level,
-    message,
-    ...context,
-    ...metadata,
+    message: redactTelemetryString(message),
+    ...safeContext,
   };
   return JSON.stringify(logEntry);
 }

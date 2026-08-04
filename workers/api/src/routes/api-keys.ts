@@ -10,6 +10,7 @@
 
 import type { Env } from '../types';
 import { generateApiKey, type ApiTier } from '../lib/auth';
+import { MCP_SCOPES } from '@financial-analysis/tools';
 import { z } from 'zod';
 
 /**
@@ -30,6 +31,16 @@ const CreateKeySchema = z.object({
   customerId: z.string().min(1),
   tier: z.enum(['free', 'pro', 'enterprise', 'test']).default('free'),
   description: z.string().optional(),
+  mcpScopes: z
+    .array(
+      z.enum([
+        MCP_SCOPES.ANALYSIS_READ,
+        MCP_SCOPES.DOCUMENTS_READ,
+        MCP_SCOPES.DOCUMENTS_WRITE,
+        MCP_SCOPES.ADMIN,
+      ])
+    )
+    .optional(),
 });
 
 /**
@@ -58,9 +69,13 @@ export async function createApiKey(request: Request, env: Env): Promise<Response
     const tierConfig = getTierConfig(validated.tier);
 
     // Insert into database
-    const metadata = validated.description
-      ? JSON.stringify({ description: validated.description })
-      : null;
+    const metadata =
+      validated.description || validated.mcpScopes
+        ? JSON.stringify({
+            ...(validated.description ? { description: validated.description } : {}),
+            ...(validated.mcpScopes ? { mcpScopes: validated.mcpScopes } : {}),
+          })
+        : null;
 
     await env.DB.prepare(
       `

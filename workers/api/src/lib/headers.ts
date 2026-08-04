@@ -8,7 +8,8 @@ export function getCorsHeaders(env: Env): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers':
+      'Content-Type, Authorization, X-API-Key, X-Internal-API-Token, X-Request-ID, X-Correlation-ID, X-Parent-Request-ID, X-Analysis-Run-ID, Idempotency-Key',
     Vary: 'Origin',
   };
 }

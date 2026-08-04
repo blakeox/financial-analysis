@@ -25,6 +25,8 @@ jobs:
       # Fail threshold in percent (float)
       ERROR_RATE_THRESHOLD: '1.0'
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Precheck required secrets
         id: precheck
         env:
@@ -53,16 +55,14 @@ jobs:
           scripts=$(echo "$SCRIPTS" | jq -r '.[]')
           any_fail=0
           summary_lines=()
+          results_json='[]'
           for script in $scripts; do
             payload=$(jq -n \
               --arg acct "$ACCOUNT_ID" \
               --arg script "$script" \
               --arg from "$from" \
               --arg to "$now" \
-              '{
-                query: "query($accountTag: String!, $script: String!, $from: Time!, $to: Time!){ viewer { accounts(filter:{accountTag:$accountTag}) { workersInvocationsAdaptive(limit: 1000, filter:{ scriptName: $script, datetime_geq: $from, datetime_leq: $to }) { sum { requests errors } } } } }",
-                variables: { accountTag: $acct, script: $script, from: $from, to: $to }
-              }')
+              -f scripts/cloudflare-workers-health-query.jq)
             resp=$(curl -sS -X POST \
               -H "Authorization: Bearer $API_TOKEN" \
               -H 'Content-Type: application/json' \
@@ -76,17 +76,45 @@ jobs:
             err=$(echo "$resp" | jq '[.data.viewer.accounts[]?.workersInvocationsAdaptive[]?.sum.errors // 0] | add // 0')
             rate=$(awk -v e="$err" -v i="$request_count" 'BEGIN { if (i==0) {print 0} else {print (e*100.0)/i} }')
             summary_lines+=("$script requests=$request_count errors=$err errorRatePct=$rate from=$from to=$now")
+            results_json=$(jq -c \
+              --arg script "$script" \
+              --arg from "$from" \
+              --arg to "$now" \
+              --argjson requests "$request_count" \
+              --argjson errors "$err" \
+              --argjson errorRatePct "$rate" \
+              ". + [{script: \$script, requests: \$requests, errors: \$errors, errorRatePct: \$errorRatePct, from: \$from, to: \$to}]" \
+              <<<"$results_json")
             exceed=$(awk -v r="$rate" -v t="$ERROR_RATE_THRESHOLD" 'BEGIN { if (r>t) print 1; else print 0 }')
             if [ "$exceed" -eq 1 ]; then
               any_fail=1
             fi
           done
           printf '%s\n' "${summary_lines[@]}" > summary.txt
+          passed=true
+          if [ "$any_fail" -eq 1 ]; then passed=false; fi
+          jq -n \
+            --arg generatedAt "$now" \
+            --arg environment "production" \
+            --argjson thresholdPct "$ERROR_RATE_THRESHOLD" \
+            --argjson results "$results_json" \
+            --argjson passed "$passed" \
+            '{schemaVersion: "1.0.0", kind: "cloudflare-workers-health", readOnly: true, environment: $environment, generatedAt: $generatedAt, errorRateThresholdPct: $thresholdPct, passed: $passed, results: $results}' \
+            > workers-health-receipt.json
           {
             echo "summary<<EOF"
             cat summary.txt
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+          {
+            echo '## Workers health receipt'
+            echo
+            echo "- Environment: \`production\`"
+            echo '- Read-only Cloudflare GraphQL window completed.'
+            echo "- Error-rate threshold: \`${ERROR_RATE_THRESHOLD}%\`"
+            echo
+            cat summary.txt
+          } >> "$GITHUB_STEP_SUMMARY"
           if [ "$any_fail" -eq 1 ]; then
             echo "Workers error rate exceeded threshold" >&2
             exit 1
@@ -133,3 +161,11 @@ jobs:
               const created = await github.rest.issues.create({ owner, repo, title, body, labels: [label] });
               core.info(`Created issue #${created.data.number}`);
             }
+
+      - name: Upload Workers health receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-workers-health
+          path: workers-health-receipt.json
+          if-no-files-found: ignore

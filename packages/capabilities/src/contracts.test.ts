@@ -6,7 +6,11 @@ import {
   AnswerSchema,
   CapabilitySchema,
   CONTRACT_VERSION,
+  EvidenceEnvelopeSchema,
+  NumericClaimSchema,
+  ResponseVerificationSchema,
 } from './index.js';
+import { verifyNumericClaims } from './response-verification.js';
 
 const timestamp = '2026-08-02T12:00:00.000Z';
 
@@ -132,5 +136,94 @@ describe('financial analysis contracts', () => {
 
     expect(capability.success).toBe(false);
     expect(answer.success).toBe(false);
+  });
+
+  it('requires versioned, data-only provenance and freshness metadata', () => {
+    const envelope = EvidenceEnvelopeSchema.safeParse({
+      id: 'evidence-1',
+      artifactId: 'artifact-1',
+      ownerScope: 'stateless',
+      kind: 'document',
+      title: 'Public filing',
+      source: 'SEC filing',
+      sourceUri: 'https://example.com/filing',
+      retrievedAt: timestamp,
+      contentHash: `sha256:${'a'.repeat(64)}`,
+      parserVersion: '1.0.0',
+      indexVersion: '1.0.0',
+      trustClass: 'source-fact',
+      freshness: 'current',
+      conflict: 'none',
+      instructionAuthority: 'data-only',
+      dataClassification: 'public',
+    });
+    const injected = EvidenceEnvelopeSchema.safeParse({
+      id: 'evidence-2',
+      artifactId: 'artifact-2',
+      ownerScope: 'stateless',
+      kind: 'external',
+      title: 'Untrusted page',
+      source: 'Web content',
+      retrievedAt: timestamp,
+      contentHash: `sha256:${'b'.repeat(64)}`,
+      parserVersion: '1.0.0',
+      indexVersion: '1.0.0',
+      trustClass: 'untrusted-content',
+      freshness: 'unknown',
+      conflict: 'unresolved',
+      instructionAuthority: 'tool-grant',
+      dataClassification: 'external',
+    });
+
+    expect(envelope.success).toBe(true);
+    expect(injected.success).toBe(false);
+  });
+
+  it('verifies structured model claims against deterministic outputs', () => {
+    const claims = NumericClaimSchema.array().parse([
+      { id: 'payment', outputKey: 'monthlyPayment', value: 1000.004, unit: 'USD' },
+    ]);
+    const result = verifyNumericClaims(
+      claims,
+      { monthlyPayment: 1000 },
+      { absoluteTolerance: 0.01 }
+    );
+
+    expect(result.status).toBe('verified');
+    expect(result.numericClaims[0]?.status).toBe('matched');
+    expect(
+      ResponseVerificationSchema.safeParse({
+        contractVersion: CONTRACT_VERSION,
+        verificationId: 'verification-1',
+        analysisRunId: 'run-1',
+        verifiedAt: timestamp,
+        verifierVersion: result.verifierVersion,
+        status: result.status,
+        numericClaims: result.numericClaims,
+        issues: result.issues,
+      }).success
+    ).toBe(true);
+  });
+
+  it('rejects contradictory claims and does not mutate canonical outputs', () => {
+    const canonicalOutputs = { totalInterest: 2500 };
+    const claims = NumericClaimSchema.array().parse([
+      { id: 'interest', outputKey: 'totalInterest', value: 3500, unit: 'USD' },
+    ]);
+    const result = verifyNumericClaims(claims, canonicalOutputs);
+
+    expect(result.status).toBe('rejected');
+    expect(result.issues[0]?.code).toBe('NUMERIC_MISMATCH');
+    expect(canonicalOutputs).toEqual({ totalInterest: 2500 });
+  });
+
+  it('marks claims for unavailable outputs as partially verified', () => {
+    const claims = NumericClaimSchema.array().parse([
+      { id: 'unknown', outputKey: 'futureValue', value: 10 },
+    ]);
+    const result = verifyNumericClaims(claims, {});
+
+    expect(result.status).toBe('partially-verified');
+    expect(result.numericClaims[0]?.status).toBe('unsupported');
   });
 });

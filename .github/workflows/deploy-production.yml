@@ -11,12 +11,25 @@ on:
         description: Optional known-good main SHA for a controlled rollback; blank deploys current main
         required: false
         type: string
+      preview_run_id:
+        description: Successful Deploy Preview workflow run whose SHA matches the deployment SHA
+        required: true
+        type: string
+      rollback_sha:
+        description: Known-good main commit to use as the documented rollback reference
+        required: true
+        type: string
+      approval_reference:
+        description: Change record, issue, or operator approval reference for this promotion
+        required: true
+        type: string
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -47,6 +60,38 @@ jobs:
           git fetch origin main --no-tags
           git merge-base --is-ancestor "${COMMIT_SHA}" FETCH_HEAD
 
+      - name: Verify successful preview receipt
+        id: preview_receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_RUN_ID: ${{ inputs.preview_run_id }}
+          COMMIT_SHA: ${{ env.COMMIT_SHA }}
+        run: |
+          set -euo pipefail
+          [[ "${PREVIEW_RUN_ID}" =~ ^[0-9]+$ ]] || {
+            echo "preview_run_id must be numeric" >&2
+            exit 1
+          }
+          preview_run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${PREVIEW_RUN_ID}")"
+          jq -e --arg sha "${COMMIT_SHA}" \
+            '.name == "Deploy Preview (API + Web)" and
+             .status == "completed" and
+             .conclusion == "success" and
+             .head_sha == $sha' <<<"${preview_run}" >/dev/null
+          echo "url=$(jq -er '.html_url' <<<"${preview_run}")" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify rollback reference
+        env:
+          ROLLBACK_SHA: ${{ inputs.rollback_sha }}
+        run: |
+          set -euo pipefail
+          [[ "${ROLLBACK_SHA}" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "rollback_sha must be a 40-character lowercase commit SHA" >&2
+            exit 1
+          }
+          git cat-file -e "${ROLLBACK_SHA}^{commit}"
+          git merge-base --is-ancestor "${ROLLBACK_SHA}" origin/main
+
       - name: Verify Cloudflare deployment credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -56,8 +101,30 @@ jobs:
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "CLOUDFLARE_API_TOKEN is required" >&2; exit 1; }
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "CLOUDFLARE_ACCOUNT_ID is required" >&2; exit 1; }
 
+      - name: Verify Cloudflare token is active
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          token_status=$(curl --fail --silent --show-error \
+            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify)
+          jq -e '.success == true and .result.status == "active"' <<<"${token_status}" >/dev/null || {
+            echo 'CLOUDFLARE_API_TOKEN is not active.' >&2
+            exit 1
+          }
+
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
+
+      - name: Verify Cloudflare target D1
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm dlx wrangler d1 migrations list DB --config wrangler.toml --env=production --remote
 
       - name: Build shared packages
         run: pnpm run build:libs
@@ -65,6 +132,14 @@ jobs:
       - name: Build Astro site
         working-directory: apps/web
         run: pnpm build
+
+      - name: Apply API D1 migrations (production)
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          pnpm dlx wrangler d1 migrations apply DB --config wrangler.toml --env=production --remote
 
       - name: Deploy API (production)
         working-directory: workers/api
@@ -85,13 +160,19 @@ jobs:
           pnpm dlx wrangler deploy --env=production --var COMMIT_SHA:"${COMMIT_SHA}"
 
       - name: Smoke-test production deployment
+        id: production_smoke
         env:
-          API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
+          API_URL: https://api.fanalyx.com
+          ENVIRONMENT: production
+          PUBLIC_URL: https://fanalyx.com
+          CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-production.json
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
         run: |
           set -euo pipefail
+
+          node scripts/cloudflare-boundary-smoke.mjs
 
           fetch_json() {
             curl \
@@ -129,3 +210,57 @@ jobs:
             <<<"${web_version}" >/dev/null
 
           echo "Production smoke checks passed for ${EXPECTED_SHA}"
+
+      - name: Write production promotion receipt
+        if: always()
+        env:
+          COMMIT_SHA: ${{ env.COMMIT_SHA }}
+          PREVIEW_RUN_ID: ${{ inputs.preview_run_id }}
+          PREVIEW_RUN_URL: ${{ steps.preview_receipt.outputs.url }}
+          ROLLBACK_SHA: ${{ inputs.rollback_sha }}
+          APPROVAL_REFERENCE: ${{ inputs.approval_reference }}
+          ACTOR: ${{ github.actor }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          SMOKE_OUTCOME: ${{ steps.production_smoke.outcome }}
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg commitSha "${COMMIT_SHA}" \
+            --arg previewRunId "${PREVIEW_RUN_ID}" \
+            --arg previewRunUrl "${PREVIEW_RUN_URL}" \
+            --arg rollbackSha "${ROLLBACK_SHA}" \
+            --arg approvalReference "${APPROVAL_REFERENCE}" \
+            --arg actor "${ACTOR}" \
+            --arg workflowRunId "${WORKFLOW_RUN_ID}" \
+            --arg smokeOutcome "${SMOKE_OUTCOME}" \
+            --arg generatedAt "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+            '{
+              schemaVersion: "1.0.0",
+              kind: "cloudflare-production-promotion",
+              environment: "production",
+              commitSha: $commitSha,
+              previewRunId: $previewRunId,
+              previewRunUrl: $previewRunUrl,
+              rollbackSha: $rollbackSha,
+              approvalReference: $approvalReference,
+              actor: $actor,
+              workflowRunId: $workflowRunId,
+              smokeOutcome: $smokeOutcome,
+              generatedAt: $generatedAt
+            }' > promotion-receipt-production.json
+
+      - name: Upload production boundary receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-boundary-production
+          path: boundary-receipt-production.json
+          if-no-files-found: ignore
+
+      - name: Upload production promotion receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-promotion-production
+          path: promotion-receipt-production.json
+          if-no-files-found: error

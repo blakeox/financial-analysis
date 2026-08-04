@@ -60,11 +60,13 @@ jobs:
           soft=$(echo "$resp" | jq -r '.softLimit')
           # 80% threshold using integer arithmetic
           thresh=$(( soft * 80 / 100 ))
-          echo "api=$API" >> "$GITHUB_OUTPUT"
-          echo "locked=$locked" >> "$GITHUB_OUTPUT"
-          echo "approx=$approx" >> "$GITHUB_OUTPUT"
-          echo "soft=$soft" >> "$GITHUB_OUTPUT"
-          echo "thresh=$thresh" >> "$GITHUB_OUTPUT"
+          {
+            echo "api=$API"
+            echo "locked=$locked"
+            echo "approx=$approx"
+            echo "soft=$soft"
+            echo "thresh=$thresh"
+          } >> "$GITHUB_OUTPUT"
           if [ "$locked" = "true" ]; then
             echo "R2 uploads locked due to quota"
             exit 1

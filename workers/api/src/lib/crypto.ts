@@ -7,3 +7,14 @@ export async function sha256Hex(input: string): Promise<string> {
   for (const b of arr) hex += b.toString(16).padStart(2, '0');
   return hex;
 }
+
+export async function sha256HexBytes(input: ArrayBuffer | Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    input instanceof Uint8Array ? input : new Uint8Array(input)
+  );
+  const arr = new Uint8Array(digest);
+  let hex = '';
+  for (const b of arr) hex += b.toString(16).padStart(2, '0');
+  return hex;
+}

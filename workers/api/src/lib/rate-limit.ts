@@ -80,15 +80,17 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
 
   const key = `ratelimit:${keyPrefix}:${clientIP}`;
   const now = Date.now();
+  const degradedRateLimit: RateLimitInfo = {
+    allowed: !isProduction,
+    remaining: isProduction ? 0 : limitConfig.max,
+    resetTime: now + limitConfig.window,
+    limit: limitConfig.max,
+  };
 
   try {
     if (!env.SESSIONS) {
-      return {
-        allowed: true,
-        remaining: limitConfig.max,
-        resetTime: now + limitConfig.window,
-        limit: limitConfig.max,
-      };
+      console.error('Rate limiting unavailable: SESSIONS binding is not configured');
+      return degradedRateLimit;
     }
 
     const sessions = env.SESSIONS;
@@ -132,13 +134,8 @@ export async function checkRateLimit(request: Request, env: Env): Promise<RateLi
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`Rate limiting check failed after retries: ${errorMessage}`);
-    // Graceful degradation: allow request but with reduced rate limit
-    return {
-      allowed: true,
-      remaining: limitConfig.max,
-      resetTime: now + limitConfig.window,
-      limit: limitConfig.max,
-    };
+    // Preview/test can degrade gracefully; production must not bypass abuse controls.
+    return degradedRateLimit;
   }
 }
 

@@ -1,0 +1,135 @@
+name: MCP policy
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcp-policy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mcp-policy:
+    name: MCP policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect skip-ci label
+        id: skip
+        uses: ./.github/actions/pr-skip-ci
+        with:
+          pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+
+      - name: Detect policy paths
+        id: paths
+        uses: ./.github/actions/repo-path-filter
+        with:
+          filters-file: .github/path-filters.yml
+
+      - name: Skip unrelated change
+        if: steps.skip.outputs.skip_ci == 'true' || (github.event_name != 'workflow_dispatch' && steps.paths.outputs.mcp != 'true')
+        run: echo 'No MCP, OAuth, identity, or authorization paths changed; policy gate passed.'
+
+      - name: Setup monorepo
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Build shared libraries
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: pnpm run build:libs
+
+      - name: Typecheck API and tools
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: |
+          pnpm --filter @financial-analysis/api typecheck
+          pnpm --filter @financial-analysis/tools typecheck
+
+      - name: Enforce AI provider boundary
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: pnpm run check:ai-provider-boundary
+
+      - name: Run OAuth and MCP contract tests
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: >-
+          pnpm --filter @financial-analysis/api exec vitest run
+          --config ./vitest.config.mjs
+          src/__tests__/auth.test.ts
+          src/__tests__/cloudflare-access-identity.test.ts
+          src/__tests__/mcp-audit.test.ts
+          src/__tests__/mcp-cross-tenant.test.ts
+          src/__tests__/mcp-sdk-compatibility.test.ts
+          src/__tests__/oauth-consent.test.ts
+          src/__tests__/oauth-grants.test.ts
+          src/__tests__/oauth-oidc-login.test.ts
+          src/__tests__/oauth-policy.test.ts
+          src/__tests__/resource-owner-identity.test.ts
+
+      - name: Run Cloudflare OAuth provider fixtures sequentially
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: |
+          pnpm --filter @financial-analysis/api exec vitest run --config ./vitest.config.mjs src/__tests__/mcp-oauth-provider.test.ts --maxWorkers=1
+          pnpm --filter @financial-analysis/api exec vitest run --config ./vitest.config.mjs src/__tests__/oauth-token-lifecycle.test.ts --maxWorkers=1
+
+      - name: Run capability policy tests
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: pnpm --filter @financial-analysis/tools exec vitest run src/__tests__/capabilities.test.ts
+
+      - name: Check policy formatting and diff hygiene
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: >-
+          pnpm exec prettier --check
+          .github/actions/repo-path-filter/action.yml
+          .github/workflows/mcp-policy.yml
+          docs/MCP_CAPABILITY_POLICY.md
+          docs/OAUTH_ROLLOUT.md
+          packages/tools/src/mcp/capabilities.ts
+          packages/tools/src/__tests__/capabilities.test.ts
+          workers/api/src/lib/cloudflare-access-identity.ts
+          workers/api/src/lib/oauth-audit.ts
+          workers/api/src/lib/oauth-consent.ts
+          workers/api/src/lib/oauth-grants.ts
+          workers/api/src/lib/oauth-oidc-login.ts
+          workers/api/src/lib/oauth-policy.ts
+          workers/api/src/lib/oauth-provider.ts
+          workers/api/src/lib/resource-owner-identity.ts
+          workers/api/src/__tests__/cloudflare-access-identity.test.ts
+          workers/api/src/__tests__/mcp-audit.test.ts
+          workers/api/src/__tests__/mcp-cross-tenant.test.ts
+          workers/api/src/__tests__/mcp-oauth-provider.test.ts
+          workers/api/src/__tests__/mcp-sdk-compatibility.test.ts
+          workers/api/src/__tests__/oauth-consent.test.ts
+          workers/api/src/__tests__/oauth-grants.test.ts
+          workers/api/src/__tests__/oauth-oidc-login.test.ts
+          workers/api/src/__tests__/oauth-policy.test.ts
+          workers/api/src/__tests__/oauth-token-lifecycle.test.ts
+          workers/api/src/__tests__/resource-owner-identity.test.ts
+          && git diff --check
+
+      - name: Publish gate summary
+        if: always()
+        env:
+          MCP_PATHS: ${{ steps.paths.outputs.mcp }}
+        run: |
+          {
+            echo '## MCP / OAuth policy'
+            echo
+            if [[ "${{ steps.skip.outputs.skip_ci }}" == "true" ]]; then
+              echo '- Passed without install: skip-ci label is active.'
+            elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "$MCP_PATHS" == "true" ]]; then
+              echo '- Executed focused OAuth, MCP, identity, and capability checks.'
+            else
+              echo '- Passed without install: no policy paths changed.'
+            fi
+            echo '- OAuth remains disabled by default; no deployment or secret validation occurs in this gate.'
+          } >> "$GITHUB_STEP_SUMMARY"

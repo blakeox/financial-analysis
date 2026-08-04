@@ -1,5 +1,6 @@
 import { DocumentCache } from './document-cache';
 import type { Env, KnowledgeReindexMessage } from '../types';
+import { CloudflareWorkersAIProvider, isModelEgressEnabled } from './model-provider';
 
 export const DEFAULT_KNOWLEDGE_REINDEX_PATHS = [
   '/',
@@ -17,9 +18,17 @@ interface EnqueueKnowledgeReindexOptions {
   delaySeconds?: number;
 }
 
+interface EnqueueKnowledgeInvalidationOptions {
+  source: KnowledgeReindexMessage['source'];
+  requestId?: string;
+  paths: string[];
+  delaySeconds?: number;
+}
+
 export interface KnowledgeReindexProcessResult {
   urls: string[];
   warmedCount: number;
+  invalidatedCount: number;
   aiSearchJobId: string | null;
 }
 
@@ -76,10 +85,20 @@ function buildDocumentCache(
     | 'AI_SEARCH'
     | 'AI_SEARCH_INSTANCE_NAME'
     | 'AI_SEARCH_SOURCE_DOMAIN'
+    | 'AI_GATEWAY_ID'
+    | 'AI_EGRESS_ENABLED'
   >
 ): DocumentCache {
   return new DocumentCache({
-    ...(env.AI ? { ai: env.AI } : {}),
+    ...(env.AI
+      ? {
+          ai: new CloudflareWorkersAIProvider(
+            env.AI,
+            env.AI_GATEWAY_ID,
+            isModelEgressEnabled(env.AI_EGRESS_ENABLED)
+          ),
+        }
+      : {}),
     ...(env.KV ? { kv: env.KV } : {}),
     ...(env.DOCUMENTS ? { r2Bucket: env.DOCUMENTS } : {}),
     ...(env.VECTORIZE ? { vectorize: env.VECTORIZE } : {}),
@@ -149,6 +168,35 @@ export async function enqueueKnowledgeReindex(
   };
 }
 
+export async function enqueueKnowledgeInvalidation(
+  env: Pick<Env, 'KNOWLEDGE_JOBS' | 'ANALYTICS'>,
+  options: EnqueueKnowledgeInvalidationOptions
+): Promise<{ backlogCount: number; message: KnowledgeReindexMessage }> {
+  if (!env.KNOWLEDGE_JOBS) {
+    throw new Error('KNOWLEDGE_JOBS queue binding is required.');
+  }
+
+  const message: KnowledgeReindexMessage = {
+    type: 'site-invalidate',
+    source: options.source,
+    requestedAt: new Date().toISOString(),
+    paths: options.paths,
+    ...(options.requestId ? { requestId: options.requestId } : {}),
+  };
+
+  const response = await env.KNOWLEDGE_JOBS.send(message, {
+    contentType: 'json',
+    ...(options.delaySeconds !== undefined ? { delaySeconds: options.delaySeconds } : {}),
+  });
+
+  writeKnowledgeAnalytics(env.ANALYTICS, 'enqueued', message, {
+    urlCount: message.paths.length,
+    warmedCount: 0,
+  });
+
+  return { backlogCount: response.metadata.metrics.backlogCount, message };
+}
+
 export async function processKnowledgeReindex(
   message: KnowledgeReindexMessage,
   env: Pick<
@@ -193,6 +241,7 @@ export async function processKnowledgeReindex(
   const result = {
     urls,
     warmedCount,
+    invalidatedCount: 0,
     aiSearchJobId: aiSearchJob?.id ?? null,
   };
 
@@ -203,6 +252,57 @@ export async function processKnowledgeReindex(
     aiSearchJobId: result.aiSearchJobId,
   });
 
+  return result;
+}
+
+export async function processKnowledgeInvalidation(
+  message: Extract<KnowledgeReindexMessage, { type: 'site-invalidate' }>,
+  env: Pick<
+    Env,
+    | 'AI'
+    | 'KV'
+    | 'DOCUMENTS'
+    | 'VECTORIZE'
+    | 'BROWSER'
+    | 'BROWSER_RENDERING_ENABLED'
+    | 'BROWSER_RENDERING_PATH_PREFIXES'
+    | 'AI_SEARCH'
+    | 'AI_SEARCH_INSTANCE_NAME'
+    | 'AI_SEARCH_SOURCE_DOMAIN'
+    | 'BASE_URL'
+    | 'ANALYTICS'
+  >
+): Promise<KnowledgeReindexProcessResult> {
+  const origin = resolveKnowledgeOrigin(env);
+  if (!origin) {
+    throw new Error(
+      'AI_SEARCH_SOURCE_DOMAIN or BASE_URL must be configured for knowledge invalidation.'
+    );
+  }
+
+  const urls = buildKnowledgeReindexUrls(origin, message.paths);
+  const cache = buildDocumentCache(env);
+  let invalidatedCount = 0;
+  for (const url of urls) {
+    await cache.invalidate(url);
+    invalidatedCount += 1;
+  }
+
+  const aiSearchJob = await cache.triggerAiSearchReindex(
+    `knowledge-invalidation:${message.source}:${message.requestedAt}`
+  );
+  const result = {
+    urls,
+    warmedCount: 0,
+    invalidatedCount,
+    aiSearchJobId: aiSearchJob?.id ?? null,
+  };
+
+  writeKnowledgeAnalytics(env.ANALYTICS, 'processed', message, {
+    urlCount: urls.length,
+    warmedCount: 0,
+    aiSearchJobId: result.aiSearchJobId,
+  });
   return result;
 }
 
@@ -226,7 +326,11 @@ export async function handleKnowledgeQueue(
 ): Promise<void> {
   for (const message of batch.messages) {
     try {
-      await processKnowledgeReindex(message.body, env);
+      if (message.body.type === 'site-invalidate') {
+        await processKnowledgeInvalidation(message.body, env);
+      } else {
+        await processKnowledgeReindex(message.body, env);
+      }
       message.ack();
     } catch (error) {
       writeKnowledgeAnalytics(env.ANALYTICS, 'failed', message.body, {

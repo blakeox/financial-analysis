@@ -1,0 +1,7 @@
+name = "financial-analysis-oauth-lifecycle"
+main = "oauth-provider-lifecycle-worker.ts"
+compatibility_date = "2025-09-01"
+
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "00000000000000000000000000000002"

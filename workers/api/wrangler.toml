@@ -6,11 +6,37 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 ENVIRONMENT = "development"
 AI_GATEWAY_ID = "fanalyx-chat"
+AI_EGRESS_ENABLED = "true"
+# Future connector/Code Mode egress is deny-by-default until a controlled
+# resolver/proxy and endpoint-specific adapter are available.
+CONNECTOR_EGRESS_ENABLED = "false"
+CONNECTOR_ALLOWED_HOSTS = ""
+CONNECTOR_MAX_REDIRECTS = "3"
+# Code Mode remains disabled until sandbox, approval, and artifact gates pass.
+CODE_MODE_ENABLED = "false"
+CODE_MODE_ALLOWED_CAPABILITIES = ""
+CODE_MODE_MAX_TOOL_CALLS = "25"
+CODE_MODE_MAX_OUTPUT_BYTES = "262144"
+CODE_MODE_MAX_WALL_TIME_MS = "15000"
+MCP_ANALYSIS_ENABLED = "true"
 R2_SOFT_LIMIT_BYTES = 1073741824     # 1 GiB (dev)
 R2_HARD_LIMIT_BYTES = 2147483648     # 2 GiB (dev)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+R2_ACCOUNT_ID = "cc3bb24ae3c87cff38c2be85df3dab29"
+R2_BUCKET_NAME = "financial-analysis-documents"
+R2_PRESIGN_TTL_SECONDS = "900"
 ANALYSIS_CACHE_TTL_SECONDS = 0       # 0 disables Cache API for analysis responses by default
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
+MCP_AUDIT_RETENTION_DAYS = "90"
+OAUTH_AUDIT_RETENTION_DAYS = "90"
+BUDGET_MAX_REQUEST_BYTES = "1048576"
+BUDGET_MAX_MODEL_TOKENS = "100000"
+BUDGET_MAX_COST_MICROS = "5000000"
+BUDGET_MAX_TOOL_CALLS = "100"
+BUDGET_RESERVATION_TTL_SECONDS = "300"
+BUDGET_ENFORCEMENT_ENABLED = "false"
+# OAuth canary remains disabled until OAUTH_KV and resource-owner consent are provisioned.
+OAUTH_ENABLED = "false"
 # Comma-separated MIME type prefixes allowed for uploads. Tighten as needed per env.
 # Example covers PDFs and modern Office docs (docx/xlsx/pptx via vnd.openxmlformats).
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
@@ -94,14 +120,53 @@ host = "localhost"
 # Preview environment
 [env.preview]
 name = "fanalyx-api-preview"
+
+[env.preview.observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+
 [env.preview.vars]
 ENVIRONMENT = "preview"
+ALLOWED_ORIGIN = "https://fanalyx-web-preview.blakeoxford.workers.dev"
 AI_GATEWAY_ID = "fanalyx-chat"
+AI_EGRESS_ENABLED = "true"
+CONNECTOR_EGRESS_ENABLED = "false"
+CONNECTOR_ALLOWED_HOSTS = ""
+CONNECTOR_MAX_REDIRECTS = "3"
+CODE_MODE_ENABLED = "false"
+CODE_MODE_ALLOWED_CAPABILITIES = ""
+CODE_MODE_MAX_TOOL_CALLS = "25"
+CODE_MODE_MAX_OUTPUT_BYTES = "262144"
+CODE_MODE_MAX_WALL_TIME_MS = "15000"
+MCP_ANALYSIS_ENABLED = "true"
 R2_SOFT_LIMIT_BYTES = 2147483648     # 2 GiB (preview)
 R2_HARD_LIMIT_BYTES = 3221225472     # 3 GiB (preview)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+R2_ACCOUNT_ID = "cc3bb24ae3c87cff38c2be85df3dab29"
+R2_BUCKET_NAME = "financial-analysis-documents-preview"
+R2_PRESIGN_TTL_SECONDS = "900"
 ANALYSIS_CACHE_TTL_SECONDS = 0
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
+MCP_AUDIT_RETENTION_DAYS = "90"
+OAUTH_AUDIT_RETENTION_DAYS = "90"
+BUDGET_MAX_REQUEST_BYTES = "2097152"
+BUDGET_MAX_MODEL_TOKENS = "200000"
+BUDGET_MAX_COST_MICROS = "10000000"
+BUDGET_MAX_TOOL_CALLS = "200"
+BUDGET_RESERVATION_TTL_SECONDS = "300"
+BUDGET_ENFORCEMENT_ENABLED = "true"
+OAUTH_ENABLED = "true"
+OIDC_ISSUER = "https://learning-cat-56.clerk.accounts.dev"
+OIDC_AUDIENCE = "ESxeGH9aCGLP1EYJ"
+OIDC_JWKS_URI = "https://learning-cat-56.clerk.accounts.dev/.well-known/jwks.json"
+OIDC_AUTHORIZATION_ENDPOINT = "https://learning-cat-56.clerk.accounts.dev/oauth/authorize"
+OIDC_TOKEN_ENDPOINT = "https://learning-cat-56.clerk.accounts.dev/oauth/token"
+OIDC_REDIRECT_URI = "https://fanalyx-api-preview.blakeoxford.workers.dev/oauth/callback"
+OIDC_CLIENT_ID = "ESxeGH9aCGLP1EYJ"
+OIDC_SCOPES = "openid profile email"
+OIDC_SESSION_TTL_SECONDS = "28800"
+OIDC_LOGIN_HINT = ""
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 AI_SEARCH_INSTANCE_NAME = "fanalyx-preview-site"
@@ -121,6 +186,10 @@ migrations_dir = "migrations"
 [[env.preview.kv_namespaces]]
 binding = "SESSIONS"
 id = "7f752308ffc1429686db83d1e7c260a0"
+
+[[env.preview.kv_namespaces]]
+binding = "OAUTH_KV"
+id = "93ce8a3589e24d28986823ca08094fd0"
 
 [[env.preview.r2_buckets]]
 binding = "DOCUMENTS"
@@ -176,11 +245,43 @@ invocation_logs = true
 ENVIRONMENT = "production"
 ALLOWED_ORIGIN = "https://fanalyx.com"
 AI_GATEWAY_ID = "fanalyx-chat"
+AI_EGRESS_ENABLED = "true"
+CONNECTOR_EGRESS_ENABLED = "false"
+CONNECTOR_ALLOWED_HOSTS = ""
+CONNECTOR_MAX_REDIRECTS = "3"
+CODE_MODE_ENABLED = "false"
+CODE_MODE_ALLOWED_CAPABILITIES = ""
+CODE_MODE_MAX_TOOL_CALLS = "25"
+CODE_MODE_MAX_OUTPUT_BYTES = "262144"
+CODE_MODE_MAX_WALL_TIME_MS = "15000"
+MCP_ANALYSIS_ENABLED = "true"
 R2_SOFT_LIMIT_BYTES = 8589934592     # 8 GiB (prod)
 R2_HARD_LIMIT_BYTES = 9663676416     # 9 GiB (prod)
 MAX_OBJECT_SIZE_BYTES = 10485760     # 10 MiB
+R2_ACCOUNT_ID = "cc3bb24ae3c87cff38c2be85df3dab29"
+R2_BUCKET_NAME = "financial-analysis-documents"
+R2_PRESIGN_TTL_SECONDS = "900"
 ANALYSIS_CACHE_TTL_SECONDS = 0
 ANALYSIS_MAX_JSON_BYTES = 10485760   # 10 MiB for base64-encoded files
+MCP_AUDIT_RETENTION_DAYS = "90"
+OAUTH_AUDIT_RETENTION_DAYS = "90"
+BUDGET_MAX_REQUEST_BYTES = "5242880"
+BUDGET_MAX_MODEL_TOKENS = "500000"
+BUDGET_MAX_COST_MICROS = "25000000"
+BUDGET_MAX_TOOL_CALLS = "250"
+BUDGET_RESERVATION_TTL_SECONDS = "300"
+BUDGET_ENFORCEMENT_ENABLED = "false"
+OAUTH_ENABLED = "false"
+OIDC_ISSUER = "https://clerk.fanalyx.com"
+OIDC_AUDIENCE = "DDJFAqXNRUddvZJl"
+OIDC_JWKS_URI = "https://clerk.fanalyx.com/.well-known/jwks.json"
+OIDC_AUTHORIZATION_ENDPOINT = "https://clerk.fanalyx.com/oauth/authorize"
+OIDC_TOKEN_ENDPOINT = "https://clerk.fanalyx.com/oauth/token"
+OIDC_REDIRECT_URI = "https://api.fanalyx.com/oauth/callback"
+OIDC_CLIENT_ID = "DDJFAqXNRUddvZJl"
+OIDC_SCOPES = "openid profile email"
+OIDC_SESSION_TTL_SECONDS = "28800"
+OIDC_LOGIN_HINT = ""
 # Consider making this stricter in production if business rules require fewer types.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 AI_SEARCH_INSTANCE_NAME = "fanalyx-site"
@@ -191,6 +292,13 @@ BROWSER_RENDERING_PATH_PREFIXES = "/,/developers,/agent,/docs"
 [env.production.triggers]
 crons = ["0 * * * *", "0 0 * * *"]
 
+# Canonical public API/MCP/OAuth hostname. The zone DNS record is proxied to
+# the Worker and keeps public protocol metadata and WAF coverage off the
+# workers.dev implementation hostname.
+[[env.production.routes]]
+pattern = "api.fanalyx.com/*"
+zone_id = "8b74875a9a9edb1d7572c9d41e9e2016"
+
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "financial-analysis-db"
@@ -200,6 +308,10 @@ migrations_dir = "migrations"
 [[env.production.kv_namespaces]]
 binding = "SESSIONS"
 id = "2b02898694364a2693681466265c912d"
+
+[[env.production.kv_namespaces]]
+binding = "OAUTH_KV"
+id = "cf21b72a2eb34de1ae886f96e8800053"
 
 [[env.production.r2_buckets]]
 binding = "DOCUMENTS"
