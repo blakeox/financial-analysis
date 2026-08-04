@@ -39,9 +39,9 @@ const apiBaseUrl = (process.env.CLERK_API_BASE_URL || 'https://api.clerk.com/v1'
   /\/$/,
   ''
 );
-// Clerk's OAuth application API configures user-info scopes as profile/email.
-// The OIDC login request separately asks for the standard `openid` scope.
-const scopes = process.env.CLERK_OAUTH_SCOPES?.trim() || 'profile email';
+// The Worker requests the standard OIDC identity scope together with the
+// user-info scopes. Keep the provider application and Worker request aligned.
+const scopes = process.env.CLERK_OAUTH_SCOPES?.trim() || 'openid profile email';
 
 if (!secretKey) {
   console.error(
@@ -116,7 +116,7 @@ function validateProvisionedApplication(application) {
   }
 
   const scopes = normalizedScopes(application.scopes);
-  for (const requiredScope of ['profile', 'email']) {
+  for (const requiredScope of ['openid', 'profile', 'email']) {
     if (!scopes.has(requiredScope)) failures.push(`missing ${requiredScope} scope`);
   }
 
