@@ -8,16 +8,7 @@ directory = "../../apps/web/dist"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 # API, MCP, and OAuth routes must reach the Worker before the SPA asset fallback.
-run_worker_first = [
-  "/api/*",
-  "/v1/*",
-  "/agents/*",
-  "/mcp",
-  "/openapi.json",
-  "/docs",
-  "/oauth/*",
-  "/.well-known/*",
-]
+run_worker_first = true
 
 # Removed [build] custom command to prevent duplicate astro build runs during dev.
 
