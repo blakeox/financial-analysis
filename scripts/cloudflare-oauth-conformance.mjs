@@ -13,6 +13,9 @@
 const apiUrl = (process.env.API_URL || '').replace(/\/$/, '');
 const environment = process.env.ENVIRONMENT || 'unknown';
 const expectedEnabled = process.env.EXPECT_OAUTH_ENABLED === 'true';
+const oidcTestClientId = process.env.OIDC_TEST_CLIENT_ID?.trim() || null;
+const oidcTestRedirectUri =
+  process.env.OIDC_TEST_REDIRECT_URI?.trim() || `${apiUrl}/oauth/callback`;
 const receiptPath = process.env.CLOUDFLARE_OAUTH_RECEIPT || 'cloudflare-oauth-conformance.json';
 
 if (!apiUrl || !/^https:\/\//.test(apiUrl)) {
@@ -49,6 +52,32 @@ function record(name, passed, details = {}) {
 
 function isHttpsAbsolute(value) {
   return typeof value === 'string' && value.startsWith('https://');
+}
+
+function summarizeLocation(location, fallbackOrigin) {
+  if (!location) return null;
+  try {
+    const url = new URL(location, fallbackOrigin);
+    return {
+      origin: url.origin,
+      pathname: url.pathname,
+      error: url.searchParams.get('error'),
+    };
+  } catch {
+    return { origin: null, pathname: null, error: 'invalid-location' };
+  }
+}
+
+async function readRedirect(url) {
+  const response = await fetch(url, {
+    redirect: 'manual',
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(15_000),
+  });
+  return {
+    status: response.status,
+    location: response.headers.get('location'),
+  };
 }
 
 const version = await read('/version');
@@ -102,6 +131,67 @@ if (!expectedEnabled) {
     }
   );
 
+  if (oidcTestClientId) {
+    const authorizeUrl = new URL('/oauth/authorize', apiUrl);
+    authorizeUrl.search = new URLSearchParams({
+      response_type: 'code',
+      client_id: oidcTestClientId,
+      redirect_uri: oidcTestRedirectUri,
+      scope: 'analysis:read',
+      state: 'oauth-preflight-state',
+      code_challenge: 'E9Melhoa2OwvFrEMTJguCHV2B2M5f1L5tStZLZzY1GQ',
+      code_challenge_method: 'S256',
+      resource: `${apiUrl}/oauth/mcp`,
+    }).toString();
+
+    const authorize = await readRedirect(authorizeUrl);
+    const workerLoginLocation = authorize.location ? new URL(authorize.location, apiUrl) : null;
+    const login = workerLoginLocation ? await readRedirect(workerLoginLocation) : null;
+    const providerAuthorizeLocation = login?.location ? new URL(login.location, apiUrl) : null;
+    const provider = providerAuthorizeLocation
+      ? await readRedirect(providerAuthorizeLocation)
+      : null;
+    const providerLocation = provider?.location
+      ? new URL(provider.location, providerAuthorizeLocation?.origin || apiUrl)
+      : null;
+    const providerError = provider?.location ? providerLocation?.searchParams.get('error') : null;
+    const providerOrigin = providerAuthorizeLocation?.origin || null;
+
+    record(
+      'OIDC login redirect accepts configured scopes',
+      authorize.status >= 300 &&
+        authorize.status < 400 &&
+        login?.status >= 300 &&
+        login.status < 400 &&
+        workerLoginLocation?.origin === apiUrl &&
+        workerLoginLocation.pathname === '/oauth/login' &&
+        providerAuthorizeLocation?.protocol === 'https:' &&
+        providerAuthorizeLocation.pathname === '/oauth/authorize' &&
+        providerAuthorizeLocation.origin !== apiUrl &&
+        provider?.status >= 300 &&
+        provider.status < 400 &&
+        providerLocation?.origin !== apiUrl &&
+        providerError !== 'invalid_scope',
+      {
+        authorizeStatus: authorize.status,
+        loginStatus: login?.status ?? null,
+        providerStatus: provider?.status ?? null,
+        authorizeLocation: summarizeLocation(authorize.location, apiUrl),
+        loginLocation: summarizeLocation(login?.location, apiUrl),
+        providerLocation: summarizeLocation(
+          provider?.location,
+          providerAuthorizeLocation?.origin || apiUrl
+        ),
+        providerOrigin,
+        providerError,
+      }
+    );
+  } else {
+    record('OIDC login redirect accepts configured scopes', true, {
+      skipped: true,
+      reason: 'OIDC_TEST_CLIENT_ID is not configured',
+    });
+  }
 }
 
 const passed = checks.every((check) => check.passed);
