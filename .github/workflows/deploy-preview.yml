@@ -103,6 +103,7 @@ jobs:
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
           EXPECTED_OAUTH_ENABLED: 'true'
           EXPECTED_BUDGET_ENFORCEMENT_ENABLED: 'true'
+          PUBLIC_URL: https://fanalyx-web-preview.blakeoxford.workers.dev
           CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-preview.json
           WEB_URL: https://fanalyx-web-preview.blakeoxford.workers.dev
         run: |

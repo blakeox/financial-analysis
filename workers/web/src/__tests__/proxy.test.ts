@@ -41,6 +41,35 @@ function makeEnv({
 }
 
 describe('web worker dev proxy', () => {
+  it('forwards preview MCP routes before static assets', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'preview',
+      apiProdOrigin: 'https://api.example.com',
+      internalApiToken: 'server-secret',
+    });
+
+    const apiResponse = new Response(JSON.stringify({ jsonrpc: '2.0', result: { tools: [] } }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    const globalFetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(apiResponse);
+
+    const res = await web.fetch(
+      new Request('https://example.com/mcp', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
+      }),
+      env as never,
+      ctx
+    );
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ jsonrpc: '2.0', result: { tools: [] } });
+    globalFetch.mockRestore();
+  });
+
   it('forwards /v1 requests to API in development', async () => {
     const { env, ctx, fetchSpy } = makeEnv({
       environment: 'development',
