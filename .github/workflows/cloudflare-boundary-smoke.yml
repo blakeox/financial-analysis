@@ -25,7 +25,6 @@ jobs:
             url: https://fanalyx-api-preview.blakeoxford.workers.dev
             expected_oauth_enabled: true
             expected_budget_enforcement_enabled: true
-            public_url: https://fanalyx-web-preview.blakeoxford.workers.dev
           - environment: production
             url: https://fanalyx-api-production.blakeoxford.workers.dev
             expected_oauth_enabled: false

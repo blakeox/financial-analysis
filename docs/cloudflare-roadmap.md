@@ -434,6 +434,10 @@ Goal: Reliable data evolution.
   production, the canonical `fanalyx.com` Cloudflare facade: formula MCP
   initialization must succeed at the edge while public storage access must
   fail with `MISSING_KEY`.
+- (🟡) Preview direct API conformance passes, but the preview `workers.dev`
+  asset host still returns HTML 404s for API/MCP paths despite Worker-first
+  routing metadata. A dedicated preview hostname/route is required before
+  making preview public-facade behavior a release gate.
 - (✅) Added a read-only WAF entrypoint audit, schema-versioned receipt upload,
   and rollout/rollback runbook. A dedicated `Zone WAF:Read` token is now
   restricted to `fanalyx.com`, and the audit has verified all three entrypoints

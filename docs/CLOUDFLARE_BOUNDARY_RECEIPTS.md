@@ -74,3 +74,11 @@ Public formula MCP checks validate the canonical Cloudflare web facade,
 including edge response, no-store behavior, and protocol initialization. The
 same public path must reject storage access with `MISSING_KEY`; a web proxy
 credential is never a user-data identity.
+
+The production custom-domain facade is the authoritative public-edge check.
+The preview `workers.dev` asset host currently returns an HTML 404 for API/MCP
+paths even when the deployed version reports the expected Worker-first asset
+routing metadata; direct preview API conformance remains healthy. Do not turn
+that host into a release gate until a dedicated preview hostname/route proves
+the same edge behavior. This is tracked as an infrastructure routing gap, not
+silently treated as a successful public facade.
