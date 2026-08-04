@@ -80,11 +80,12 @@ CLERK_SECRET_KEY='(process environment only)' \
   node scripts/provision-clerk-oauth.mjs --environment=preview --apply
 ```
 
-The Clerk OAuth application reconciler requests the application scopes `profile
-email` (the standard `openid` scope is requested separately by the Worker
-login flow). Set `CLERK_OAUTH_SCOPES` only when a reviewed deployment needs a
-different Clerk-supported scope set; do not add private or public metadata to
-the default MCP identity boundary.
+The Clerk OAuth application reconciler requests the application scopes `openid
+profile email`, which must match the Worker login request. Set
+`CLERK_OAUTH_SCOPES` only when a reviewed deployment needs a different
+Clerk-supported scope set that still includes all three required identity
+scopes; do not add private or public metadata to the default MCP identity
+boundary.
 
 The script is idempotent for the environment-specific application name, refuses
 ambiguous duplicate names, reads the application's discovery document, and
