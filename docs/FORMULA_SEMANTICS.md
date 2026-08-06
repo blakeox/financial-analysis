@@ -1,6 +1,14 @@
 # Formula Semantics and Certification
 
-Formula metadata makes units, rate conventions, rounding, valid ranges, exclusions, and warnings part of the deterministic analysis contract. Canonical vectors are executable regression receipts: the same formula version and input must produce the same bounded output.
+Formula metadata makes units, rate conventions, rounding, valid ranges, exclusions, warnings, and publication status part of the deterministic analysis contract. Canonical vectors are executable regression receipts: the same formula version and input must produce the same bounded output.
+
+Publication status is explicit on every certified entry:
+
+- `stable` — semantic metadata and canonical vectors exist; eligible for stable MCP/Agent publication
+- `preview` — reviewed enough for limited exposure, not yet stable
+- `deprecated` — retained for reproducibility of prior results; must not silently replace a stable formula
+
+`CERTIFIED_FORMULA_CATALOG`, `isStableFormulaPublication()`, and `assertStableFormulaPublication()` gate stable publication. Unreviewed formulas are absent from the catalog and fail closed.
 
 ## Certified slice: amortization
 
@@ -42,7 +50,7 @@ The DSCR engine is published with formula ID `analysis.dscr` and formula version
 
 ## Certified slice: bond pricing
 
-The bond-pricing engine is published with formula ID `analysis.bond-pricing` and formula version `1.0.0`. Its contract records annual nominal coupon/YTM conventions, day-count maturity fractions, pinned-settlement reproducibility requirements, and the simplified zero accrued-interest limitation. Two canonical vectors cover discount and par semi-annual corporates; `BondPricingAnalyzer.analyze()` attaches the same metadata shape to each result.
+The bond-pricing engine is published with formula ID `analysis.bond-pricing` and formula version `1.0.0`. Its contract records annual nominal coupon/YTM conventions, day-count maturity fractions, UTC coupon-schedule arithmetic for timezone-reproducible pinned settlements, and the simplified zero accrued-interest limitation. Two canonical vectors cover discount and par semi-annual corporates; `BondPricingAnalyzer.analyze()` attaches the same metadata shape to each result.
 
 ## Certified slice: debt capacity
 
@@ -58,4 +66,4 @@ The financial-ratio engine is published with formula ID `analysis.financial-rati
 
 ## Remaining certification work
 
-This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.
+This slice does not claim #449 complete. Eleven formulas are certified and gated as `stable` in `CERTIFIED_FORMULA_CATALOG`. The remaining work is to apply the same contract to every other published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and wire MCP/Agent adapters to `assertStableFormulaPublication()` before expanding the stable catalog.

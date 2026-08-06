@@ -20,12 +20,16 @@ import {
   BREAK_EVEN_FORMULA_METADATA,
   CAPM_CANONICAL_TEST_VECTORS,
   CAPM_FORMULA_METADATA,
+  CERTIFIED_FORMULA_CATALOG,
   DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
   DEBT_CAPACITY_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
   FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
   FINANCIAL_RATIO_FORMULA_METADATA,
+  assertStableFormulaPublication,
+  getCertifiedFormulaMetadata,
+  isStableFormulaPublication,
   LEASE_CANONICAL_TEST_VECTORS,
   LEASE_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
@@ -416,5 +420,25 @@ describe('financial-ratio formula semantics', () => {
 
     expect(result.formulaVersion).toBe(FINANCIAL_RATIO_FORMULA_METADATA.formulaVersion);
     expect(result.formulaMetadata).toEqual(FINANCIAL_RATIO_FORMULA_METADATA);
+  });
+});
+
+describe('certified formula publication catalog', () => {
+  it('lists every certified formula as stable with matching metadata identity', () => {
+    expect(CERTIFIED_FORMULA_CATALOG).toHaveLength(11);
+    for (const entry of CERTIFIED_FORMULA_CATALOG) {
+      expect(entry.publicationStatus).toBe('stable');
+      expect(getCertifiedFormulaMetadata(entry.formulaId, entry.formulaVersion)).toEqual(entry);
+      expect(isStableFormulaPublication(entry.formulaId, entry.formulaVersion)).toBe(true);
+      expect(assertStableFormulaPublication(entry.formulaId, entry.formulaVersion)).toEqual(entry);
+    }
+  });
+
+  it('blocks unreviewed formulas from stable publication', () => {
+    expect(getCertifiedFormulaMetadata('analysis.unreviewed-placeholder')).toBeUndefined();
+    expect(isStableFormulaPublication('analysis.unreviewed-placeholder')).toBe(false);
+    expect(() => assertStableFormulaPublication('analysis.unreviewed-placeholder')).toThrow(
+      /not in the certified catalog/
+    );
   });
 });

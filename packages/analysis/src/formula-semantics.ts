@@ -10,9 +10,12 @@ import type { DSCRInput } from './schemas/dscr.js';
 import type { FinancialRatioAnalyzerInput } from './schemas/financial-ratio-analyzer.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
 
+export type FormulaPublicationStatus = 'preview' | 'stable' | 'deprecated';
+
 export interface FormulaSemanticMetadata {
   formulaId: string;
   formulaVersion: string;
+  publicationStatus: FormulaPublicationStatus;
   description: string;
   units: Readonly<Record<string, string>>;
   currency: string;
@@ -123,6 +126,7 @@ export interface FinancialRatioCanonicalOutput {
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.amortization',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Builds a deterministic loan amortization schedule with optional payment adjustments.',
   units: {
@@ -199,6 +203,7 @@ export const AMORTIZATION_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const NPV_IRR_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.npv-irr',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description: 'Calculates net present value, internal rate of return, and simple payback period.',
   units: {
     cashFlows: 'currency units by period',
@@ -271,6 +276,7 @@ export const NPV_IRR_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const BREAK_EVEN_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.break-even',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates contribution margin and the unit and revenue volume required to cover fixed costs and target profit.',
   units: {
@@ -356,6 +362,7 @@ export const BREAK_EVEN_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const CAPM_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.capm',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates the Capital Asset Pricing Model expected return from risk-free rate, beta, and market risk premium.',
   units: {
@@ -426,6 +433,7 @@ export const CAPM_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const WACC_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.wacc',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates the weighted average cost of capital from equity and debt market values, costs, and tax rate.',
   units: {
@@ -514,6 +522,7 @@ export const WACC_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const LEASE_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.lease',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Builds a deterministic lease amortization schedule with optional residual value using a present-value annuity payment.',
   units: {
@@ -597,6 +606,7 @@ export const LEASE_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const DSCR_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.dscr',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates debt service coverage ratio from EBITDA and annual debt service, with fixed interpretive thresholds.',
   units: {
@@ -681,6 +691,7 @@ export const DSCR_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const BOND_PRICING_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.bond-pricing',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Prices a fixed-coupon bond from yield to maturity using present-value cash flows, duration, and convexity.',
   units: {
@@ -698,7 +709,7 @@ export const BOND_PRICING_FORMULA_METADATA: FormulaSemanticMetadata = {
   rateConvention:
     'coupon rate and yield to maturity are annual nominal rates converted by coupon frequency',
   dateBasis:
-    'day-count convention selects year-fraction for maturity; coupon schedule uses calendar increments by frequency',
+    'day-count convention selects year-fraction for maturity; coupon schedule advances by UTC month increments for pinned ISO dates',
   rounding: {
     mode: 'none',
     decimalPlaces: 15,
@@ -718,6 +729,7 @@ export const BOND_PRICING_FORMULA_METADATA: FormulaSemanticMetadata = {
   ],
   warnings: [
     'Canonical vectors must pin settlementDate; omitting it makes years-to-maturity and schedules non-reproducible.',
+    'Coupon schedule month arithmetic is UTC-based so pinned ISO dates reproduce across timezones.',
     'calculationDate is wall-clock metadata and is not part of the certified numeric contract.',
     'Price, duration, and yield retain calculation precision; presentation-layer rounding is separate.',
   ],
@@ -747,10 +759,10 @@ export const BOND_PRICING_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
       isTaxExempt: false,
     },
     expectedOutput: {
-      price: 961.0694553906042,
-      currentYield: 0.05202537623014839,
-      macaulayDuration: 4.074992644493586,
-      modifiedDuration: 3.956303538343287,
+      price: 957.3489858161207,
+      currentYield: 0.05222755833117221,
+      macaulayDuration: 4.471678607581262,
+      modifiedDuration: 4.34143554134103,
       remainingPayments: 10,
       yearsToMaturity: 5.002739726027397,
     },
@@ -778,8 +790,8 @@ export const BOND_PRICING_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
     expectedOutput: {
       price: 1000,
       currentYield: 0.05,
-      macaulayDuration: 4.0850685837381695,
-      modifiedDuration: 3.9854327646226047,
+      macaulayDuration: 4.485432764622605,
+      modifiedDuration: 4.376031965485469,
       remainingPayments: 10,
       yearsToMaturity: 5.002739726027397,
     },
@@ -790,6 +802,7 @@ export const BOND_PRICING_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const DEBT_CAPACITY_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.debt-capacity',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Estimates maximum and recommended new loan capacity from EBITDA, existing debt service, target DSCR, rate, and term.',
   units: {
@@ -891,6 +904,7 @@ export const DEBT_CAPACITY_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
 export const UNIT_ECONOMICS_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.unit-economics',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates customer acquisition cost, lifetime value, contribution margin, and CAC payback from subscription-style unit economics inputs.',
   units: {
@@ -1003,6 +1017,7 @@ export const UNIT_ECONOMICS_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector
 export const FINANCIAL_RATIO_FORMULA_METADATA: FormulaSemanticMetadata = {
   formulaId: 'analysis.financial-ratio',
   formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
   description:
     'Calculates core liquidity, profitability, and leverage ratios from balance-sheet and income-statement inputs.',
   units: {
@@ -1171,3 +1186,56 @@ export const FINANCIAL_RATIO_CANONICAL_TEST_VECTORS: readonly CanonicalTestVecto
     tolerance: 1e-12,
   },
 ];
+
+/**
+ * Catalog of formulas that have semantic metadata and executable canonical vectors.
+ * Stable entries are eligible for stable MCP/Agent publication; unreviewed formulas
+ * must remain preview or unpublished until certified here.
+ */
+export const CERTIFIED_FORMULA_CATALOG: readonly FormulaSemanticMetadata[] = [
+  AMORTIZATION_FORMULA_METADATA,
+  NPV_IRR_FORMULA_METADATA,
+  BREAK_EVEN_FORMULA_METADATA,
+  CAPM_FORMULA_METADATA,
+  WACC_FORMULA_METADATA,
+  LEASE_FORMULA_METADATA,
+  DSCR_FORMULA_METADATA,
+  BOND_PRICING_FORMULA_METADATA,
+  DEBT_CAPACITY_FORMULA_METADATA,
+  UNIT_ECONOMICS_FORMULA_METADATA,
+  FINANCIAL_RATIO_FORMULA_METADATA,
+] as const;
+
+export function getCertifiedFormulaMetadata(
+  formulaId: string,
+  formulaVersion?: string
+): FormulaSemanticMetadata | undefined {
+  return CERTIFIED_FORMULA_CATALOG.find(
+    (entry) =>
+      entry.formulaId === formulaId &&
+      (formulaVersion === undefined || entry.formulaVersion === formulaVersion)
+  );
+}
+
+export function isStableFormulaPublication(formulaId: string, formulaVersion?: string): boolean {
+  const entry = getCertifiedFormulaMetadata(formulaId, formulaVersion);
+  return entry?.publicationStatus === 'stable';
+}
+
+export function assertStableFormulaPublication(
+  formulaId: string,
+  formulaVersion?: string
+): FormulaSemanticMetadata {
+  const entry = getCertifiedFormulaMetadata(formulaId, formulaVersion);
+  if (!entry) {
+    throw new Error(
+      `Formula ${formulaId}${formulaVersion ? `@${formulaVersion}` : ''} is not in the certified catalog and cannot be published as stable`
+    );
+  }
+  if (entry.publicationStatus !== 'stable') {
+    throw new Error(
+      `Formula ${entry.formulaId}@${entry.formulaVersion} has publicationStatus=${entry.publicationStatus} and cannot enter the stable catalog`
+    );
+  }
+  return entry;
+}
