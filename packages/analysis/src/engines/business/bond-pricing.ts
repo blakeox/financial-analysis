@@ -1,5 +1,6 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
+import { BOND_PRICING_FORMULA_METADATA } from '../../formula-semantics.js';
 import { BondPricingInputSchema, type BondPricingInput } from '../../schemas/bond-pricing.js';
 import type {
   BondPricingResult,
@@ -51,6 +52,8 @@ export class BondPricingAnalyzer {
     const recommendation = this.generateRecommendation(validated, metrics);
 
     return {
+      formulaVersion: BOND_PRICING_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: BOND_PRICING_FORMULA_METADATA,
       bondType: validated.bondType,
       faceValue: validated.faceValue,
       couponRate: validated.couponRate,
@@ -92,13 +95,13 @@ export class BondPricingAnalyzer {
   }
 
   private static calculate30360Days(start: Date, end: Date): number {
-    const y1 = start.getFullYear();
-    const m1 = start.getMonth() + 1;
-    const d1 = Math.min(start.getDate(), 30);
+    const y1 = start.getUTCFullYear();
+    const m1 = start.getUTCMonth() + 1;
+    const d1 = Math.min(start.getUTCDate(), 30);
 
-    const y2 = end.getFullYear();
-    const m2 = end.getMonth() + 1;
-    const d2 = Math.min(end.getDate(), 30);
+    const y2 = end.getUTCFullYear();
+    const m2 = end.getUTCMonth() + 1;
+    const d2 = Math.min(end.getUTCDate(), 30);
 
     return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
   }
@@ -123,6 +126,12 @@ export class BondPricingAnalyzer {
               : 0;
 
     return Math.ceil(yearsToMaturity * paymentsPerYear);
+  }
+
+  private static addUtcMonths(date: Date, months: number): Date {
+    const next = new Date(date.getTime());
+    next.setUTCMonth(next.getUTCMonth() + months);
+    return next;
   }
 
   private static generateCouponSchedule(
@@ -152,13 +161,13 @@ export class BondPricingAnalyzer {
       .toNumber();
 
     const monthsPerPayment = 12 / paymentsPerYear;
-    let currentDate = new Date(settlement);
+    let currentDate = new Date(settlement.getTime());
     let paymentNumber = 1;
 
-    // Find first payment date after settlement
+    // Find first payment date after settlement using UTC month arithmetic so
+    // pinned settlement/maturity ISO dates are reproducible across timezones.
     while (currentDate <= maturity) {
-      currentDate = new Date(currentDate);
-      currentDate.setMonth(currentDate.getMonth() + monthsPerPayment);
+      currentDate = this.addUtcMonths(currentDate, monthsPerPayment);
 
       if (currentDate > settlement && currentDate <= maturity) {
         const discountFactor = Math.pow(

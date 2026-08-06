@@ -4,7 +4,29 @@
  */
 
 import { Decimal } from 'decimal.js';
+
+import {
+  DEBT_CAPACITY_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
 import type { DebtCapacityInput } from '../../schemas/debt-capacity.js';
+
+export interface DebtCapacityResult {
+  // Optional for compatibility with legacy result fixtures; calculator output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
+  maxLoanAmount: number;
+  recommendedLoanAmount: number;
+  monthlyPaymentCapacity: number;
+  debtCapacityRatio?: number | undefined;
+  factors: string[];
+  assumptions: {
+    targetDSCR: number;
+    ebitda: number;
+    currentDebtService: number;
+    availableForNewDebt: number;
+  };
+}
 
 export class DebtCapacityCalculator {
   private static getMarketRate(loanType: string): number {
@@ -18,7 +40,7 @@ export class DebtCapacityCalculator {
     return rates[loanType] || 0.08;
   }
 
-  static analyze(input: DebtCapacityInput): unknown {
+  static analyze(input: DebtCapacityInput): DebtCapacityResult {
     const ebitda = input.financials.annualEBITDA + input.financials.expectedEBITDAIncrease;
     const currentDebtService = input.financials.monthlyDebtPayments * 12;
 
@@ -58,6 +80,8 @@ export class DebtCapacityCalculator {
     }
 
     return {
+      formulaVersion: DEBT_CAPACITY_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: DEBT_CAPACITY_FORMULA_METADATA,
       maxLoanAmount,
       recommendedLoanAmount,
       monthlyPaymentCapacity,

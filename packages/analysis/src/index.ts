@@ -33,6 +33,7 @@ export { DepreciationCalculator } from './engines/business/depreciation.js';
 export { EmployeeStockOptionsValuator } from './engines/business/employee-stock-options.js';
 export { EquipmentLeaseVsBuyCalculator } from './engines/business/equipment-lease-vs-buy.js';
 export { FinancialRatioAnalyzer } from './engines/business/financial-ratio-analyzer.js';
+export type { FinancialRatioAnalyzerResult } from './engines/business/financial-ratio-analyzer.js';
 export { FranchiseROICalculator } from './engines/business/franchise-roi.js';
 export { InventoryOptimizer } from './engines/business/inventory-optimization.js';
 export { RevenueRecognitionCalculator } from './engines/business/revenue-recognition.js';
@@ -107,18 +108,54 @@ export type {
 // Align Scenario schema with EBITDA forecaster's contract
 export { ScenarioInputSchema } from './engines/business/ebitda-forecasting.js';
 export type { EbitdaForecastResult, ScenarioInput } from './engines/business/ebitda-forecasting.js';
-export type { LeaseAnalysisResult } from './engines/business/lease.js';
+export type { LeaseAnalysisResult, LeaseEngineInput } from './engines/business/lease.js';
+export { LeaseInputSchema } from './engines/business/lease.js';
 export type { WACCResult } from './engines/business/wacc.js';
 
 // Formula semantic metadata and canonical certification vectors
 export {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
   AMORTIZATION_FORMULA_METADATA,
+  assertStableFormulaPublication,
+  BOND_PRICING_CANONICAL_TEST_VECTORS,
+  BOND_PRICING_FORMULA_METADATA,
+  BREAK_EVEN_CANONICAL_TEST_VECTORS,
+  BREAK_EVEN_FORMULA_METADATA,
+  CAPM_CANONICAL_TEST_VECTORS,
+  CAPM_FORMULA_METADATA,
+  CERTIFIED_FORMULA_CATALOG,
+  DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
+  DEBT_CAPACITY_FORMULA_METADATA,
+  DSCR_CANONICAL_TEST_VECTORS,
+  DSCR_FORMULA_METADATA,
+  FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
+  FINANCIAL_RATIO_FORMULA_METADATA,
+  getCertifiedFormulaMetadata,
+  isStableFormulaPublication,
+  LEASE_CANONICAL_TEST_VECTORS,
+  LEASE_FORMULA_METADATA,
+  NPV_IRR_CANONICAL_TEST_VECTORS,
+  NPV_IRR_FORMULA_METADATA,
+  UNIT_ECONOMICS_CANONICAL_TEST_VECTORS,
+  UNIT_ECONOMICS_FORMULA_METADATA,
+  WACC_CANONICAL_TEST_VECTORS,
+  WACC_FORMULA_METADATA,
 } from './formula-semantics.js';
 export type {
   AmortizationCanonicalOutput,
+  BondPricingCanonicalOutput,
+  BreakEvenCanonicalOutput,
   CanonicalTestVector,
+  CAPMCanonicalOutput,
+  DebtCapacityCanonicalOutput,
+  DSCRCanonicalOutput,
+  FinancialRatioCanonicalOutput,
+  FormulaPublicationStatus,
   FormulaSemanticMetadata,
+  LeaseCanonicalOutput,
+  NPVIRRCanonicalOutput,
+  UnitEconomicsCanonicalOutput,
+  WACCCanonicalOutput,
 } from './formula-semantics.js';
 
 // Bond pricing schemas and types
@@ -268,11 +305,13 @@ export type { BusinessFinancialHealthInput } from './schemas/business-financial-
 
 // Debt capacity schemas and types
 export { DebtCapacityCalculator } from './engines/business/debt-capacity.js';
+export type { DebtCapacityResult } from './engines/business/debt-capacity.js';
 export { DebtCapacityInputSchema } from './schemas/debt-capacity.js';
 export type { DebtCapacityInput } from './schemas/debt-capacity.js';
 
 // DSCR schemas and types
 export { DSCRCalculator } from './engines/business/dscr.js';
+export type { DSCRResult } from './engines/business/dscr.js';
 export { DSCRInputSchema } from './schemas/dscr.js';
 export type { DSCRInput } from './schemas/dscr.js';
 

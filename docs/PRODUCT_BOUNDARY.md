@@ -31,7 +31,19 @@ Every `AnalysisResult` carries:
 | `sensitive` | Data requiring additional protection or approval | Denied by default |
 | `external` | Data supplied by an external system | Capability-specific and provenance-bound |
 
-Adapters must not infer authorization from a data classification. Authorization is a later server-side control-plane concern.
+Adapters must not infer authorization from a data classification. Authorization is a separate server-side control-plane concern implemented by `authorizeCapability()` in `@financial-analysis/capabilities`.
+
+## Authorization
+
+Product scopes are dotted identifiers (`financial.calculate`, `workspace.read`, `workspace.write`, `memory.search`, `memory.save`, `memory.forget`). They are distinct from MCP OAuth scopes such as `analysis:read`; transport adapters own that mapping.
+
+`authorizeCapability()` is fail-closed:
+
+- decisions require a server-resolved grant snapshot (no ambient Agent memory);
+- memory scopes are denied to `external-mcp` clients unless an explicit active grant binds the same user/workspace/case resource;
+- cross-workspace and revoked grants deny;
+- write and external-action paths may return `approval-required` until the host supplies an approval receipt;
+- decision payloads never include secrets or tokens.
 
 ## Execution state
 

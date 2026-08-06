@@ -1,8 +1,15 @@
 import { Decimal } from 'decimal.js';
 
+import {
+  BREAK_EVEN_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
 import type { BreakEvenInput } from '../../schemas/break-even.js';
 
 export interface BreakEvenResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   breakEvenPossible: boolean;
   contributionMarginPerUnit: number;
   contributionMarginRatio: number;
@@ -23,6 +30,8 @@ export class BreakEvenAnalyzer {
 
     if (cmPerUnit <= 0) {
       return {
+        formulaVersion: BREAK_EVEN_FORMULA_METADATA.formulaVersion,
+        formulaMetadata: BREAK_EVEN_FORMULA_METADATA,
         breakEvenPossible: false,
         contributionMarginPerUnit: cmPerUnit,
         contributionMarginRatio: cmRatio,
@@ -41,6 +50,8 @@ export class BreakEvenAnalyzer {
     const breakEvenRevenue = new Decimal(breakEvenUnits).times(input.pricePerUnit).toNumber();
 
     return {
+      formulaVersion: BREAK_EVEN_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: BREAK_EVEN_FORMULA_METADATA,
       breakEvenPossible: true,
       contributionMarginPerUnit: cmPerUnit,
       contributionMarginRatio: cmRatio,

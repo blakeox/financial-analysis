@@ -15,7 +15,7 @@
     "dev:web:worker": "cd workers/web && pnpm dev",
     "dev:workers": "(cd workers/api && pnpm dev) & (cd workers/web && pnpm dev) && wait",
     "dev:all": "node scripts/dev-all.mjs",
-    "build:libs": "pnpm --filter @financial-analysis/analysis run build && pnpm --filter @financial-analysis/ui run build",
+    "build:libs": "pnpm --filter @financial-analysis/analysis run build && pnpm --filter @financial-analysis/capabilities run build && pnpm --filter @financial-analysis/ui run build",
     "rebuild:ui": "pnpm --filter @financial-analysis/ui run build",
     "clean:vite:web": "rm -rf apps/web/node_modules/.vite",
     "test": "pnpm --recursive --sort --workspace-concurrency=1 run test",

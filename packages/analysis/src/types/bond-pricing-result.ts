@@ -1,3 +1,5 @@
+import type { FormulaSemanticMetadata } from '../formula-semantics.js';
+
 export interface CouponPayment {
   paymentNumber: number;
   date: string; // ISO date
@@ -72,6 +74,9 @@ export interface RiskMetrics {
 }
 
 export interface BondPricingResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   bondType: string;
   faceValue: number;
   couponRate: number;

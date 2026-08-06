@@ -3,13 +3,81 @@
  * Comprehensive financial ratio analysis with benchmarking
  */
 
+import {
+  FINANCIAL_RATIO_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
 import type { FinancialRatioAnalyzerInput } from '../../schemas/financial-ratio-analyzer.js';
+
+export interface FinancialRatioAnalyzerResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
+  summary: {
+    currentRatio: number;
+    quickRatio: number;
+    roe: number;
+    roa: number;
+    debtToEquity: number;
+  };
+  liquidityRatios?:
+    | {
+        currentRatio: number;
+        quickRatio: number;
+        cashRatio: number;
+        interpretation: string;
+      }
+    | undefined;
+  profitabilityRatios?:
+    | {
+        grossMargin: number;
+        operatingMargin: number;
+        netMargin: number;
+        netProfitMargin: number;
+        roe: number;
+        roa: number;
+        roic: number;
+      }
+    | undefined;
+  efficiencyRatios?:
+    | {
+        assetTurnover: number;
+        inventoryTurnover: number;
+        receivablesTurnover: number;
+        payablesTurnover: number;
+      }
+    | undefined;
+  leverageRatios?:
+    | {
+        debtToEquity: number;
+        debtToAssets: number;
+        equityRatio: number;
+        timesInterestEarned: number;
+      }
+    | undefined;
+  marketRatios?:
+    | {
+        peRatio: number;
+        priceToBook: number;
+        priceToSales: number;
+        evToEbitda: number;
+      }
+    | undefined;
+  benchmarking?:
+    | {
+        liquidityComparison: { ratio: number; industry: number; variance: number };
+        profitabilityComparison: { ratio: number; industry: number; variance: number };
+        leverageComparison: { ratio: number; industry: number; variance: number };
+      }
+    | undefined;
+  recommendations: string[];
+}
 
 export class FinancialRatioAnalyzer {
   /**
    * Analyze financial ratios
    */
-  static analyze(input: FinancialRatioAnalyzerInput): unknown {
+  static analyze(input: FinancialRatioAnalyzerInput): FinancialRatioAnalyzerResult {
     const financialStatements = input.financialStatements;
     const marketData = input.marketData;
     const analysis = input.analysis;
@@ -60,6 +128,8 @@ export class FinancialRatioAnalyzer {
     );
 
     return {
+      formulaVersion: FINANCIAL_RATIO_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: FINANCIAL_RATIO_FORMULA_METADATA,
       summary: {
         currentRatio: liquidityRatios?.currentRatio || 0,
         quickRatio: liquidityRatios?.quickRatio || 0,
