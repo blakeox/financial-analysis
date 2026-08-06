@@ -1,11 +1,13 @@
 import type { AmortizationEngineInput } from './engines/business/amortization.js';
 import type { LeaseEngineInput } from './engines/business/lease.js';
+import type { UnitEconomicsInput } from './engines/business/unit-economics.js';
 import type { WACCInput } from './engines/business/wacc.js';
 import type { BondPricingInput } from './schemas/bond-pricing.js';
 import type { BreakEvenInput } from './schemas/break-even.js';
 import type { CAPMInput } from './schemas/capm.js';
 import type { DebtCapacityInput } from './schemas/debt-capacity.js';
 import type { DSCRInput } from './schemas/dscr.js';
+import type { FinancialRatioAnalyzerInput } from './schemas/financial-ratio-analyzer.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
 
 export interface FormulaSemanticMetadata {
@@ -98,6 +100,24 @@ export interface DebtCapacityCanonicalOutput {
   monthlyPaymentCapacity: number;
   availableForNewDebt: number;
   targetDSCR: number;
+}
+
+export interface UnitEconomicsCanonicalOutput {
+  cac: number;
+  ltv: number;
+  ltvToCacRatio: number;
+  contributionMarginPerCustomer: number;
+  paybackPeriodMonths: number;
+  customerLifespanMonths: number;
+  grossMarginPercent: number;
+}
+
+export interface FinancialRatioCanonicalOutput {
+  currentRatio: number;
+  quickRatio: number;
+  roe: number;
+  roa: number;
+  debtToEquity: number;
 }
 
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
@@ -865,5 +885,289 @@ export const DEBT_CAPACITY_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
       targetDSCR: 1.5,
     },
     tolerance: 1e-9,
+  },
+];
+
+export const UNIT_ECONOMICS_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.unit-economics',
+  formulaVersion: '1.0.0',
+  description:
+    'Calculates customer acquisition cost, lifetime value, contribution margin, and CAC payback from subscription-style unit economics inputs.',
+  units: {
+    monthlyMarketingSpend: 'currency units per month',
+    newCustomersPerMonth: 'customers per month',
+    averageMonthlyRevenue: 'currency units per customer per month',
+    costOfGoodsSoldPercent: 'percent of revenue',
+    variableServicingCostPerCustomer: 'currency units per customer per month',
+    monthlyChurnRate: 'percent of customers lost per month',
+    cac: 'currency units per customer',
+    ltv: 'currency units per customer',
+    ltvToCacRatio: 'unitless multiple',
+    contributionMarginPerCustomer: 'currency units per customer per month',
+    paybackPeriodMonths: 'months',
+    customerLifespanMonths: 'months',
+    grossMarginPercent: 'percent of revenue',
+  },
+  currency: 'unspecified by the current input contract',
+  rateConvention:
+    'optional annual discountRate is converted to a monthly rate by dividing by twelve for LTV discounting',
+  dateBasis: 'monthly customer cohorts; calendar dates are not modeled',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    monthlyMarketingSpend: 'finite number',
+    newCustomersPerMonth: 'finite number',
+    averageMonthlyRevenue: 'finite number',
+    costOfGoodsSoldPercent: 'finite percent of revenue',
+    variableServicingCostPerCustomer: 'finite number',
+    monthlyChurnRate: 'finite percent; zero uses averageCustomerLifespanMonths for lifespan',
+  },
+  exclusions: [
+    'Multi-product mix, taxes, refunds, and payment-processor fees are not modeled.',
+    'Organic and referral acquisition adjust paid-customer CAC only; they do not add unpaid cohort economics beyond CAC dilution.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'When monthlyChurnRate is zero, customer lifespan falls back to averageCustomerLifespanMonths.',
+    'When contribution margin is non-positive, paybackPeriodMonths is reported as 999.',
+    'Benchmark status labels and recommendation prose are interpretive and outside the certified numeric contract.',
+  ],
+};
+
+export const UNIT_ECONOMICS_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  UnitEconomicsInput,
+  UnitEconomicsCanonicalOutput
+>[] = [
+  {
+    id: 'unit-economics.standard-saas',
+    formulaId: UNIT_ECONOMICS_FORMULA_METADATA.formulaId,
+    formulaVersion: UNIT_ECONOMICS_FORMULA_METADATA.formulaVersion,
+    description:
+      'Standard SaaS cohort with five-percent monthly churn and seventy-percent gross margin.',
+    input: {
+      monthlyMarketingSpend: 10000,
+      newCustomersPerMonth: 50,
+      averageMonthlyRevenue: 100,
+      averageCustomerLifespanMonths: 20,
+      costOfGoodsSoldPercent: 30,
+      variableServicingCostPerCustomer: 5,
+      monthlyChurnRate: 5,
+      discountRate: 0.1,
+      revenueGrowthRate: 0,
+      organicGrowthPercent: 0,
+    },
+    expectedOutput: {
+      cac: 200,
+      ltv: 1028.9306894392485,
+      ltvToCacRatio: 5.144653447196243,
+      contributionMarginPerCustomer: 65,
+      paybackPeriodMonths: 3.076923076923077,
+      customerLifespanMonths: 20,
+      grossMarginPercent: 70,
+    },
+    tolerance: 1e-9,
+  },
+  {
+    id: 'unit-economics.zero-churn-lifespan-fallback',
+    formulaId: UNIT_ECONOMICS_FORMULA_METADATA.formulaId,
+    formulaVersion: UNIT_ECONOMICS_FORMULA_METADATA.formulaVersion,
+    description:
+      'Zero churn uses averageCustomerLifespanMonths and an eighty-percent gross margin.',
+    input: {
+      monthlyMarketingSpend: 5000,
+      newCustomersPerMonth: 25,
+      averageMonthlyRevenue: 80,
+      averageCustomerLifespanMonths: 24,
+      costOfGoodsSoldPercent: 20,
+      variableServicingCostPerCustomer: 10,
+      monthlyChurnRate: 0,
+      discountRate: 0.1,
+      revenueGrowthRate: 0,
+      organicGrowthPercent: 0,
+    },
+    expectedOutput: {
+      cac: 200,
+      ltv: 2541.5299272826105,
+      ltvToCacRatio: 12.707649636413052,
+      contributionMarginPerCustomer: 54,
+      paybackPeriodMonths: 3.7037037037037037,
+      customerLifespanMonths: 24,
+      grossMarginPercent: 80,
+    },
+    tolerance: 1e-9,
+  },
+];
+
+export const FINANCIAL_RATIO_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.financial-ratio',
+  formulaVersion: '1.0.0',
+  description:
+    'Calculates core liquidity, profitability, and leverage ratios from balance-sheet and income-statement inputs.',
+  units: {
+    currentAssets: 'currency units',
+    currentLiabilities: 'currency units',
+    inventory: 'currency units',
+    totalAssets: 'currency units',
+    totalEquity: 'currency units',
+    totalLiabilities: 'currency units',
+    netIncome: 'currency units per period',
+    currentRatio: 'unitless multiple',
+    quickRatio: 'unitless multiple',
+    roe: 'percent',
+    roa: 'percent',
+    debtToEquity: 'unitless multiple',
+  },
+  currency: 'unspecified by the current input contract; statements share one currency',
+  rateConvention: 'ROE and ROA are returned as percent values (ratio times one hundred)',
+  dateBasis:
+    'single reporting period; trend analysis is optional and outside the certified core summary',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    currentAssets: 'greater than or equal to zero',
+    currentLiabilities: 'greater than or equal to zero',
+    totalAssets: 'greater than or equal to zero',
+    totalEquity: 'finite number',
+    netIncome: 'finite number',
+  },
+  exclusions: [
+    'Industry peer construction beyond provided industryAverages is not modeled.',
+    'Seasonal adjustments, non-GAAP restatements, and multi-period averaging are not modeled.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'Liquidity and leverage ratios return zero when the relevant denominator is zero.',
+    'Certified vectors cover the summary ratio contract; optional market, efficiency, and benchmarking blocks are analysis flags.',
+    'Interpretation strings and recommendations are interpretive and outside the certified numeric contract.',
+  ],
+};
+
+export const FINANCIAL_RATIO_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  FinancialRatioAnalyzerInput,
+  FinancialRatioCanonicalOutput
+>[] = [
+  {
+    id: 'financial-ratio.healthy-liquidity',
+    formulaId: FINANCIAL_RATIO_FORMULA_METADATA.formulaId,
+    formulaVersion: FINANCIAL_RATIO_FORMULA_METADATA.formulaVersion,
+    description: 'Healthy liquidity and moderate leverage on a two-million-asset balance sheet.',
+    input: {
+      companyInfo: {},
+      financialStatements: {
+        balanceSheet: {
+          currentAssets: 500000,
+          totalAssets: 2000000,
+          currentLiabilities: 200000,
+          totalLiabilities: 800000,
+          totalEquity: 1200000,
+          cash: 100000,
+          accountsReceivable: 150000,
+          inventory: 250000,
+          accountsPayable: 100000,
+          shortTermDebt: 100000,
+          longTermDebt: 600000,
+        },
+        incomeStatement: {
+          revenue: 2000000,
+          costOfGoodsSold: 1200000,
+          grossProfit: 800000,
+          operatingExpenses: 400000,
+          ebitda: 500000,
+          ebit: 400000,
+          netIncome: 240000,
+          interestExpense: 50000,
+          taxExpense: 110000,
+        },
+        cashFlowStatement: {
+          operatingCashFlow: 300000,
+          capitalExpenditures: 100000,
+          freeCashFlow: 200000,
+          investingCashFlow: 0,
+          financingCashFlow: 0,
+        },
+      },
+      marketData: {},
+      analysis: {
+        includeLiquidityRatios: true,
+        includeProfitabilityRatios: true,
+        includeEfficiencyRatios: false,
+        includeLeverageRatios: true,
+        includeMarketRatios: false,
+        includeTrendAnalysis: false,
+        includeBenchmarking: false,
+      },
+    },
+    expectedOutput: {
+      currentRatio: 2.5,
+      quickRatio: 1.25,
+      roe: 20,
+      roa: 12,
+      debtToEquity: 0.5833333333333334,
+    },
+    tolerance: 1e-12,
+  },
+  {
+    id: 'financial-ratio.tight-liquidity',
+    formulaId: FINANCIAL_RATIO_FORMULA_METADATA.formulaId,
+    formulaVersion: FINANCIAL_RATIO_FORMULA_METADATA.formulaVersion,
+    description: 'Sub-1.0 current ratio with elevated debt-to-equity.',
+    input: {
+      companyInfo: {},
+      financialStatements: {
+        balanceSheet: {
+          currentAssets: 100000,
+          totalAssets: 500000,
+          currentLiabilities: 200000,
+          totalLiabilities: 400000,
+          totalEquity: 100000,
+          cash: 20000,
+          accountsReceivable: 30000,
+          inventory: 50000,
+          accountsPayable: 80000,
+          shortTermDebt: 120000,
+          longTermDebt: 200000,
+        },
+        incomeStatement: {
+          revenue: 800000,
+          costOfGoodsSold: 500000,
+          grossProfit: 300000,
+          operatingExpenses: 250000,
+          ebitda: 80000,
+          ebit: 50000,
+          netIncome: 20000,
+          interestExpense: 20000,
+          taxExpense: 10000,
+        },
+        cashFlowStatement: {
+          operatingCashFlow: 40000,
+          capitalExpenditures: 10000,
+          freeCashFlow: 30000,
+          investingCashFlow: 0,
+          financingCashFlow: 0,
+        },
+      },
+      marketData: {},
+      analysis: {
+        includeLiquidityRatios: true,
+        includeProfitabilityRatios: true,
+        includeEfficiencyRatios: false,
+        includeLeverageRatios: true,
+        includeMarketRatios: false,
+        includeTrendAnalysis: false,
+        includeBenchmarking: false,
+      },
+    },
+    expectedOutput: {
+      currentRatio: 0.5,
+      quickRatio: 0.25,
+      roe: 20,
+      roa: 4,
+      debtToEquity: 3.2,
+    },
+    tolerance: 1e-12,
   },
 ];

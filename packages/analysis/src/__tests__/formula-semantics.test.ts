@@ -6,8 +6,10 @@ import { BreakEvenAnalyzer } from '../engines/business/break-even.js';
 import { CAPMCalculator } from '../engines/business/capm.js';
 import { DebtCapacityCalculator } from '../engines/business/debt-capacity.js';
 import { DSCRCalculator } from '../engines/business/dscr.js';
+import { FinancialRatioAnalyzer } from '../engines/business/financial-ratio-analyzer.js';
 import { LeaseAnalyzer } from '../engines/business/lease.js';
 import { NPVIRRCalculator } from '../engines/business/npv-irr.js';
+import { UnitEconomicsEngine } from '../engines/business/unit-economics.js';
 import { WACCAnalyzer } from '../engines/business/wacc.js';
 import {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
@@ -22,10 +24,14 @@ import {
   DEBT_CAPACITY_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
+  FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
+  FINANCIAL_RATIO_FORMULA_METADATA,
   LEASE_CANONICAL_TEST_VECTORS,
   LEASE_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
   NPV_IRR_FORMULA_METADATA,
+  UNIT_ECONOMICS_CANONICAL_TEST_VECTORS,
+  UNIT_ECONOMICS_FORMULA_METADATA,
   WACC_CANONICAL_TEST_VECTORS,
   WACC_FORMULA_METADATA,
 } from '../formula-semantics.js';
@@ -304,5 +310,111 @@ describe('debt-capacity formula semantics', () => {
 
     expect(result.formulaVersion).toBe(DEBT_CAPACITY_FORMULA_METADATA.formulaVersion);
     expect(result.formulaMetadata).toEqual(DEBT_CAPACITY_FORMULA_METADATA);
+  });
+});
+
+describe('unit-economics formula semantics', () => {
+  it.each(UNIT_ECONOMICS_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = UnitEconomicsEngine.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.cac, expected.cac)).toBe(true);
+    expect(withinTolerance(result.ltv, expected.ltv)).toBe(true);
+    expect(withinTolerance(result.ltvToCacRatio, expected.ltvToCacRatio)).toBe(true);
+    expect(
+      withinTolerance(result.contributionMarginPerCustomer, expected.contributionMarginPerCustomer)
+    ).toBe(true);
+    expect(withinTolerance(result.paybackPeriodMonths, expected.paybackPeriodMonths)).toBe(true);
+    expect(withinTolerance(result.customerLifespanMonths, expected.customerLifespanMonths)).toBe(
+      true
+    );
+    expect(withinTolerance(result.grossMarginPercent, expected.grossMarginPercent)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every engine result', () => {
+    const result = UnitEconomicsEngine.analyze({
+      monthlyMarketingSpend: 10000,
+      newCustomersPerMonth: 50,
+      averageMonthlyRevenue: 100,
+      averageCustomerLifespanMonths: 20,
+      costOfGoodsSoldPercent: 30,
+      variableServicingCostPerCustomer: 5,
+      monthlyChurnRate: 5,
+      discountRate: 0.1,
+      revenueGrowthRate: 0,
+      organicGrowthPercent: 0,
+    });
+
+    expect(result.formulaVersion).toBe(UNIT_ECONOMICS_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(UNIT_ECONOMICS_FORMULA_METADATA);
+  });
+});
+
+describe('financial-ratio formula semantics', () => {
+  it.each(FINANCIAL_RATIO_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = FinancialRatioAnalyzer.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.summary.currentRatio, expected.currentRatio)).toBe(true);
+    expect(withinTolerance(result.summary.quickRatio, expected.quickRatio)).toBe(true);
+    expect(withinTolerance(result.summary.roe, expected.roe)).toBe(true);
+    expect(withinTolerance(result.summary.roa, expected.roa)).toBe(true);
+    expect(withinTolerance(result.summary.debtToEquity, expected.debtToEquity)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every analyzer result', () => {
+    const result = FinancialRatioAnalyzer.analyze({
+      companyInfo: {},
+      financialStatements: {
+        balanceSheet: {
+          currentAssets: 500000,
+          totalAssets: 2000000,
+          currentLiabilities: 200000,
+          totalLiabilities: 800000,
+          totalEquity: 1200000,
+          cash: 100000,
+          accountsReceivable: 150000,
+          inventory: 250000,
+          accountsPayable: 100000,
+          shortTermDebt: 100000,
+          longTermDebt: 600000,
+        },
+        incomeStatement: {
+          revenue: 2000000,
+          costOfGoodsSold: 1200000,
+          grossProfit: 800000,
+          operatingExpenses: 400000,
+          ebitda: 500000,
+          ebit: 400000,
+          netIncome: 240000,
+          interestExpense: 50000,
+          taxExpense: 110000,
+        },
+        cashFlowStatement: {
+          operatingCashFlow: 300000,
+          capitalExpenditures: 100000,
+          freeCashFlow: 200000,
+          investingCashFlow: 0,
+          financingCashFlow: 0,
+        },
+      },
+      marketData: {},
+      analysis: {
+        includeLiquidityRatios: true,
+        includeProfitabilityRatios: true,
+        includeEfficiencyRatios: false,
+        includeLeverageRatios: true,
+        includeMarketRatios: false,
+        includeTrendAnalysis: false,
+        includeBenchmarking: false,
+      },
+    });
+
+    expect(result.formulaVersion).toBe(FINANCIAL_RATIO_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(FINANCIAL_RATIO_FORMULA_METADATA);
   });
 });

@@ -48,6 +48,14 @@ The bond-pricing engine is published with formula ID `analysis.bond-pricing` and
 
 The debt-capacity engine is published with formula ID `analysis.debt-capacity` and formula version `1.0.0`. Its contract records the fixed 1.5 DSCR capacity rule, monthly amortization inversion, eighty-percent recommendation haircut, and optional internal market-rate table. Two canonical vectors cover an explicit-rate term loan and a mortgage with EBITDA growth; `DebtCapacityCalculator.analyze()` attaches the same metadata shape to each result.
 
+## Certified slice: unit economics
+
+The unit-economics engine is published with formula ID `analysis.unit-economics` and formula version `1.0.0`. Its contract records CAC, discounted LTV, contribution-margin payback, churn-based lifespan, and the zero-churn lifespan fallback. Two canonical vectors cover a standard SaaS cohort and a zero-churn lifespan fallback; `UnitEconomicsEngine.analyze()` attaches the same metadata shape to each result.
+
+## Certified slice: financial ratios
+
+The financial-ratio engine is published with formula ID `analysis.financial-ratio` and formula version `1.0.0`. Its contract records the certified summary ratios (current, quick, ROE, ROA, debt-to-equity), percent-scaled ROE/ROA, and optional analysis-flag blocks outside the core numeric contract. Two canonical vectors cover healthy and tight-liquidity statements; `FinancialRatioAnalyzer.analyze()` attaches the same metadata shape to each result.
+
 ## Remaining certification work
 
 This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.

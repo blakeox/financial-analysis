@@ -33,6 +33,7 @@ export { DepreciationCalculator } from './engines/business/depreciation.js';
 export { EmployeeStockOptionsValuator } from './engines/business/employee-stock-options.js';
 export { EquipmentLeaseVsBuyCalculator } from './engines/business/equipment-lease-vs-buy.js';
 export { FinancialRatioAnalyzer } from './engines/business/financial-ratio-analyzer.js';
+export type { FinancialRatioAnalyzerResult } from './engines/business/financial-ratio-analyzer.js';
 export { FranchiseROICalculator } from './engines/business/franchise-roi.js';
 export { InventoryOptimizer } from './engines/business/inventory-optimization.js';
 export { RevenueRecognitionCalculator } from './engines/business/revenue-recognition.js';
@@ -125,10 +126,14 @@ export {
   DEBT_CAPACITY_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
+  FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
+  FINANCIAL_RATIO_FORMULA_METADATA,
   LEASE_CANONICAL_TEST_VECTORS,
   LEASE_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
   NPV_IRR_FORMULA_METADATA,
+  UNIT_ECONOMICS_CANONICAL_TEST_VECTORS,
+  UNIT_ECONOMICS_FORMULA_METADATA,
   WACC_CANONICAL_TEST_VECTORS,
   WACC_FORMULA_METADATA,
 } from './formula-semantics.js';
@@ -140,9 +145,11 @@ export type {
   CAPMCanonicalOutput,
   DebtCapacityCanonicalOutput,
   DSCRCanonicalOutput,
+  FinancialRatioCanonicalOutput,
   FormulaSemanticMetadata,
   LeaseCanonicalOutput,
   NPVIRRCanonicalOutput,
+  UnitEconomicsCanonicalOutput,
   WACCCanonicalOutput,
 } from './formula-semantics.js';
 

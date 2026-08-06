@@ -6,6 +6,11 @@
  * actionable recommendations for improving unit economics.
  */
 
+import {
+  UNIT_ECONOMICS_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
+
 export interface UnitEconomicsInput {
   // Customer Acquisition
   monthlyMarketingSpend: number;
@@ -39,6 +44,9 @@ export interface CohortAnalysis {
 }
 
 export interface UnitEconomicsResult {
+  // Optional for compatibility with legacy result fixtures; engine output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   // Core Metrics
   cac: number; // Customer Acquisition Cost
   ltv: number; // Lifetime Value
@@ -205,6 +213,8 @@ export class UnitEconomicsEngine {
     const annualizedCustomerValue = input.averageMonthlyRevenue * 12;
 
     return {
+      formulaVersion: UNIT_ECONOMICS_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: UNIT_ECONOMICS_FORMULA_METADATA,
       cac,
       ltv,
       ltvToCacRatio,
