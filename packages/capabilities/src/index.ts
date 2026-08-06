@@ -34,6 +34,33 @@ export {
 } from './registry.js';
 
 export {
+  AUTHZ_POLICY_VERSION,
+  CAPABILITY_SCOPES,
+  AuthzDecisionSchema,
+  AuthzDecisionStateSchema,
+  AuthzRequestSchema,
+  AuthzResourceSchema,
+  AuthzResourceScopeSchema,
+  CapabilityGrantSchema,
+  CapabilityScopeSchema,
+  ClientSurfaceSchema,
+  PrincipalKindSchema,
+  PrincipalSchema,
+  assertCapabilityAuthorized,
+  authorizeCapability,
+  type AuthzDecision,
+  type AuthzDecisionState,
+  type AuthzRequest,
+  type AuthzResource,
+  type AuthzResourceScope,
+  type CapabilityGrant,
+  type CapabilityScope,
+  type ClientSurface,
+  type Principal,
+  type PrincipalKind,
+} from './authorization.js';
+
+export {
   RESPONSE_VERIFIER_VERSION,
   verifyNumericClaims,
   type NumericVerificationOptions,
