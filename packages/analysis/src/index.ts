@@ -107,7 +107,8 @@ export type {
 // Align Scenario schema with EBITDA forecaster's contract
 export { ScenarioInputSchema } from './engines/business/ebitda-forecasting.js';
 export type { EbitdaForecastResult, ScenarioInput } from './engines/business/ebitda-forecasting.js';
-export type { LeaseAnalysisResult } from './engines/business/lease.js';
+export type { LeaseAnalysisResult, LeaseEngineInput } from './engines/business/lease.js';
+export { LeaseInputSchema } from './engines/business/lease.js';
 export type { WACCResult } from './engines/business/wacc.js';
 
 // Formula semantic metadata and canonical certification vectors
@@ -118,6 +119,10 @@ export {
   BREAK_EVEN_FORMULA_METADATA,
   CAPM_CANONICAL_TEST_VECTORS,
   CAPM_FORMULA_METADATA,
+  DSCR_CANONICAL_TEST_VECTORS,
+  DSCR_FORMULA_METADATA,
+  LEASE_CANONICAL_TEST_VECTORS,
+  LEASE_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
   NPV_IRR_FORMULA_METADATA,
   WACC_CANONICAL_TEST_VECTORS,
@@ -128,7 +133,9 @@ export type {
   BreakEvenCanonicalOutput,
   CanonicalTestVector,
   CAPMCanonicalOutput,
+  DSCRCanonicalOutput,
   FormulaSemanticMetadata,
+  LeaseCanonicalOutput,
   NPVIRRCanonicalOutput,
   WACCCanonicalOutput,
 } from './formula-semantics.js';
@@ -285,6 +292,7 @@ export type { DebtCapacityInput } from './schemas/debt-capacity.js';
 
 // DSCR schemas and types
 export { DSCRCalculator } from './engines/business/dscr.js';
+export type { DSCRResult } from './engines/business/dscr.js';
 export { DSCRInputSchema } from './schemas/dscr.js';
 export type { DSCRInput } from './schemas/dscr.js';
 

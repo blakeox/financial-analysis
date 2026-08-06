@@ -1,7 +1,12 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
 
+import { LEASE_FORMULA_METADATA, type FormulaSemanticMetadata } from '../../formula-semantics.js';
+
 export interface LeaseAnalysisResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   monthlyPayment: number;
   totalPayments: number;
   totalInterest: number;
@@ -14,15 +19,17 @@ export interface LeaseAnalysisResult {
   }>;
 }
 
-const LeaseInputSchema = z.object({
+export const LeaseInputSchema = z.object({
   principal: z.number().positive(),
   annualRate: z.number().min(0).max(1),
   termMonths: z.number().positive().int(),
   residualValue: z.number().min(0).default(0),
 });
 
+export type LeaseEngineInput = z.input<typeof LeaseInputSchema>;
+
 export class LeaseAnalyzer {
-  static analyze(input: z.infer<typeof LeaseInputSchema>): LeaseAnalysisResult {
+  static analyze(input: LeaseEngineInput): LeaseAnalysisResult {
     const validated = LeaseInputSchema.parse(input);
     const { principal, annualRate, termMonths, residualValue } = validated;
     const monthlyRate = new Decimal(annualRate).div(12);
@@ -86,6 +93,8 @@ export class LeaseAnalyzer {
     }
 
     return {
+      formulaVersion: LEASE_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: LEASE_FORMULA_METADATA,
       monthlyPayment: Number(new Decimal(monthlyPayment).toFixed(2)),
       totalPayments: Number(totalPayments.toFixed(2)),
       totalInterest: Number(totalInterest.toFixed(2)),

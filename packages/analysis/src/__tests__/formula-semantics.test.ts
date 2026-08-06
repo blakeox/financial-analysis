@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { AmortizationAnalyzer } from '../engines/business/amortization.js';
 import { BreakEvenAnalyzer } from '../engines/business/break-even.js';
 import { CAPMCalculator } from '../engines/business/capm.js';
+import { DSCRCalculator } from '../engines/business/dscr.js';
+import { LeaseAnalyzer } from '../engines/business/lease.js';
 import { NPVIRRCalculator } from '../engines/business/npv-irr.js';
 import { WACCAnalyzer } from '../engines/business/wacc.js';
 import {
@@ -12,6 +14,10 @@ import {
   BREAK_EVEN_FORMULA_METADATA,
   CAPM_CANONICAL_TEST_VECTORS,
   CAPM_FORMULA_METADATA,
+  DSCR_CANONICAL_TEST_VECTORS,
+  DSCR_FORMULA_METADATA,
+  LEASE_CANONICAL_TEST_VECTORS,
+  LEASE_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
   NPV_IRR_FORMULA_METADATA,
   WACC_CANONICAL_TEST_VECTORS,
@@ -162,5 +168,59 @@ describe('WACC formula semantics', () => {
 
     expect(result.formulaVersion).toBe(WACC_FORMULA_METADATA.formulaVersion);
     expect(result.formulaMetadata).toEqual(WACC_FORMULA_METADATA);
+  });
+});
+
+describe('lease formula semantics', () => {
+  it.each(LEASE_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = LeaseAnalyzer.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.monthlyPayment, expected.monthlyPayment)).toBe(true);
+    expect(withinTolerance(result.totalPayments, expected.totalPayments)).toBe(true);
+    expect(withinTolerance(result.totalInterest, expected.totalInterest)).toBe(true);
+    expect(result.schedule).toHaveLength(expected.scheduleLength);
+    const finalBalance = result.schedule[result.schedule.length - 1]?.balance ?? Number.NaN;
+    expect(withinTolerance(finalBalance, expected.finalBalance)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every analyzer result', () => {
+    const result = LeaseAnalyzer.analyze({
+      principal: 30000,
+      annualRate: 0.06,
+      termMonths: 36,
+      residualValue: 12000,
+    });
+
+    expect(result.formulaVersion).toBe(LEASE_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(LEASE_FORMULA_METADATA);
+  });
+});
+
+describe('DSCR formula semantics', () => {
+  it.each(DSCR_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = DSCRCalculator.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.ratio, expected.ratio)).toBe(true);
+    expect(result.status).toBe(expected.status);
+    expect(result.targetRatio).toBe(expected.targetRatio);
+    expect(withinTolerance(result.margin, expected.margin)).toBe(true);
+    expect(result.breakdown.totalDebtService).toBe(expected.totalDebtService);
+  });
+
+  it('attaches version and semantic metadata to every calculator result', () => {
+    const result = DSCRCalculator.analyze({
+      ebitda: 250000,
+      annualDebtService: 150000,
+      existingDebtService: 150000,
+    });
+
+    expect(result.formulaVersion).toBe(DSCR_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(DSCR_FORMULA_METADATA);
   });
 });

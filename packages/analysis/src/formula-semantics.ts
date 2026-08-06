@@ -1,7 +1,9 @@
 import type { AmortizationEngineInput } from './engines/business/amortization.js';
+import type { LeaseEngineInput } from './engines/business/lease.js';
 import type { WACCInput } from './engines/business/wacc.js';
 import type { BreakEvenInput } from './schemas/break-even.js';
 import type { CAPMInput } from './schemas/capm.js';
+import type { DSCRInput } from './schemas/dscr.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
 
 export interface FormulaSemanticMetadata {
@@ -61,6 +63,22 @@ export interface WACCCanonicalOutput {
   equityWeight: number;
   debtWeight: number;
   afterTaxCostOfDebt: number;
+}
+
+export interface LeaseCanonicalOutput {
+  monthlyPayment: number;
+  totalPayments: number;
+  totalInterest: number;
+  scheduleLength: number;
+  finalBalance: number;
+}
+
+export interface DSCRCanonicalOutput {
+  ratio: number;
+  status: 'excellent' | 'good' | 'marginal' | 'poor';
+  targetRatio: number;
+  margin: number;
+  totalDebtService: number;
 }
 
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
@@ -449,6 +467,173 @@ export const WACC_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
       equityWeight: 0.5,
       debtWeight: 0.5,
       afterTaxCostOfDebt: 0.0632,
+    },
+    tolerance: 1e-12,
+  },
+];
+
+export const LEASE_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.lease',
+  formulaVersion: '1.0.0',
+  description:
+    'Builds a deterministic lease amortization schedule with optional residual value using a present-value annuity payment.',
+  units: {
+    principal: 'currency units',
+    annualRate: 'decimal fraction per year',
+    termMonths: 'months',
+    residualValue: 'currency units',
+    payment: 'currency units per month',
+    balance: 'currency units',
+  },
+  currency: 'unspecified by the current input contract',
+  rateConvention: 'nominal annual rate divided by twelve monthly periods',
+  dateBasis: 'monthly payment periods; calendar dates are not modeled',
+  rounding: {
+    mode: 'half-up',
+    decimalPlaces: 2,
+  },
+  validRanges: {
+    principal: 'greater than zero',
+    annualRate: 'zero through one inclusive',
+    termMonths: 'positive integer',
+    residualValue: 'greater than or equal to zero',
+  },
+  exclusions: [
+    'Taxes, fees, insurance, mileage caps, and early-termination penalties are not modeled.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+    'Payment frequency other than monthly is not modeled.',
+  ],
+  warnings: [
+    'The final payment is adjusted so ending balance equals residual value and may differ from the stated monthly payment.',
+    'The current input contract does not identify a currency code.',
+  ],
+};
+
+export const LEASE_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  LeaseEngineInput,
+  LeaseCanonicalOutput
+>[] = [
+  {
+    id: 'lease.residual-36-month-6-percent',
+    formulaId: LEASE_FORMULA_METADATA.formulaId,
+    formulaVersion: LEASE_FORMULA_METADATA.formulaVersion,
+    description: 'Thirty-six-month lease at six percent with a twelve-thousand residual.',
+    input: {
+      principal: 30000,
+      annualRate: 0.06,
+      termMonths: 36,
+      residualValue: 12000,
+    },
+    expectedOutput: {
+      monthlyPayment: 607.59,
+      totalPayments: 21873.43,
+      totalInterest: 3873.43,
+      scheduleLength: 36,
+      finalBalance: 12000,
+    },
+    tolerance: 0.01,
+  },
+  {
+    id: 'lease.zero-rate-full-amortization',
+    formulaId: LEASE_FORMULA_METADATA.formulaId,
+    formulaVersion: LEASE_FORMULA_METADATA.formulaVersion,
+    description: 'Zero-interest lease with no residual amortizes principal evenly.',
+    input: {
+      principal: 24000,
+      annualRate: 0,
+      termMonths: 24,
+      residualValue: 0,
+    },
+    expectedOutput: {
+      monthlyPayment: 1000,
+      totalPayments: 24000,
+      totalInterest: 0,
+      scheduleLength: 24,
+      finalBalance: 0,
+    },
+    tolerance: 0.01,
+  },
+];
+
+export const DSCR_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.dscr',
+  formulaVersion: '1.0.0',
+  description:
+    'Calculates debt service coverage ratio from EBITDA and annual debt service, with fixed interpretive thresholds.',
+  units: {
+    ebitda: 'currency units per year',
+    annualDebtService: 'currency units per year',
+    existingDebtService: 'currency units per year (reported in breakdown only)',
+    newLoanPayment: 'currency units per month',
+    ratio: 'unitless coverage multiple',
+    margin: 'unitless distance from the 1.25 target',
+    totalDebtService: 'currency units per year',
+  },
+  currency: 'unspecified by the current input contract; EBITDA and debt service share one currency',
+  rateConvention: 'not applicable; DSCR is a coverage ratio, not an interest rate',
+  dateBasis:
+    'annual cash-flow period; monthly new-loan payments are annualized by multiplying by twelve',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    ebitda: 'finite number',
+    annualDebtService: 'greater than or equal to zero',
+    existingDebtService: 'greater than or equal to zero',
+    newLoanPayment: 'optional; greater than or equal to zero when provided',
+  },
+  exclusions: [
+    'Interest-only, balloon, and irregular amortization schedules are not reconstructed from cash flows.',
+    'Lender-specific covenant definitions beyond EBITDA / total debt service are not modeled.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'Ratio uses annualDebtService plus annualized newLoanPayment; existingDebtService is reported in the breakdown only.',
+    'When total debt service is zero, the ratio is reported as 999 rather than infinity.',
+    'Status labels use fixed thresholds at 1.5, 1.25, and 1.0 and are not jurisdiction-specific.',
+  ],
+};
+
+export const DSCR_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  DSCRInput,
+  DSCRCanonicalOutput
+>[] = [
+  {
+    id: 'dscr.excellent-coverage',
+    formulaId: DSCR_FORMULA_METADATA.formulaId,
+    formulaVersion: DSCR_FORMULA_METADATA.formulaVersion,
+    description: 'EBITDA of 250000 against 150000 debt service yields excellent coverage.',
+    input: {
+      ebitda: 250000,
+      annualDebtService: 150000,
+      existingDebtService: 150000,
+    },
+    expectedOutput: {
+      ratio: 1.6666666666666667,
+      status: 'excellent',
+      targetRatio: 1.25,
+      margin: 0.41666666666666674,
+      totalDebtService: 150000,
+    },
+    tolerance: 1e-12,
+  },
+  {
+    id: 'dscr.poor-coverage',
+    formulaId: DSCR_FORMULA_METADATA.formulaId,
+    formulaVersion: DSCR_FORMULA_METADATA.formulaVersion,
+    description: 'EBITDA below debt service yields poor coverage below the 1.0 threshold.',
+    input: {
+      ebitda: 80000,
+      annualDebtService: 120000,
+      existingDebtService: 120000,
+    },
+    expectedOutput: {
+      ratio: 0.6666666666666666,
+      status: 'poor',
+      targetRatio: 1.25,
+      margin: -0.5833333333333334,
+      totalDebtService: 120000,
     },
     tolerance: 1e-12,
   },

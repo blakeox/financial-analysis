@@ -32,6 +32,14 @@ The CAPM engine is published with formula ID `analysis.capm` and formula version
 
 The WACC engine is published with formula ID `analysis.wacc` and formula version `1.0.0`. Its contract records market-value capital weights, the after-tax debt cost convention, and exclusions for hybrid capital. Two canonical vectors cover a sixty-forty structure and equal weights; `WACCAnalyzer.analyze()` attaches the same metadata shape to each result.
 
+## Certified slice: lease
+
+The lease engine is published with formula ID `analysis.lease` and formula version `1.0.0`. Its contract records residual-value present-value annuity payments, monthly nominal-rate conversion, half-up currency rounding, and the final-payment residual adjustment. Two canonical vectors cover a residual lease and a zero-rate full amortization; `LeaseAnalyzer.analyze()` attaches the same metadata shape to each result.
+
+## Certified slice: DSCR
+
+The DSCR engine is published with formula ID `analysis.dscr` and formula version `1.0.0`. Its contract makes the EBITDA / total-debt-service ratio, fixed status thresholds, zero-debt-service sentinel, and the existingDebtService breakdown-only behavior explicit. Two canonical vectors cover excellent and poor coverage; `DSCRCalculator.analyze()` attaches the same metadata shape to each result.
+
 ## Remaining certification work
 
 This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.

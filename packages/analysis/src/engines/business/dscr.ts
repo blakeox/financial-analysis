@@ -3,15 +3,34 @@
  * Standalone model for calculating and analyzing DSCR
  */
 
+import { DSCR_FORMULA_METADATA, type FormulaSemanticMetadata } from '../../formula-semantics.js';
 import type { DSCRInput } from '../../schemas/dscr.js';
 
+export interface DSCRResult {
+  // Optional for compatibility with legacy result fixtures; calculator output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
+  ratio: number;
+  status: 'excellent' | 'good' | 'marginal' | 'poor';
+  interpretation: string;
+  recommendations: string[];
+  breakdown: {
+    ebitda: number;
+    existingDebtService: number;
+    newLoanDebtService: number;
+    totalDebtService: number;
+  };
+  targetRatio: number;
+  margin: number;
+}
+
 export class DSCRCalculator {
-  static analyze(input: DSCRInput): unknown {
+  static analyze(input: DSCRInput): DSCRResult {
     const totalDebtService =
       input.annualDebtService + (input.newLoanPayment ? input.newLoanPayment * 12 : 0);
     const ratio = totalDebtService > 0 ? input.ebitda / totalDebtService : 999;
 
-    let status: string;
+    let status: DSCRResult['status'];
     let interpretation: string;
     const recommendations: string[] = [];
 
@@ -36,6 +55,8 @@ export class DSCRCalculator {
     }
 
     return {
+      formulaVersion: DSCR_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: DSCR_FORMULA_METADATA,
       ratio,
       status,
       interpretation,
