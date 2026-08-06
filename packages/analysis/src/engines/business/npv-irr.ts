@@ -1,8 +1,12 @@
 import { Decimal } from 'decimal.js';
 
+import { NPV_IRR_FORMULA_METADATA, type FormulaSemanticMetadata } from '../../formula-semantics.js';
 import type { NPVIRRInput } from '../../schemas/npv-irr.js';
 
 export interface NPVIRRResult {
+  // Optional for compatibility with legacy result fixtures; calculator output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   npv: number;
   irr: number | null;
   paybackPeriod: number | null;
@@ -91,6 +95,8 @@ export class NPVIRRCalculator {
       : undefined;
 
     return {
+      formulaVersion: NPV_IRR_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: NPV_IRR_FORMULA_METADATA,
       npv: baseNPV,
       irr: baseIRR,
       paybackPeriod,

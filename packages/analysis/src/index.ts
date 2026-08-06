@@ -114,11 +114,17 @@ export type { WACCResult } from './engines/business/wacc.js';
 export {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
   AMORTIZATION_FORMULA_METADATA,
+  BREAK_EVEN_CANONICAL_TEST_VECTORS,
+  BREAK_EVEN_FORMULA_METADATA,
+  NPV_IRR_CANONICAL_TEST_VECTORS,
+  NPV_IRR_FORMULA_METADATA,
 } from './formula-semantics.js';
 export type {
   AmortizationCanonicalOutput,
+  BreakEvenCanonicalOutput,
   CanonicalTestVector,
   FormulaSemanticMetadata,
+  NPVIRRCanonicalOutput,
 } from './formula-semantics.js';
 
 // Bond pricing schemas and types

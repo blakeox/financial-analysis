@@ -16,6 +16,14 @@ Its metadata records:
 
 Two canonical vectors are checked in and executed in `packages/analysis/src/__tests__/formula-semantics.test.ts`: a 30-year, six-percent monthly schedule and a zero-rate five-year schedule. `AmortizationAnalyzer.analyze()` attaches the formula version and metadata to every result it creates.
 
+## Certified slice: NPV/IRR
+
+The NPV/IRR engine is also published with formula ID `analysis.npv-irr` and formula version `1.0.0`. Its contract makes the periodic rate convention, equally spaced periods, bounded IRR search, multiple-root limitation, and separate presentation rounding explicit. Two canonical vectors cover a negative-NPV investment and an unrecovered all-negative cash-flow sequence; `NPVIRRCalculator.analyze()` attaches the same metadata shape to each result.
+
+## Certified slice: break-even
+
+The break-even engine is published with formula ID `analysis.break-even` and formula version `1.0.0`. Its contract records contribution-margin units, the static cost-volume relationship, valid non-negative cost ranges, and the impossible-margin failure mode. Two canonical vectors cover a standard positive-margin case and a negative-margin impossibility; `BreakEvenAnalyzer.analyze()` attaches the same metadata shape to each result.
+
 ## Remaining certification work
 
 This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.
