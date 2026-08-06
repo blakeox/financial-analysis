@@ -26,7 +26,7 @@ export const CurrencyCodeSchema = z
 
 export const PrecisionSchema = z.object({
   decimalPlaces: z.number().int().min(0).max(20),
-  rounding: z.enum(['half-up', 'half-even', 'floor', 'ceil', 'truncate']),
+  rounding: z.enum(['none', 'half-up', 'half-even', 'floor', 'ceil', 'truncate']),
 });
 
 export const AssumptionSchema = z.object({

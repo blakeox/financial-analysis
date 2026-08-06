@@ -25,6 +25,15 @@ export {
 } from './contracts.js';
 
 export {
+  CAPABILITY_REGISTRY,
+  assertStableCapabilityPublication,
+  getCapability,
+  isStableCapabilityPublication,
+  listCapabilities,
+  listStableCapabilities,
+} from './registry.js';
+
+export {
   RESPONSE_VERIFIER_VERSION,
   verifyNumericClaims,
   type NumericVerificationOptions,

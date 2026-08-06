@@ -24,6 +24,7 @@
     "test": "vitest run --config ./vitest.config.mjs"
   },
   "dependencies": {
+    "@financial-analysis/analysis": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
