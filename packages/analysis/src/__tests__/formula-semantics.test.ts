@@ -2,14 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import { AmortizationAnalyzer } from '../engines/business/amortization.js';
 import { BreakEvenAnalyzer } from '../engines/business/break-even.js';
+import { CAPMCalculator } from '../engines/business/capm.js';
 import { NPVIRRCalculator } from '../engines/business/npv-irr.js';
+import { WACCAnalyzer } from '../engines/business/wacc.js';
 import {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
   AMORTIZATION_FORMULA_METADATA,
   BREAK_EVEN_CANONICAL_TEST_VECTORS,
   BREAK_EVEN_FORMULA_METADATA,
+  CAPM_CANONICAL_TEST_VECTORS,
+  CAPM_FORMULA_METADATA,
   NPV_IRR_CANONICAL_TEST_VECTORS,
   NPV_IRR_FORMULA_METADATA,
+  WACC_CANONICAL_TEST_VECTORS,
+  WACC_FORMULA_METADATA,
 } from '../formula-semantics.js';
 
 describe('amortization formula semantics', () => {
@@ -107,5 +113,54 @@ describe('break-even formula semantics', () => {
 
     expect(result.formulaVersion).toBe(BREAK_EVEN_FORMULA_METADATA.formulaVersion);
     expect(result.formulaMetadata).toEqual(BREAK_EVEN_FORMULA_METADATA);
+  });
+});
+
+describe('CAPM formula semantics', () => {
+  it.each(CAPM_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = CAPMCalculator.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.expectedReturn, expected.expectedReturn)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every calculator result', () => {
+    const result = CAPMCalculator.analyze({
+      riskFreeRate: 0.03,
+      beta: 1.2,
+      marketRiskPremium: 0.05,
+    });
+
+    expect(result.formulaVersion).toBe(CAPM_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(CAPM_FORMULA_METADATA);
+  });
+});
+
+describe('WACC formula semantics', () => {
+  it.each(WACC_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = WACCAnalyzer.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.wacc, expected.wacc)).toBe(true);
+    expect(withinTolerance(result.equityWeight, expected.equityWeight)).toBe(true);
+    expect(withinTolerance(result.debtWeight, expected.debtWeight)).toBe(true);
+    expect(withinTolerance(result.afterTaxCostOfDebt, expected.afterTaxCostOfDebt)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every analyzer result', () => {
+    const result = WACCAnalyzer.analyze({
+      equityValue: 600000,
+      debtValue: 400000,
+      costOfEquity: 0.1,
+      costOfDebt: 0.06,
+      taxRate: 0.25,
+    });
+
+    expect(result.formulaVersion).toBe(WACC_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(WACC_FORMULA_METADATA);
   });
 });

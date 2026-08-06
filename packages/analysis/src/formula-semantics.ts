@@ -1,5 +1,7 @@
 import type { AmortizationEngineInput } from './engines/business/amortization.js';
+import type { WACCInput } from './engines/business/wacc.js';
 import type { BreakEvenInput } from './schemas/break-even.js';
+import type { CAPMInput } from './schemas/capm.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
 
 export interface FormulaSemanticMetadata {
@@ -48,6 +50,17 @@ export interface BreakEvenCanonicalOutput {
   contributionMarginRatio: number;
   breakEvenUnits: number | null;
   breakEvenRevenue: number | null;
+}
+
+export interface CAPMCanonicalOutput {
+  expectedReturn: number;
+}
+
+export interface WACCCanonicalOutput {
+  wacc: number;
+  equityWeight: number;
+  debtWeight: number;
+  afterTaxCostOfDebt: number;
 }
 
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
@@ -280,5 +293,163 @@ export const BREAK_EVEN_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
       breakEvenRevenue: null,
     },
     tolerance: 1e-10,
+  },
+];
+
+export const CAPM_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.capm',
+  formulaVersion: '1.0.0',
+  description:
+    'Calculates the Capital Asset Pricing Model expected return from risk-free rate, beta, and market risk premium.',
+  units: {
+    riskFreeRate: 'decimal fraction per period',
+    beta: 'unitless market sensitivity',
+    marketRiskPremium: 'decimal fraction per period',
+    expectedReturn: 'decimal fraction per period',
+  },
+  currency: 'not applicable; CAPM returns a rate, not a currency amount',
+  rateConvention:
+    'risk-free rate, market risk premium, and expected return share the same period basis',
+  dateBasis: 'not applicable; CAPM is a single-period rate identity',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    riskFreeRate: 'finite number',
+    beta: 'finite number',
+    marketRiskPremium: 'finite number',
+  },
+  exclusions: [
+    'Multi-factor models, liquidity premia, and country-risk adjustments are not modeled.',
+    'Historical estimation of beta or market premium is outside this calculator.',
+  ],
+  warnings: [
+    'Expected return retains calculation precision; presentation-layer rounding is separate.',
+    'Negative beta or risk premium inputs are accepted when finite and produce a deterministic rate.',
+  ],
+};
+
+export const CAPM_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  CAPMInput,
+  CAPMCanonicalOutput
+>[] = [
+  {
+    id: 'capm.standard-levered-equity',
+    formulaId: CAPM_FORMULA_METADATA.formulaId,
+    formulaVersion: CAPM_FORMULA_METADATA.formulaVersion,
+    description: 'Expected return for beta 1.2 with a five-percent market risk premium.',
+    input: {
+      riskFreeRate: 0.03,
+      beta: 1.2,
+      marketRiskPremium: 0.05,
+    },
+    expectedOutput: {
+      expectedReturn: 0.09,
+    },
+    tolerance: 1e-12,
+  },
+  {
+    id: 'capm.zero-beta',
+    formulaId: CAPM_FORMULA_METADATA.formulaId,
+    formulaVersion: CAPM_FORMULA_METADATA.formulaVersion,
+    description: 'Zero beta collapses expected return to the risk-free rate.',
+    input: {
+      riskFreeRate: 0.04,
+      beta: 0,
+      marketRiskPremium: 0.06,
+    },
+    expectedOutput: {
+      expectedReturn: 0.04,
+    },
+    tolerance: 1e-12,
+  },
+];
+
+export const WACC_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.wacc',
+  formulaVersion: '1.0.0',
+  description:
+    'Calculates the weighted average cost of capital from equity and debt market values, costs, and tax rate.',
+  units: {
+    equityValue: 'currency units',
+    debtValue: 'currency units',
+    costOfEquity: 'decimal fraction per period',
+    costOfDebt: 'decimal fraction per period',
+    taxRate: 'decimal fraction',
+    equityWeight: 'decimal fraction of total capital',
+    debtWeight: 'decimal fraction of total capital',
+    afterTaxCostOfDebt: 'decimal fraction per period',
+    wacc: 'decimal fraction per period',
+  },
+  currency: 'unspecified by the current input contract; equity and debt values share one currency',
+  rateConvention:
+    'cost of equity, cost of debt, and WACC share the same period basis; tax shield is applied to debt only',
+  dateBasis: 'not applicable; WACC is a single-period capital-structure rate',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    equityValue: 'strictly positive',
+    debtValue: 'strictly positive',
+    costOfEquity: 'zero through one inclusive',
+    costOfDebt: 'zero through one inclusive',
+    taxRate: 'zero through one inclusive',
+  },
+  exclusions: [
+    'Preferred equity, leases, pensions, and other hybrid capital are not modeled.',
+    'Target versus actual capital structure differences are not modeled.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'WACC retains calculation precision; presentation-layer rounding is separate.',
+    'Market values are assumed; book values are not adjusted inside this calculator.',
+  ],
+};
+
+export const WACC_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  WACCInput,
+  WACCCanonicalOutput
+>[] = [
+  {
+    id: 'wacc.sixty-forty-capital',
+    formulaId: WACC_FORMULA_METADATA.formulaId,
+    formulaVersion: WACC_FORMULA_METADATA.formulaVersion,
+    description: 'Sixty-forty capital structure with a twenty-five-percent tax shield on debt.',
+    input: {
+      equityValue: 600000,
+      debtValue: 400000,
+      costOfEquity: 0.1,
+      costOfDebt: 0.06,
+      taxRate: 0.25,
+    },
+    expectedOutput: {
+      wacc: 0.078,
+      equityWeight: 0.6,
+      debtWeight: 0.4,
+      afterTaxCostOfDebt: 0.045,
+    },
+    tolerance: 1e-12,
+  },
+  {
+    id: 'wacc.equal-weights',
+    formulaId: WACC_FORMULA_METADATA.formulaId,
+    formulaVersion: WACC_FORMULA_METADATA.formulaVersion,
+    description: 'Equal equity and debt weights with a twenty-one-percent tax rate.',
+    input: {
+      equityValue: 500000,
+      debtValue: 500000,
+      costOfEquity: 0.12,
+      costOfDebt: 0.08,
+      taxRate: 0.21,
+    },
+    expectedOutput: {
+      wacc: 0.0916,
+      equityWeight: 0.5,
+      debtWeight: 0.5,
+      afterTaxCostOfDebt: 0.0632,
+    },
+    tolerance: 1e-12,
   },
 ];

@@ -24,6 +24,14 @@ The NPV/IRR engine is also published with formula ID `analysis.npv-irr` and form
 
 The break-even engine is published with formula ID `analysis.break-even` and formula version `1.0.0`. Its contract records contribution-margin units, the static cost-volume relationship, valid non-negative cost ranges, and the impossible-margin failure mode. Two canonical vectors cover a standard positive-margin case and a negative-margin impossibility; `BreakEvenAnalyzer.analyze()` attaches the same metadata shape to each result.
 
+## Certified slice: CAPM
+
+The CAPM engine is published with formula ID `analysis.capm` and formula version `1.0.0`. Its contract makes the shared period basis for risk-free rate, market risk premium, and expected return explicit, and records that multi-factor and estimation concerns are out of scope. Two canonical vectors cover a levered equity case and a zero-beta collapse to the risk-free rate; `CAPMCalculator.analyze()` attaches the same metadata shape to each result.
+
+## Certified slice: WACC
+
+The WACC engine is published with formula ID `analysis.wacc` and formula version `1.0.0`. Its contract records market-value capital weights, the after-tax debt cost convention, and exclusions for hybrid capital. Two canonical vectors cover a sixty-forty structure and equal weights; `WACCAnalyzer.analyze()` attaches the same metadata shape to each result.
+
 ## Remaining certification work
 
 This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.

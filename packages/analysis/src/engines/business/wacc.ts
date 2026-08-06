@@ -1,7 +1,12 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
 
+import { WACC_FORMULA_METADATA, type FormulaSemanticMetadata } from '../../formula-semantics.js';
+
 export interface WACCResult {
+  // Optional for compatibility with legacy result fixtures; analyzer output always supplies these fields.
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
   wacc: number;
   equityWeight: number;
   debtWeight: number;
@@ -39,6 +44,8 @@ export class WACCAnalyzer {
     const wacc = equityComponent.plus(debtComponent).toNumber();
 
     return {
+      formulaVersion: WACC_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: WACC_FORMULA_METADATA,
       wacc,
       equityWeight,
       debtWeight,
