@@ -1,8 +1,10 @@
 import type { AmortizationEngineInput } from './engines/business/amortization.js';
 import type { LeaseEngineInput } from './engines/business/lease.js';
 import type { WACCInput } from './engines/business/wacc.js';
+import type { BondPricingInput } from './schemas/bond-pricing.js';
 import type { BreakEvenInput } from './schemas/break-even.js';
 import type { CAPMInput } from './schemas/capm.js';
+import type { DebtCapacityInput } from './schemas/debt-capacity.js';
 import type { DSCRInput } from './schemas/dscr.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
 
@@ -79,6 +81,23 @@ export interface DSCRCanonicalOutput {
   targetRatio: number;
   margin: number;
   totalDebtService: number;
+}
+
+export interface BondPricingCanonicalOutput {
+  price: number;
+  currentYield: number;
+  macaulayDuration: number;
+  modifiedDuration: number;
+  remainingPayments: number;
+  yearsToMaturity: number;
+}
+
+export interface DebtCapacityCanonicalOutput {
+  maxLoanAmount: number;
+  recommendedLoanAmount: number;
+  monthlyPaymentCapacity: number;
+  availableForNewDebt: number;
+  targetDSCR: number;
 }
 
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
@@ -636,5 +655,215 @@ export const DSCR_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
       totalDebtService: 120000,
     },
     tolerance: 1e-12,
+  },
+];
+
+export const BOND_PRICING_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.bond-pricing',
+  formulaVersion: '1.0.0',
+  description:
+    'Prices a fixed-coupon bond from yield to maturity using present-value cash flows, duration, and convexity.',
+  units: {
+    faceValue: 'currency units',
+    couponRate: 'decimal fraction per year',
+    yieldToMaturity: 'decimal fraction per year',
+    price: 'currency units (clean price)',
+    currentYield: 'decimal fraction per year',
+    macaulayDuration: 'years',
+    modifiedDuration: 'years',
+    yearsToMaturity: 'years',
+    remainingPayments: 'coupon periods',
+  },
+  currency: 'unspecified by the current input contract',
+  rateConvention:
+    'coupon rate and yield to maturity are annual nominal rates converted by coupon frequency',
+  dateBasis:
+    'day-count convention selects year-fraction for maturity; coupon schedule uses calendar increments by frequency',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    faceValue: 'strictly positive',
+    couponRate: 'zero through one inclusive',
+    yieldToMaturity: 'zero through one inclusive',
+    issueDate: 'ISO date string',
+    maturityDate: 'ISO date string after issue and settlement',
+    settlementDate: 'optional ISO date; defaults to the wall-clock settlement instant when omitted',
+  },
+  exclusions: [
+    'Accrued interest is currently simplified to zero in clean/dirty price calculations.',
+    'Callable, putable, floating-rate, and inflation-linked option adjustments are not fully modeled in the core price.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'Canonical vectors must pin settlementDate; omitting it makes years-to-maturity and schedules non-reproducible.',
+    'calculationDate is wall-clock metadata and is not part of the certified numeric contract.',
+    'Price, duration, and yield retain calculation precision; presentation-layer rounding is separate.',
+  ],
+};
+
+export const BOND_PRICING_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  BondPricingInput,
+  BondPricingCanonicalOutput
+>[] = [
+  {
+    id: 'bond-pricing.discount-semi-annual',
+    formulaId: BOND_PRICING_FORMULA_METADATA.formulaId,
+    formulaVersion: BOND_PRICING_FORMULA_METADATA.formulaVersion,
+    description: 'Five-percent coupon priced at a six-percent YTM trades at a discount.',
+    input: {
+      bondType: 'corporate',
+      faceValue: 1000,
+      couponRate: 0.05,
+      couponFrequency: 'semi-annual',
+      issueDate: '2020-01-01',
+      maturityDate: '2030-01-01',
+      settlementDate: '2025-01-01',
+      yieldToMaturity: 0.06,
+      dayCountConvention: 'actual-365',
+      taxRate: 0,
+      stateTaxRate: 0,
+      isTaxExempt: false,
+    },
+    expectedOutput: {
+      price: 961.0694553906042,
+      currentYield: 0.05202537623014839,
+      macaulayDuration: 4.074992644493586,
+      modifiedDuration: 3.956303538343287,
+      remainingPayments: 10,
+      yearsToMaturity: 5.002739726027397,
+    },
+    tolerance: 1e-9,
+  },
+  {
+    id: 'bond-pricing.par-semi-annual',
+    formulaId: BOND_PRICING_FORMULA_METADATA.formulaId,
+    formulaVersion: BOND_PRICING_FORMULA_METADATA.formulaVersion,
+    description: 'Coupon equal to YTM prices at par for the pinned settlement window.',
+    input: {
+      bondType: 'corporate',
+      faceValue: 1000,
+      couponRate: 0.05,
+      couponFrequency: 'semi-annual',
+      issueDate: '2020-01-01',
+      maturityDate: '2030-01-01',
+      settlementDate: '2025-01-01',
+      yieldToMaturity: 0.05,
+      dayCountConvention: 'actual-365',
+      taxRate: 0,
+      stateTaxRate: 0,
+      isTaxExempt: false,
+    },
+    expectedOutput: {
+      price: 1000,
+      currentYield: 0.05,
+      macaulayDuration: 4.0850685837381695,
+      modifiedDuration: 3.9854327646226047,
+      remainingPayments: 10,
+      yearsToMaturity: 5.002739726027397,
+    },
+    tolerance: 1e-9,
+  },
+];
+
+export const DEBT_CAPACITY_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.debt-capacity',
+  formulaVersion: '1.0.0',
+  description:
+    'Estimates maximum and recommended new loan capacity from EBITDA, existing debt service, target DSCR, rate, and term.',
+  units: {
+    annualEBITDA: 'currency units per year',
+    monthlyDebtPayments: 'currency units per month',
+    expectedEBITDAIncrease: 'currency units per year',
+    preferredRate: 'decimal fraction per year',
+    preferredTerm: 'years',
+    maxLoanAmount: 'currency units',
+    recommendedLoanAmount: 'currency units',
+    monthlyPaymentCapacity: 'currency units per month',
+    availableForNewDebt: 'currency units per year',
+  },
+  currency: 'unspecified by the current input contract',
+  rateConvention: 'preferred or market annual nominal rate divided by twelve monthly periods',
+  dateBasis: 'loan term in whole years converted to monthly amortization periods',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    annualEBITDA: 'finite number',
+    monthlyDebtPayments: 'greater than or equal to zero',
+    expectedEBITDAIncrease: 'finite number; defaults to zero',
+    preferredTerm: 'one through thirty years',
+    preferredRate: 'optional; zero through 0.2 inclusive when provided',
+  },
+  exclusions: [
+    'Collateral, personal guarantees, covenants beyond the fixed 1.5 DSCR target, and credit-score overlays are not modeled.',
+    'Taxes, fees, and origination costs are not deducted from capacity.',
+    'Currency conversion and foreign-exchange effects are not modeled.',
+  ],
+  warnings: [
+    'When preferredRate is omitted, a fixed internal market-rate table by loan type is used.',
+    'Recommended loan amount is always eighty percent of calculated maximum capacity.',
+    'Available-for-new-debt can be negative when existing debt service exceeds 1.5x EBITDA.',
+  ],
+};
+
+export const DEBT_CAPACITY_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  DebtCapacityInput,
+  DebtCapacityCanonicalOutput
+>[] = [
+  {
+    id: 'debt-capacity.term-loan-requested',
+    formulaId: DEBT_CAPACITY_FORMULA_METADATA.formulaId,
+    formulaVersion: DEBT_CAPACITY_FORMULA_METADATA.formulaVersion,
+    description: 'Five-year term loan capacity with an explicit eight-percent preferred rate.',
+    input: {
+      financials: {
+        annualEBITDA: 500000,
+        monthlyDebtPayments: 10000,
+        expectedEBITDAIncrease: 0,
+      },
+      loanPreferences: {
+        preferredTerm: 5,
+        preferredRate: 0.08,
+        loanType: 'term-loan',
+      },
+      requestedAmount: 1000000,
+    },
+    expectedOutput: {
+      maxLoanAmount: 2589217.75012037,
+      recommendedLoanAmount: 2071374.2000962961,
+      monthlyPaymentCapacity: 52500,
+      availableForNewDebt: 630000,
+      targetDSCR: 1.5,
+    },
+    tolerance: 1e-9,
+  },
+  {
+    id: 'debt-capacity.mortgage-with-ebitda-growth',
+    formulaId: DEBT_CAPACITY_FORMULA_METADATA.formulaId,
+    formulaVersion: DEBT_CAPACITY_FORMULA_METADATA.formulaVersion,
+    description: 'Ten-year commercial mortgage capacity including expected EBITDA growth.',
+    input: {
+      financials: {
+        annualEBITDA: 200000,
+        monthlyDebtPayments: 5000,
+        expectedEBITDAIncrease: 50000,
+      },
+      loanPreferences: {
+        preferredTerm: 10,
+        preferredRate: 0.07,
+        loanType: 'commercial-mortgage',
+      },
+    },
+    expectedOutput: {
+      maxLoanAmount: 2260816.7962111626,
+      recommendedLoanAmount: 1808653.43696893,
+      monthlyPaymentCapacity: 26250,
+      availableForNewDebt: 315000,
+      targetDSCR: 1.5,
+    },
+    tolerance: 1e-9,
   },
 ];

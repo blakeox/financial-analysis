@@ -40,6 +40,14 @@ The lease engine is published with formula ID `analysis.lease` and formula versi
 
 The DSCR engine is published with formula ID `analysis.dscr` and formula version `1.0.0`. Its contract makes the EBITDA / total-debt-service ratio, fixed status thresholds, zero-debt-service sentinel, and the existingDebtService breakdown-only behavior explicit. Two canonical vectors cover excellent and poor coverage; `DSCRCalculator.analyze()` attaches the same metadata shape to each result.
 
+## Certified slice: bond pricing
+
+The bond-pricing engine is published with formula ID `analysis.bond-pricing` and formula version `1.0.0`. Its contract records annual nominal coupon/YTM conventions, day-count maturity fractions, pinned-settlement reproducibility requirements, and the simplified zero accrued-interest limitation. Two canonical vectors cover discount and par semi-annual corporates; `BondPricingAnalyzer.analyze()` attaches the same metadata shape to each result.
+
+## Certified slice: debt capacity
+
+The debt-capacity engine is published with formula ID `analysis.debt-capacity` and formula version `1.0.0`. Its contract records the fixed 1.5 DSCR capacity rule, monthly amortization inversion, eighty-percent recommendation haircut, and optional internal market-rate table. Two canonical vectors cover an explicit-rate term loan and a mortgage with EBITDA growth; `DebtCapacityCalculator.analyze()` attaches the same metadata shape to each result.
+
 ## Remaining certification work
 
 This slice does not claim #449 complete. The remaining work is to apply the same contract to every published formula, add boundary and invalid-input vectors where missing, cross-check high-risk formulas against independent reviewed oracles, and prevent unreviewed formulas from stable publication.

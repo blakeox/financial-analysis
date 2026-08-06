@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { AmortizationAnalyzer } from '../engines/business/amortization.js';
+import { BondPricingAnalyzer } from '../engines/business/bond-pricing.js';
 import { BreakEvenAnalyzer } from '../engines/business/break-even.js';
 import { CAPMCalculator } from '../engines/business/capm.js';
+import { DebtCapacityCalculator } from '../engines/business/debt-capacity.js';
 import { DSCRCalculator } from '../engines/business/dscr.js';
 import { LeaseAnalyzer } from '../engines/business/lease.js';
 import { NPVIRRCalculator } from '../engines/business/npv-irr.js';
@@ -10,10 +12,14 @@ import { WACCAnalyzer } from '../engines/business/wacc.js';
 import {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
   AMORTIZATION_FORMULA_METADATA,
+  BOND_PRICING_CANONICAL_TEST_VECTORS,
+  BOND_PRICING_FORMULA_METADATA,
   BREAK_EVEN_CANONICAL_TEST_VECTORS,
   BREAK_EVEN_FORMULA_METADATA,
   CAPM_CANONICAL_TEST_VECTORS,
   CAPM_FORMULA_METADATA,
+  DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
+  DEBT_CAPACITY_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
   LEASE_CANONICAL_TEST_VECTORS,
@@ -222,5 +228,81 @@ describe('DSCR formula semantics', () => {
 
     expect(result.formulaVersion).toBe(DSCR_FORMULA_METADATA.formulaVersion);
     expect(result.formulaMetadata).toEqual(DSCR_FORMULA_METADATA);
+  });
+});
+
+describe('bond-pricing formula semantics', () => {
+  it.each(BOND_PRICING_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = BondPricingAnalyzer.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.metrics.price, expected.price)).toBe(true);
+    expect(withinTolerance(result.metrics.currentYield, expected.currentYield)).toBe(true);
+    expect(withinTolerance(result.metrics.macaulayDuration, expected.macaulayDuration)).toBe(true);
+    expect(withinTolerance(result.metrics.modifiedDuration, expected.modifiedDuration)).toBe(true);
+    expect(result.remainingPayments).toBe(expected.remainingPayments);
+    expect(withinTolerance(result.yearsToMaturity, expected.yearsToMaturity)).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every analyzer result', () => {
+    const result = BondPricingAnalyzer.analyze({
+      bondType: 'corporate',
+      faceValue: 1000,
+      couponRate: 0.05,
+      couponFrequency: 'semi-annual',
+      issueDate: '2020-01-01',
+      maturityDate: '2030-01-01',
+      settlementDate: '2025-01-01',
+      yieldToMaturity: 0.06,
+      dayCountConvention: 'actual-365',
+      taxRate: 0,
+      stateTaxRate: 0,
+      isTaxExempt: false,
+    });
+
+    expect(result.formulaVersion).toBe(BOND_PRICING_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(BOND_PRICING_FORMULA_METADATA);
+  });
+});
+
+describe('debt-capacity formula semantics', () => {
+  it.each(DEBT_CAPACITY_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = DebtCapacityCalculator.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.maxLoanAmount, expected.maxLoanAmount)).toBe(true);
+    expect(withinTolerance(result.recommendedLoanAmount, expected.recommendedLoanAmount)).toBe(
+      true
+    );
+    expect(withinTolerance(result.monthlyPaymentCapacity, expected.monthlyPaymentCapacity)).toBe(
+      true
+    );
+    expect(
+      withinTolerance(result.assumptions.availableForNewDebt, expected.availableForNewDebt)
+    ).toBe(true);
+    expect(result.assumptions.targetDSCR).toBe(expected.targetDSCR);
+  });
+
+  it('attaches version and semantic metadata to every calculator result', () => {
+    const result = DebtCapacityCalculator.analyze({
+      financials: {
+        annualEBITDA: 500000,
+        monthlyDebtPayments: 10000,
+        expectedEBITDAIncrease: 0,
+      },
+      loanPreferences: {
+        preferredTerm: 5,
+        preferredRate: 0.08,
+        loanType: 'term-loan',
+      },
+      requestedAmount: 1000000,
+    });
+
+    expect(result.formulaVersion).toBe(DEBT_CAPACITY_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(DEBT_CAPACITY_FORMULA_METADATA);
   });
 });

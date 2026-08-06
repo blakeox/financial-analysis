@@ -1,5 +1,6 @@
 import { Decimal } from 'decimal.js';
 import { z } from 'zod';
+import { BOND_PRICING_FORMULA_METADATA } from '../../formula-semantics.js';
 import { BondPricingInputSchema, type BondPricingInput } from '../../schemas/bond-pricing.js';
 import type {
   BondPricingResult,
@@ -51,6 +52,8 @@ export class BondPricingAnalyzer {
     const recommendation = this.generateRecommendation(validated, metrics);
 
     return {
+      formulaVersion: BOND_PRICING_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: BOND_PRICING_FORMULA_METADATA,
       bondType: validated.bondType,
       faceValue: validated.faceValue,
       couponRate: validated.couponRate,

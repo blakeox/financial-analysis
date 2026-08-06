@@ -115,10 +115,14 @@ export type { WACCResult } from './engines/business/wacc.js';
 export {
   AMORTIZATION_CANONICAL_TEST_VECTORS,
   AMORTIZATION_FORMULA_METADATA,
+  BOND_PRICING_CANONICAL_TEST_VECTORS,
+  BOND_PRICING_FORMULA_METADATA,
   BREAK_EVEN_CANONICAL_TEST_VECTORS,
   BREAK_EVEN_FORMULA_METADATA,
   CAPM_CANONICAL_TEST_VECTORS,
   CAPM_FORMULA_METADATA,
+  DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
+  DEBT_CAPACITY_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
   LEASE_CANONICAL_TEST_VECTORS,
@@ -130,9 +134,11 @@ export {
 } from './formula-semantics.js';
 export type {
   AmortizationCanonicalOutput,
+  BondPricingCanonicalOutput,
   BreakEvenCanonicalOutput,
   CanonicalTestVector,
   CAPMCanonicalOutput,
+  DebtCapacityCanonicalOutput,
   DSCRCanonicalOutput,
   FormulaSemanticMetadata,
   LeaseCanonicalOutput,
@@ -287,6 +293,7 @@ export type { BusinessFinancialHealthInput } from './schemas/business-financial-
 
 // Debt capacity schemas and types
 export { DebtCapacityCalculator } from './engines/business/debt-capacity.js';
+export type { DebtCapacityResult } from './engines/business/debt-capacity.js';
 export { DebtCapacityInputSchema } from './schemas/debt-capacity.js';
 export type { DebtCapacityInput } from './schemas/debt-capacity.js';
 
