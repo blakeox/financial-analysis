@@ -20,4 +20,8 @@ These are not MCP OAuth scopes. Map `analysis:read` ≈ `financial.calculate` in
 - Decisions never carry secrets or tokens.
 - Approval receipts for writes come only from the host, never from model output.
 
-See GitHub #437. Remaining work: wire Workers/MCP/Agent adapters and persist workspace/case on memory storage.
+See GitHub #437. Remaining work: Agent/Workers memory persistence with workspace/case columns, and secret-redaction enforcement at model boundaries.
+
+## Transport adapters
+
+MCP OAuth / API-key scope `analysis:read` maps to product scope `financial.calculate` in `packages/tools` (`buildProductGrantsFromMCPScopes` / `authorizeMCPCapability`). Manifest exposure, kill switches, and byte limits remain MCP-local; both gates must allow.

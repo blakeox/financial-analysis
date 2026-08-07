@@ -329,6 +329,9 @@ importers:
       '@financial-analysis/analysis':
         specifier: workspace:*
         version: link:../analysis
+      '@financial-analysis/capabilities':
+        specifier: workspace:*
+        version: link:../capabilities
       zod:
         specifier: ^4.4.3
         version: 4.4.3

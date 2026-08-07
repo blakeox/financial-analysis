@@ -16,6 +16,13 @@ The external MCP surface is a stateless financial-analysis interface. Registrati
 
 The executable manifest is [capabilities.ts](../packages/tools/src/mcp/capabilities.ts).
 
+Authorization is dual-gated:
+
+1. MCP manifest / kill switch / OAuth scope (`analysis:read`, …)
+2. Product `authorizeCapability()` after mapping `analysis:read` → `financial.calculate`
+
+Registry publication (`CAPABILITY_REGISTRY`) is not yet the MCP allowlist — shrinking exposure to certified formulas is a follow-up.
+
 The policy test also asserts that every tool returned by `createMCPTools()` has
 an explicit manifest entry. Registering a new tool without a reviewed policy
 therefore fails the policy CI lane instead of silently becoming an unreviewed

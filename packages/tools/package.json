@@ -11,12 +11,13 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
-    "pretest": "pnpm --filter @financial-analysis/analysis build",
+    "pretest": "pnpm --filter @financial-analysis/analysis build && pnpm --filter @financial-analysis/capabilities build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
+    "@financial-analysis/capabilities": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {
