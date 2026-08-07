@@ -56,6 +56,8 @@ Capabilities declare one execution scope:
 
 The schema rejects state on stateless requests and rejects scoped requests without a principal. This prevents the first adapter from accidentally making Agent memory ambient.
 
+Workbench entity and UI contracts (Workspace, Case, AnalysisRun, MemoryItem, CapabilityInvocation, ApprovalRequest, WorkbenchResultView) are defined in [WORKBENCH_UX_CONTRACTS.md](./WORKBENCH_UX_CONTRACTS.md).
+
 ## Lifecycle and reversibility
 
 Capabilities are `preview`, `stable`, or `deprecated`. Formula and capability versions use `MAJOR.MINOR.PATCH` values. Deprecation must preserve prior result interpretation; removing or changing a version is a migration decision, not an incidental refactor.
