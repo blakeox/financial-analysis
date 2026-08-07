@@ -22,6 +22,7 @@ export {
   ResponseVerificationStatusSchema,
   ScenarioSchema,
   WarningSchema,
+  WarningCategorySchema,
 } from './contracts.js';
 
 export {
@@ -81,6 +82,9 @@ export {
   UiResourceStateSchema,
   WorkbenchResultViewSchema,
   WorkspaceSchema,
+  WorkbenchChangedFieldSchema,
+  WorkbenchRunDiffSchema,
+  WorkbenchScenarioComparisonSchema,
   type AnalysisRun,
   type ApprovalRequest,
   type Case,
@@ -92,7 +96,18 @@ export {
   type UiResourceState,
   type WorkbenchResultView,
   type Workspace,
+  type WorkbenchChangedField,
+  type WorkbenchRunDiff,
+  type WorkbenchScenarioComparison,
 } from './workbench-contracts.js';
+
+export {
+  compareWorkbenchScenarios,
+  diffWorkbenchResultViews,
+  projectWorkbenchResultRenderModel,
+  warningsByCategory,
+  type WorkbenchResultRenderModel,
+} from './workbench-result-view.js';
 
 export type {
   AnalysisRequest,
@@ -116,4 +131,5 @@ export type {
   ResponseVerificationStatus,
   Scenario,
   Warning,
+  WarningCategory,
 } from './contracts.js';

@@ -1,0 +1,54 @@
+{
+  "contractVersion": "1.0.0",
+  "analysisRunId": "run-amortization-base",
+  "resultId": "result-amortization-base",
+  "capabilityId": "analysis.amortization",
+  "formulaVersion": "1.0.0",
+  "scenario": {
+    "id": "scenario-base",
+    "name": "Base",
+    "inputs": {
+      "principal": 250000,
+      "annualRate": 0.06,
+      "termMonths": 360
+    },
+    "assumptions": []
+  },
+  "status": "completed",
+  "inputs": {
+    "principal": 250000,
+    "annualRate": 0.06,
+    "termMonths": 360
+  },
+  "assumptions": [
+    {
+      "id": "rate",
+      "label": "Annual rate",
+      "ownership": "user",
+      "dataClassification": "user",
+      "retention": "case",
+      "value": 0.06
+    }
+  ],
+  "outputs": {
+    "payment": 1498.88,
+    "totalInterest": 289595.06
+  },
+  "warnings": [
+    {
+      "code": "RATE_ASSUMED",
+      "message": "Annual rate was supplied by the user without secondary market evidence.",
+      "severity": "info",
+      "category": "missing-evidence"
+    },
+    {
+      "code": "INPUT_RANGE_OK",
+      "message": "Inputs are within published amortization bounds.",
+      "severity": "info",
+      "category": "validation"
+    }
+  ],
+  "evidence": [],
+  "answerIds": [],
+  "uiState": "ready"
+}
