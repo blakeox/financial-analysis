@@ -68,6 +68,32 @@ export {
   type ResponseVerificationIssue,
 } from './response-verification.js';
 
+export {
+  WORKBENCH_CONTRACT_VERSION,
+  AnalysisRunSchema,
+  ApprovalRequestSchema,
+  CaseSchema,
+  CapabilityInvocationSchema,
+  FieldDisplayRulesSchema,
+  FieldOwnershipSchema,
+  MemoryItemSchema,
+  RetentionClassSchema,
+  UiResourceStateSchema,
+  WorkbenchResultViewSchema,
+  WorkspaceSchema,
+  type AnalysisRun,
+  type ApprovalRequest,
+  type Case,
+  type CapabilityInvocation,
+  type FieldDisplayRules,
+  type FieldOwnership,
+  type MemoryItem,
+  type RetentionClass,
+  type UiResourceState,
+  type WorkbenchResultView,
+  type Workspace,
+} from './workbench-contracts.js';
+
 export type {
   AnalysisRequest,
   AnalysisResult,
