@@ -38,10 +38,19 @@ export const AssumptionSchema = z.object({
   dataClassification: DataClassificationSchema,
 });
 
+export const WarningCategorySchema = z.enum([
+  'validation',
+  'missing-evidence',
+  'stale-evidence',
+  'model-uncertainty',
+]);
+
 export const WarningSchema = z.object({
   code: IdentifierSchema,
   message: z.string().trim().min(1).max(1024),
   severity: z.enum(['info', 'warning', 'error']),
+  /** Defaults to validation for backward-compatible envelopes. */
+  category: WarningCategorySchema.default('validation'),
 });
 
 export const NumericClaimSchema = z.object({
@@ -265,6 +274,7 @@ export type Lifecycle = z.infer<typeof LifecycleSchema>;
 export type Precision = z.infer<typeof PrecisionSchema>;
 export type Assumption = z.infer<typeof AssumptionSchema>;
 export type Warning = z.infer<typeof WarningSchema>;
+export type WarningCategory = z.infer<typeof WarningCategorySchema>;
 export type NumericClaim = z.infer<typeof NumericClaimSchema>;
 export type NumericClaimCheck = z.infer<typeof NumericClaimCheckSchema>;
 export type ResponseVerificationStatus = z.infer<typeof ResponseVerificationStatusSchema>;

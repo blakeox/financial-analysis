@@ -199,3 +199,32 @@ export const WorkbenchResultViewSchema = z.object({
   uiState: UiResourceStateSchema,
 });
 export type WorkbenchResultView = z.infer<typeof WorkbenchResultViewSchema>;
+
+export const WorkbenchChangedFieldSchema = z.object({
+  path: z.string().trim().min(1).max(256),
+  section: z.enum(['inputs', 'outputs', 'assumptions']),
+  before: z.unknown(),
+  after: z.unknown(),
+});
+export type WorkbenchChangedField = z.infer<typeof WorkbenchChangedFieldSchema>;
+
+export const WorkbenchRunDiffSchema = z.object({
+  contractVersion: z.literal(WORKBENCH_CONTRACT_VERSION),
+  fromRunId: IdentifierSchema,
+  toRunId: IdentifierSchema,
+  fromResultId: IdentifierSchema,
+  toResultId: IdentifierSchema,
+  changedFields: z.array(WorkbenchChangedFieldSchema),
+});
+export type WorkbenchRunDiff = z.infer<typeof WorkbenchRunDiffSchema>;
+
+export const WorkbenchScenarioComparisonSchema = z.object({
+  contractVersion: z.literal(WORKBENCH_CONTRACT_VERSION),
+  capabilityId: IdentifierSchema,
+  formulaVersion: VersionSchema,
+  scenarioNames: z.array(z.string().trim().min(1).max(256)).min(2),
+  resultIds: z.array(IdentifierSchema).min(2),
+  diffs: z.array(WorkbenchRunDiffSchema),
+  incompatibleReason: z.string().trim().min(1).max(512).optional(),
+});
+export type WorkbenchScenarioComparison = z.infer<typeof WorkbenchScenarioComparisonSchema>;
