@@ -12,15 +12,21 @@ This document summarizes the high-level system design for the Financial Analysis
 ## Top-Level Structure
 
 ```text
-apps/web          # Astro + React front-end
-workers/api       # Cloudflare Worker API (JSON + OpenAPI + MCP)
-workers/web       # Static asset / potential edge SSR worker
-packages/analysis # Financial calculation engines
-packages/tools    # Shared tool + MCP integration
-packages/ui       # Shared UI component library
-scripts           # Dev orchestration, smoke tests, utilities
-docs              # Documentation (API, Architecture, etc.)
+apps/web             # Astro + React front-end
+workers/api          # Legacy mixed API (REST + MCP + Agent + indexer seams)
+workers/mcp          # Target: stateless public MCP edge (scaffold)
+workers/agent        # Target: first-party Agent + memory (scaffold)
+workers/indexer      # Target: async retrieval/indexing (scaffold)
+workers/web          # Static asset / potential edge SSR worker
+packages/analysis    # Financial calculation engines
+packages/capabilities# Contracts, registry, authorization
+packages/tools       # Shared tool + MCP integration
+packages/ui          # Shared UI component library
+scripts              # Dev orchestration, smoke tests, utilities
+docs                 # Documentation (API, Architecture, etc.)
 ```
+
+Target topology and cutover inventory: [RUNTIME_TOPOLOGY.md](./RUNTIME_TOPOLOGY.md), [LEGACY_DELETION_TARGETS.md](./LEGACY_DELETION_TARGETS.md).
 
 ## Request Flow
 

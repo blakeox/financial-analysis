@@ -1,0 +1,28 @@
+name = "fanalyx-agent"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Scaffold only (#450). Do not attach custom domains or production routes until cutover.
+
+[dev]
+port = 8792
+local_protocol = "http"
+
+[env.development]
+name = "fanalyx-agent-development"
+[env.development.vars]
+ENVIRONMENT = "development"
+WORKER_ROLE = "agent"
+
+[env.preview]
+name = "fanalyx-agent-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+WORKER_ROLE = "agent"
+
+[env.production]
+name = "fanalyx-agent"
+[env.production.vars]
+ENVIRONMENT = "production"
+WORKER_ROLE = "agent"

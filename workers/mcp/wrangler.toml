@@ -1,0 +1,28 @@
+name = "fanalyx-mcp"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Scaffold only (#450). Do not attach custom domains or production routes until cutover.
+
+[dev]
+port = 8791
+local_protocol = "http"
+
+[env.development]
+name = "fanalyx-mcp-development"
+[env.development.vars]
+ENVIRONMENT = "development"
+WORKER_ROLE = "mcp"
+
+[env.preview]
+name = "fanalyx-mcp-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+WORKER_ROLE = "mcp"
+
+[env.production]
+name = "fanalyx-mcp"
+[env.production.vars]
+ENVIRONMENT = "production"
+WORKER_ROLE = "mcp"

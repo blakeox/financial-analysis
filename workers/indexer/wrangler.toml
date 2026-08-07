@@ -1,0 +1,28 @@
+name = "fanalyx-indexer"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Scaffold only (#450). Do not attach custom domains or production routes until cutover.
+
+[dev]
+port = 8793
+local_protocol = "http"
+
+[env.development]
+name = "fanalyx-indexer-development"
+[env.development.vars]
+ENVIRONMENT = "development"
+WORKER_ROLE = "indexer"
+
+[env.preview]
+name = "fanalyx-indexer-preview"
+[env.preview.vars]
+ENVIRONMENT = "preview"
+WORKER_ROLE = "indexer"
+
+[env.production]
+name = "fanalyx-indexer"
+[env.production.vars]
+ENVIRONMENT = "production"
+WORKER_ROLE = "indexer"
