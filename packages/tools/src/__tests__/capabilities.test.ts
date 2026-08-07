@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { CAPABILITY_SCOPES, authorizeCapability } from '@financial-analysis/capabilities';
 import { createMCPTools, handleMCPRequest } from '../mcp/tools';
 import {
   authorizeMCPCapability,
+  buildProductAuthzRequestFromMCP,
+  buildProductGrantsFromMCPScopes,
   getMCPCapabilityPolicy,
   getMCPExternalCapabilityNames,
   MCP_CAPABILITY_MANIFEST,
@@ -117,5 +120,34 @@ describe('MCP capability policy', () => {
       auditCorrelationId: 'run-123',
       policyVersion: '1.0.0',
     });
+    expect(JSON.stringify(decision)).not.toMatch(/secret|api[_-]?key|bearer/i);
+  });
+
+  it('maps analysis:read to a financial.calculate product grant', () => {
+    const grants = buildProductGrantsFromMCPScopes([MCP_SCOPES.ANALYSIS_READ]);
+    expect(grants).toEqual([{ scope: CAPABILITY_SCOPES.FINANCIAL_CALCULATE, status: 'active' }]);
+  });
+
+  it('denies when analysis:read is missing even for an exposed tool', () => {
+    const decision = authorizeMCPCapability('analyze_lease', {
+      source: 'api-key',
+      subject: 'customer-1',
+      scopes: [],
+    });
+    expect(decision.allowed).toBe(false);
+    expect(decision.state).toBe('deny');
+  });
+
+  it('denies external MCP memory access without an explicit product grant', () => {
+    const mapped = buildProductAuthzRequestFromMCP('analyze_lease', analysisAuthorization);
+    const decision = authorizeCapability({
+      ...mapped,
+      capabilityId: 'memory.search',
+      requiredScope: CAPABILITY_SCOPES.MEMORY_SEARCH,
+      resource: { userId: 'user-1', workspaceId: 'ws-a', caseId: 'case-1' },
+      grants: [],
+    });
+    expect(decision.allowed).toBe(false);
+    expect(decision.reason).toMatch(/External MCP clients cannot access memory/i);
   });
 });

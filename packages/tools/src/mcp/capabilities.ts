@@ -4,7 +4,22 @@
  * This is intentionally separate from model tool selection. A tool may be
  * registered for first-party application use without being exposed to remote
  * MCP clients.
+ *
+ * Transport adapters own the mapping from MCP OAuth scopes (`analysis:read`)
+ * to product scopes (`financial.calculate`). Manifest exposure, kill switches,
+ * and byte limits remain MCP-local; product authorization is a second
+ * fail-closed gate via `authorizeCapability`.
  */
+
+import {
+  CAPABILITY_SCOPES,
+  authorizeCapability,
+  type AuthzRequest,
+  type CapabilityGrant,
+  type CapabilityScope,
+  type ClientSurface,
+  type Principal,
+} from '@financial-analysis/capabilities';
 
 export const MCP_SCOPES = {
   ANALYSIS_READ: 'analysis:read',
@@ -285,6 +300,107 @@ export function getMCPCapabilityPolicy(toolName: string): MCPCapabilityPolicy {
   );
 }
 
+function toClientSurface(source: MCPAuthorizationSource): ClientSurface {
+  switch (source) {
+    case 'api-key':
+    case 'oauth':
+      return 'external-mcp';
+    case 'internal':
+      return 'first-party-agent';
+    case 'development':
+      return 'rest';
+    default: {
+      const _exhaustive: never = source;
+      return _exhaustive;
+    }
+  }
+}
+
+function toPrincipal(authorization: MCPAuthorizationContext): Principal {
+  const principalId = authorization.subject?.trim() || 'anonymous';
+  switch (authorization.source) {
+    case 'api-key':
+    case 'oauth':
+      return { principalId, kind: 'external-mcp' };
+    case 'internal':
+      return { principalId, kind: 'service' };
+    case 'development':
+      return { principalId, kind: 'user' };
+    default: {
+      const _exhaustive: never = authorization.source;
+      return _exhaustive;
+    }
+  }
+}
+
+/**
+ * Map MCP OAuth / API-key scopes onto product capability grants.
+ * `analysis:read` ≈ `financial.calculate`. Document/admin scopes do not mint
+ * product grants until those product scopes are explicitly modeled for MCP.
+ */
+export function buildProductGrantsFromMCPScopes(
+  scopes: readonly string[]
+): readonly CapabilityGrant[] {
+  const grants: CapabilityGrant[] = [];
+  if (scopes.includes(MCP_SCOPES.ANALYSIS_READ)) {
+    grants.push({
+      scope: CAPABILITY_SCOPES.FINANCIAL_CALCULATE,
+      status: 'active',
+    });
+  }
+  return grants;
+}
+
+export function mcpPolicyScopeToProductScope(scope: MCPPolicyScope): CapabilityScope {
+  switch (scope) {
+    case MCP_SCOPES.ANALYSIS_READ:
+      return CAPABILITY_SCOPES.FINANCIAL_CALCULATE;
+    case MCP_SCOPES.DOCUMENTS_READ:
+      return CAPABILITY_SCOPES.WORKSPACE_READ;
+    case MCP_SCOPES.DOCUMENTS_WRITE:
+    case MCP_SCOPES.ADMIN:
+      return CAPABILITY_SCOPES.WORKSPACE_WRITE;
+    default: {
+      const _exhaustive: never = scope;
+      return _exhaustive;
+    }
+  }
+}
+
+/**
+ * Build the provider-neutral authz request for an MCP capability call.
+ * Never includes secrets or tokens — only opaque principal IDs and grants.
+ */
+export function buildProductAuthzRequestFromMCP(
+  toolName: string,
+  authorization: MCPAuthorizationContext,
+  policy: MCPCapabilityPolicy = getMCPCapabilityPolicy(toolName)
+): AuthzRequest {
+  const requiredScope = mcpPolicyScopeToProductScope(policy.scope);
+  const request: AuthzRequest = {
+    capabilityId: toolName,
+    requiredScope,
+    principal: toPrincipal(authorization),
+    grants: [...buildProductGrantsFromMCPScopes(authorization.scopes)],
+    clientSurface: toClientSurface(authorization.source),
+    sideEffects: policy.readOnly ? 'none' : 'writes-state',
+  };
+
+  if (
+    requiredScope === CAPABILITY_SCOPES.WORKSPACE_READ ||
+    requiredScope === CAPABILITY_SCOPES.WORKSPACE_WRITE ||
+    requiredScope === CAPABILITY_SCOPES.MEMORY_SEARCH ||
+    requiredScope === CAPABILITY_SCOPES.MEMORY_SAVE ||
+    requiredScope === CAPABILITY_SCOPES.MEMORY_FORGET
+  ) {
+    // Stateless MCP analysis must not ambiently bind workspace/case memory.
+    // Resource-bound scopes without an explicit resource fail closed in authz.
+    return request;
+  }
+
+  return request;
+}
+
 export function authorizeMCPCapability(
   toolName: string,
   authorization: MCPAuthorizationContext
@@ -294,29 +410,61 @@ export function authorizeMCPCapability(
     policy.killSwitch === 'MCP_ANALYSIS_ENABLED'
       ? authorization.mcpAnalysisEnabled !== false
       : true;
-  const allowed =
-    killSwitchEnabled &&
-    policy.exposed &&
-    policy.status === 'stable' &&
-    authorization.scopes.includes(policy.scope);
-  const state: MCPPolicyDecisionState = allowed
-    ? 'allow'
-    : !killSwitchEnabled
-      ? 'unavailable'
-      : 'deny';
 
-  return {
-    allowed,
-    state,
+  const principalId = authorization.subject?.trim() || 'anonymous';
+  const baseDecision = {
     capability: policy.name,
-    principalId: authorization.subject?.trim() || 'anonymous',
+    principalId,
     resourceScope: policy.resourceScope,
-    budgetDecision: authorization.budgetDecision ?? 'not-evaluated',
+    budgetDecision: authorization.budgetDecision ?? ('not-evaluated' as const),
     auditCorrelationId:
       authorization.auditCorrelationId?.trim() || `missing-correlation:${policy.name}`,
     policyVersion: policy.policyVersion,
     policy,
-    ...(allowed ? {} : { reason: policy.reason ?? 'Required capability scope is missing.' }),
+  };
+
+  if (!killSwitchEnabled) {
+    return {
+      ...baseDecision,
+      allowed: false,
+      state: 'unavailable',
+      reason: policy.reason ?? 'Required capability scope is missing.',
+    };
+  }
+
+  const manifestAllowed =
+    policy.exposed && policy.status === 'stable' && authorization.scopes.includes(policy.scope);
+
+  if (!manifestAllowed) {
+    return {
+      ...baseDecision,
+      allowed: false,
+      state: 'deny',
+      reason: policy.reason ?? 'Required capability scope is missing.',
+    };
+  }
+
+  const productDecision = authorizeCapability(
+    buildProductAuthzRequestFromMCP(toolName, authorization, policy)
+  );
+
+  if (!productDecision.allowed) {
+    const state =
+      productDecision.state === 'approval-required' || productDecision.state === 'consent-required'
+        ? productDecision.state
+        : 'deny';
+    return {
+      ...baseDecision,
+      allowed: false,
+      state,
+      reason: productDecision.reason ?? 'Product authorization denied the capability.',
+    };
+  }
+
+  return {
+    ...baseDecision,
+    allowed: true,
+    state: 'allow',
   };
 }
 
