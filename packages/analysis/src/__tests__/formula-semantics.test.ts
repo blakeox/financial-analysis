@@ -5,6 +5,7 @@ import { BondPricingAnalyzer } from '../engines/business/bond-pricing.js';
 import { BreakEvenAnalyzer } from '../engines/business/break-even.js';
 import { CAPMCalculator } from '../engines/business/capm.js';
 import { DebtCapacityCalculator } from '../engines/business/debt-capacity.js';
+import { DepreciationCalculator } from '../engines/business/depreciation.js';
 import { DSCRCalculator } from '../engines/business/dscr.js';
 import { FinancialRatioAnalyzer } from '../engines/business/financial-ratio-analyzer.js';
 import { LeaseAnalyzer } from '../engines/business/lease.js';
@@ -23,6 +24,8 @@ import {
   CERTIFIED_FORMULA_CATALOG,
   DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
   DEBT_CAPACITY_FORMULA_METADATA,
+  DEPRECIATION_CANONICAL_TEST_VECTORS,
+  DEPRECIATION_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
   FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
@@ -423,9 +426,53 @@ describe('financial-ratio formula semantics', () => {
   });
 });
 
+describe('depreciation formula semantics', () => {
+  it.each(DEPRECIATION_CANONICAL_TEST_VECTORS)('matches canonical vector $id', (vector) => {
+    const result = DepreciationCalculator.analyze(vector.input);
+    const expected = vector.expectedOutput;
+    const withinTolerance = (actual: number, target: number) =>
+      Math.abs(actual - target) <= vector.tolerance;
+
+    expect(withinTolerance(result.summary.totalDepreciation, expected.totalDepreciation)).toBe(
+      true
+    );
+    expect(withinTolerance(result.summary.bookValue, expected.bookValue)).toBe(true);
+    expect(withinTolerance(result.summary.totalTaxSavings, expected.totalTaxSavings)).toBe(true);
+    expect(result.depreciationSchedule?.schedule).toHaveLength(expected.scheduleLength);
+    expect(
+      withinTolerance(
+        result.depreciationSchedule?.schedule[0]?.depreciation ?? Number.NaN,
+        expected.yearOneDepreciation
+      )
+    ).toBe(true);
+  });
+
+  it('attaches version and semantic metadata to every calculator result', () => {
+    const result = DepreciationCalculator.analyze({
+      assetInfo: {
+        purchaseDate: '2024-01-01',
+        purchaseCost: 10000,
+        salvageValue: 1000,
+        usefulLife: 5,
+      },
+      depreciationMethod: 'straight-line',
+      taxInfo: {},
+      analysis: {
+        includeSchedule: true,
+        includeTaxSavings: true,
+        includeMethodComparison: false,
+        projectionYears: 5,
+      },
+    });
+
+    expect(result.formulaVersion).toBe(DEPRECIATION_FORMULA_METADATA.formulaVersion);
+    expect(result.formulaMetadata).toEqual(DEPRECIATION_FORMULA_METADATA);
+  });
+});
+
 describe('certified formula publication catalog', () => {
   it('lists every certified formula as stable with matching metadata identity', () => {
-    expect(CERTIFIED_FORMULA_CATALOG).toHaveLength(11);
+    expect(CERTIFIED_FORMULA_CATALOG).toHaveLength(12);
     for (const entry of CERTIFIED_FORMULA_CATALOG) {
       expect(entry.publicationStatus).toBe('stable');
       expect(getCertifiedFormulaMetadata(entry.formulaId, entry.formulaVersion)).toEqual(entry);
