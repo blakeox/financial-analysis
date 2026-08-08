@@ -173,7 +173,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          node scripts/cloudflare-boundary-smoke.mjs
+          smoke_attempt=1
+          smoke_max_attempts=6
+          until node scripts/cloudflare-boundary-smoke.mjs; do
+            if (( smoke_attempt >= smoke_max_attempts )); then
+              echo "Production boundary smoke did not become ready after ${smoke_max_attempts} attempts." >&2
+              exit 1
+            fi
+            echo "Production boundary smoke is not ready yet; retrying in 15 seconds (attempt ${smoke_attempt}/${smoke_max_attempts})." >&2
+            sleep 15
+            smoke_attempt=$((smoke_attempt + 1))
+          done
 
           fetch_json() {
             curl \
