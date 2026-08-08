@@ -6,11 +6,13 @@ function makeEnv({
   apiDevOrigin,
   apiProdOrigin,
   internalApiToken,
+  apiService,
 }: {
   environment: string;
   apiDevOrigin?: string;
   apiProdOrigin?: string;
   internalApiToken?: string;
+  apiService?: Fetcher;
 }) {
   const fetchSpy = vi.fn(
     async (_req: Request) =>
@@ -26,11 +28,13 @@ function makeEnv({
     API_DEV_ORIGIN?: string;
     API_ORIGIN?: string;
     INTERNAL_API_TOKEN?: string;
+    API?: Fetcher;
   } = {
     ENVIRONMENT: environment,
     API_DEV_ORIGIN: apiDevOrigin,
     API_ORIGIN: apiProdOrigin,
     INTERNAL_API_TOKEN: internalApiToken,
+    API: apiService,
     ASSETS: { fetch: fetchSpy } as unknown as Fetcher,
   };
   const ctx: ExecutionContext = {
@@ -129,6 +133,29 @@ describe('web worker dev proxy', () => {
     globalFetch.mockRestore();
   });
 
+  it('uses the API service binding for same-zone production proxying', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'production',
+      apiProdOrigin: 'https://api.fanalyx.com',
+    });
+    const apiResponse = new Response(JSON.stringify({ ok: true }), { status: 200 });
+    const serviceFetch = vi.fn().mockResolvedValue(apiResponse);
+    env.API = { fetch: serviceFetch } as unknown as Fetcher;
+    const globalFetch = vi.spyOn(globalThis, 'fetch');
+
+    const res = await web.fetch(
+      new Request('https://fanalyx.com/api/v1/mcp/tools'),
+      env as never,
+      ctx
+    );
+
+    expect(res.status).toBe(200);
+    expect(serviceFetch).toHaveBeenCalledOnce();
+    expect(globalFetch).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    globalFetch.mockRestore();
+  });
+
   it('serves ASSETS for non-API paths in development', async () => {
     const { env, ctx, fetchSpy } = makeEnv({
       environment: 'development',
@@ -179,7 +206,7 @@ describe('web worker dev proxy', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ error: 'API_ORIGIN not configured' });
+    expect(await res.json()).toEqual({ error: 'API_ORIGIN or API service binding not configured' });
   });
 
   it('forwards /api/ requests to API in development', async () => {
