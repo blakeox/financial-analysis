@@ -47,6 +47,10 @@ invocation_logs = true
 ENVIRONMENT = "preview"
 API_ORIGIN = "https://fanalyx-api-preview.blakeoxford.workers.dev"
 
+[[env.preview.services]]
+binding = "API"
+service = "fanalyx-api-preview"
+
 # Production environment
 [env.production]
 name = "fanalyx-web"
@@ -60,6 +64,10 @@ invocation_logs = true
 ENVIRONMENT = "production"
 ALLOWED_ORIGIN = "https://fanalyx.com"
 API_ORIGIN = "https://api.fanalyx.com"
+
+[[env.production.services]]
+binding = "API"
+service = "fanalyx-api-production"
 
 [[env.production.routes]]
 pattern = "fanalyx.com/*"
