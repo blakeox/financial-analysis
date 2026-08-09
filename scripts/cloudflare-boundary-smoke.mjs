@@ -5,6 +5,8 @@ import { writeFile } from 'node:fs/promises';
 
 const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
 const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
+const healthUrl = process.env.HEALTH_URL?.trim().replace(/\/$/, '') || apiUrl;
+const publicToolsUrl = process.env.PUBLIC_TOOLS_URL?.trim().replace(/\/$/, '') || publicUrl;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
@@ -107,7 +109,7 @@ function hasVary(value, expected) {
 async function main() {
   const startedAt = new Date().toISOString();
   try {
-    const health = await readResponse(await fetchWithRetry('/health'));
+    const health = await readResponse(await fetchAgainst(healthUrl, '/health'));
     record('health', health.status === 200 && health.json?.status === 'ok', {
       status: health.status,
       reportedEnvironment: health.json?.environment,
@@ -227,7 +229,7 @@ async function main() {
 
     if (publicUrl) {
       const publicTools = await readResponse(
-        await fetchAgainst(publicUrl, '/api/v1/mcp/tools', {
+        await fetchAgainst(publicToolsUrl, '/api/v1/mcp/tools', {
           headers: { Accept: 'application/json' },
         })
       );
@@ -302,6 +304,8 @@ async function main() {
     kind: 'cloudflare-boundary-smoke',
     apiUrl,
     publicUrl,
+    healthUrl,
+    publicToolsUrl,
     environment,
     expectedSha,
     expectedOAuthEnabled,

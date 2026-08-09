@@ -17,6 +17,10 @@ export interface Env {
   ENVIRONMENT: string;
   ALLOWED_ORIGIN?: string;
   COMMIT_SHA?: string;
+  /** Hostname for the CI-only workers.dev control-plane probe origin. */
+  SMOKE_PROBE_HOST?: string;
+  /** Secret required for requests to the CI-only probe origin. */
+  SMOKE_PROBE_TOKEN?: string;
   ADMIN_API_TOKEN?: string;
   INTERNAL_API_TOKEN?: string;
   AI?: Ai;
