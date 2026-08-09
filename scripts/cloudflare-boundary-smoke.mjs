@@ -7,6 +7,7 @@ const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
 const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
 const healthUrl = process.env.HEALTH_URL?.trim().replace(/\/$/, '') || apiUrl;
 const publicToolsUrl = process.env.PUBLIC_TOOLS_URL?.trim().replace(/\/$/, '') || publicUrl;
+const publicMcpUrl = process.env.PUBLIC_MCP_URL?.trim().replace(/\/$/, '') || publicUrl;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
@@ -250,7 +251,7 @@ async function main() {
       );
 
       const publicInitialize = await readResponse(
-        await fetchAgainst(publicUrl, '/mcp', {
+        await fetchAgainst(publicMcpUrl, '/mcp', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -306,6 +307,7 @@ async function main() {
     publicUrl,
     healthUrl,
     publicToolsUrl,
+    publicMcpUrl,
     environment,
     expectedSha,
     expectedOAuthEnabled,
