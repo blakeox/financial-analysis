@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "mcp-client-compatibility",
+  "product": "Fanalyx financial-analysis MCP",
+  "contract": {
+    "transport": "streamable-http",
+    "resourcePath": "/oauth/mcp",
+    "authorization": "oauth-2.1-authorization-code",
+    "pkce": "S256",
+    "dynamicClientRegistration": true,
+    "clientAuthentication": "none",
+    "scopes": ["analysis:read"],
+    "memoryExposure": "none-by-default",
+    "requestPersistence": "none-by-default"
+  },
+  "environments": [
+    {
+      "id": "preview",
+      "resourceUrl": "https://fanalyx-api-preview.blakeoxford.workers.dev/oauth/mcp",
+      "oauthStatus": "enabled",
+      "verification": ["cloudflare-oauth-hosted-lifecycle"]
+    },
+    {
+      "id": "production",
+      "resourceUrl": "https://api.fanalyx.com/oauth/mcp",
+      "oauthStatus": "disabled",
+      "verification": []
+    }
+  ],
+  "clients": [
+    {
+      "id": "chatgpt",
+      "displayName": "ChatGPT",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "Vendor account and connector acceptance are external gates.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "codex",
+      "displayName": "Codex or another OpenAI MCP client",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "The client must own and register its callback URL.",
+        "The Clerk browser OIDC client ID is never an MCP client ID.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "claude",
+      "displayName": "Claude or another remote MCP client",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "Vendor account and connector acceptance are external gates.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "local-mcp",
+      "displayName": "Local LLM or MCP application",
+      "connection": "remote-oauth",
+      "status": "bridge-not-shipped",
+      "vendorAcceptance": "not-applicable",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": [],
+      "knownLimitations": [
+        "A first-party stdio bridge is not shipped yet; local clients must support remote Streamable HTTP.",
+        "Use a loopback callback owned by the local client.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    }
+  ]
+}
