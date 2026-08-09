@@ -8,6 +8,7 @@ const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
 const healthUrl = process.env.HEALTH_URL?.trim().replace(/\/$/, '') || apiUrl;
 const publicToolsUrl = process.env.PUBLIC_TOOLS_URL?.trim().replace(/\/$/, '') || publicUrl;
 const publicMcpUrl = process.env.PUBLIC_MCP_URL?.trim().replace(/\/$/, '') || publicUrl;
+const publicStorageUrl = process.env.PUBLIC_STORAGE_URL?.trim().replace(/\/$/, '') || publicUrl;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
@@ -282,7 +283,7 @@ async function main() {
       );
 
       const publicStorage = await readResponse(
-        await fetchAgainst(publicUrl, '/v1/storage/presign', {
+        await fetchAgainst(publicStorageUrl, '/v1/storage/presign', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ operation: 'download', key: 'lease-documents/smoke.txt' }),
@@ -308,6 +309,7 @@ async function main() {
     healthUrl,
     publicToolsUrl,
     publicMcpUrl,
+    publicStorageUrl,
     environment,
     expectedSha,
     expectedOAuthEnabled,

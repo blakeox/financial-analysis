@@ -191,6 +191,7 @@ jobs:
           PUBLIC_URL: https://fanalyx.com
           PUBLIC_TOOLS_URL: https://fanalyx-web.blakeoxford.workers.dev
           PUBLIC_MCP_URL: https://fanalyx-web.blakeoxford.workers.dev
+          PUBLIC_STORAGE_URL: https://fanalyx-web.blakeoxford.workers.dev
           CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-production.json
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
