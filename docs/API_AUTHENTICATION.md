@@ -147,7 +147,9 @@ advertises only `analysis:read` initially. Consent is explicit and
 CSRF-protected.
 The resource owner can manage active grants at `GET /oauth/grants` and
 `DELETE /oauth/grants/:grantId`.
-See [`docs/OAUTH_ROLLOUT.md`](./OAUTH_ROLLOUT.md) for the enablement gate.
+See [`docs/OAUTH_CLIENT_SETUP.md`](./OAUTH_CLIENT_SETUP.md) for the MCP client
+registration and callback rules, and [`docs/OAUTH_ROLLOUT.md`](./OAUTH_ROLLOUT.md)
+for the enablement gate.
 
 ## API Key Management
 

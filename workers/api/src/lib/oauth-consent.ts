@@ -6,7 +6,7 @@ import { buildDefaultHeaders } from './headers';
 import { getOrCreateRequestId } from './request-context';
 import { recordOAuthAuditEvent } from './oauth-audit';
 import { isOidcBrowserLoginConfigured } from './oauth-oidc-login';
-import { OIDC_LOGIN_ROUTE } from './oauth-policy';
+import { OIDC_CALLBACK_ROUTE, OIDC_LOGIN_ROUTE } from './oauth-policy';
 
 const CSRF_COOKIE = '__Host-FANALYX_OAUTH_CSRF';
 const MAX_AUTH_FORM_BYTES = 8 * 1024;
@@ -60,6 +60,16 @@ function escapeHtml(value: string): string {
 
 function getResourceUri(request: Request): string {
   return `${new URL(request.url).origin}${OAUTH_MCP_ROUTE}`;
+}
+
+function isProviderOwnedOidcCallback(request: Request, redirectUri: string): boolean {
+  try {
+    const redirect = new URL(redirectUri);
+    const requestUrl = new URL(request.url);
+    return redirect.origin === requestUrl.origin && redirect.pathname === OIDC_CALLBACK_ROUTE;
+  } catch {
+    return false;
+  }
 }
 
 function isSupportedAuthorization(authRequest: AuthRequest, request: Request): boolean {
@@ -136,12 +146,29 @@ async function validateAuthorizationRequest(
     );
   }
 
+  if (env.OIDC_CLIENT_ID?.trim() && authRequest.clientId === env.OIDC_CLIENT_ID.trim()) {
+    return unavailableResponse(
+      env,
+      'The configured OIDC browser client ID cannot authorize MCP access. Use the client_id returned by the OAuth registration endpoint.',
+      'INVALID_CLIENT',
+      400
+    );
+  }
+
   const clientInfo = await oauth.lookupClient(authRequest.clientId);
   if (!clientInfo || !clientInfo.redirectUris.includes(authRequest.redirectUri)) {
     return unavailableResponse(
       env,
-      'The OAuth client or redirect URI is not registered.',
+      'The OAuth client or redirect URI is not registered. MCP clients must use the client_id returned by the registration endpoint; the configured OIDC browser client ID is not an MCP client ID.',
       'INVALID_CLIENT',
+      400
+    );
+  }
+  if (isProviderOwnedOidcCallback(request, authRequest.redirectUri)) {
+    return unavailableResponse(
+      env,
+      'The MCP redirect URI must be owned by the MCP client. Fanalyx /oauth/callback is reserved for the browser OIDC login flow.',
+      'INVALID_REDIRECT_URI',
       400
     );
   }

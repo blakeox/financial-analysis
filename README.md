@@ -120,7 +120,7 @@ The API provides MCP-compatible endpoints for LLM integration:
 
 ```typescript
 // Example MCP tool call
-const response = await fetch('/api/mcp', {
+const response = await fetch('/mcp', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
