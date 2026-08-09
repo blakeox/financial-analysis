@@ -59,6 +59,10 @@ jobs:
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: pnpm run check:ai-provider-boundary
 
+      - name: Validate MCP client compatibility contract
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: node scripts/check-mcp-client-compatibility.mjs
+
       - name: Run OAuth and MCP contract tests
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: >-
@@ -92,7 +96,10 @@ jobs:
           .github/actions/repo-path-filter/action.yml
           .github/workflows/mcp-policy.yml
           docs/MCP_CAPABILITY_POLICY.md
+          docs/MCP_CLIENT_COMPATIBILITY.json
+          docs/MCP_CLIENT_COMPATIBILITY.md
           docs/OAUTH_ROLLOUT.md
+          scripts/check-mcp-client-compatibility.mjs
           packages/tools/src/mcp/capabilities.ts
           packages/tools/src/__tests__/capabilities.test.ts
           workers/api/src/lib/cloudflare-access-identity.ts

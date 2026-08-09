@@ -1,5 +1,9 @@
 # MCP OAuth client setup
 
+The maintained compatibility contract is [`MCP_CLIENT_COMPATIBILITY.md`](./MCP_CLIENT_COMPATIBILITY.md).
+It records the difference between Fanalyx protocol evidence and acceptance by
+an individual ChatGPT, Codex, Claude, or local MCP client.
+
 Fanalyx uses two different OAuth client roles. Keep them separate.
 
 | Client role        | Purpose                                               | Where it is used                                                                        |
