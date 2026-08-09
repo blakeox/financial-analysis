@@ -88,6 +88,18 @@ export interface Env {
   OIDC_LOGIN_HINT?: string;
   /** Browser session lifetime in seconds. */
   OIDC_SESSION_TTL_SECONDS?: string;
+  /** Optional, exact GitHub Actions OIDC issuer used only by protected automation. */
+  AUTOMATION_OIDC_ISSUER?: string;
+  /** Audience requested by the hosted lifecycle workflow. */
+  AUTOMATION_OIDC_AUDIENCE?: string;
+  /** Explicit GitHub Actions JWKS URI; never inferred from issuer metadata. */
+  AUTOMATION_OIDC_JWKS_URI?: string;
+  /** Exact GitHub OIDC subject allowed to manage the preview test grant. */
+  AUTOMATION_OIDC_SUBJECT?: string;
+  /** Optional exact repository claim allowed for automation. */
+  AUTOMATION_OIDC_REPOSITORY?: string;
+  /** Optional exact workflow_ref claim allowed for automation. */
+  AUTOMATION_OIDC_WORKFLOW_REF?: string;
   /** Shared AI/MCP reservation ledger policy. */
   BUDGET_MAX_REQUEST_BYTES?: string;
   BUDGET_MAX_MODEL_TOKENS?: string;

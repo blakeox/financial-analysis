@@ -3,10 +3,11 @@
 /**
  * Protected hosted OAuth lifecycle receipt for the preview MCP boundary.
  *
- * The session cookie must be created by a maintainer's interactive Clerk/OIDC
- * login and supplied only through a protected environment secret. This script
- * exercises the hosted consent, token, MCP, and grant-revocation paths without
- * printing or persisting the cookie, authorization code, or bearer tokens.
+ * GitHub Actions supplies a short-lived OIDC identity that the Worker accepts
+ * only when issuer, audience, repository, workflow, and preview environment
+ * subject all match its explicit automation configuration. This exercises the
+ * hosted consent, token, MCP, and grant-revocation paths without printing or
+ * persisting the OIDC token, authorization code, or bearer tokens.
  */
 
 import { createHash, randomBytes } from 'node:crypto';
@@ -14,7 +15,6 @@ import { writeFile } from 'node:fs/promises';
 
 const apiUrl = (process.env.API_URL || '').replace(/\/$/, '');
 const environment = process.env.ENVIRONMENT || 'unknown';
-const sessionCookie = process.env.FANALYX_OIDC_SESSION_COOKIE?.trim() || '';
 const receiptPath =
   process.env.CLOUDFLARE_OAUTH_HOSTED_RECEIPT || 'cloudflare-oauth-hosted-lifecycle.json';
 const callbackUri = 'https://example.com/fanalyx-oauth/callback';
@@ -23,6 +23,7 @@ const checks = [];
 const startedAt = new Date().toISOString();
 let registeredClientId = null;
 let sessionGrantId = null;
+let automationToken = null;
 let grantMayExist = false;
 let grantRevoked = false;
 let cleanup = { required: false, attempted: false, grantRevoked: true };
@@ -57,6 +58,34 @@ function pkceChallenge(verifier) {
 function cookieValue(setCookie, name) {
   const match = setCookie?.match(new RegExp(`${name}=([^;]+)`));
   return match?.[1] || null;
+}
+
+async function requestAutomationToken() {
+  const requestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN?.trim();
+  const requestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL?.trim();
+  const audience = 'https://github.com/blakeox/financial-analysis';
+  if (!requestToken || !requestUrl) {
+    return { status: null, durationMs: 0, requestId: null, token: null };
+  }
+
+  const started = Date.now();
+  try {
+    const url = new URL(requestUrl);
+    url.searchParams.set('audience', audience);
+    const response = await fetch(url, {
+      headers: { Authorization: `bearer ${requestToken}` },
+      signal: AbortSignal.timeout(15_000),
+    });
+    const body = await response.json().catch(() => null);
+    return {
+      status: response.status,
+      durationMs: Date.now() - started,
+      requestId: null,
+      token: typeof body?.value === 'string' ? body.value : null,
+    };
+  } catch {
+    return { status: null, durationMs: Date.now() - started, requestId: null, token: null };
+  }
 }
 
 async function request(path, options = {}) {
@@ -115,9 +144,18 @@ async function main() {
   ) {
     fail('preview-only configuration');
   }
-  if (!/^__Host-FANALYX_OIDC_SESSION=[A-Za-z0-9_-]{32,128}$/.test(sessionCookie)) {
-    fail('protected session cookie configuration');
-  }
+  const automation = await requestAutomationToken();
+  record(
+    'GitHub Actions OIDC automation identity',
+    automation.status === 200 && Boolean(automation.token),
+    automation,
+    {
+      tokenIssued: Boolean(automation.token),
+    }
+  );
+  if (!automation.token) fail('GitHub Actions OIDC automation identity');
+  automationToken = automation.token;
+  const ownerHeaders = () => ({ Authorization: `Bearer ${automationToken}` });
 
   const registration = await request('/oauth/register', {
     method: 'POST',
@@ -151,7 +189,7 @@ async function main() {
   }).toString();
 
   const consentPage = await request(`${authorizeUrl.pathname}?${authorizeUrl.searchParams}`, {
-    headers: { Cookie: sessionCookie },
+    headers: ownerHeaders(),
   });
   const csrf = cookieValue(consentPage.setCookie, '__Host-FANALYX_OAUTH_CSRF');
   const consentReady = consentPage.status === 200 && Boolean(csrf);
@@ -161,7 +199,8 @@ async function main() {
   const consent = await request('/oauth/authorize', {
     method: 'POST',
     headers: {
-      Cookie: `${sessionCookie}; __Host-FANALYX_OAUTH_CSRF=${csrf}`,
+      ...ownerHeaders(),
+      Cookie: `__Host-FANALYX_OAUTH_CSRF=${csrf}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
@@ -288,7 +327,7 @@ async function main() {
   );
 
   const grants = await request('/oauth/grants?limit=100', {
-    headers: { Cookie: sessionCookie },
+    headers: ownerHeaders(),
   });
   const grant = Array.isArray(grants.json?.items)
     ? grants.json.items.find((item) => item?.clientId === clientId)
@@ -302,7 +341,7 @@ async function main() {
 
   const revoke = await request(`/oauth/grants/${encodeURIComponent(grant.id)}`, {
     method: 'DELETE',
-    headers: { Cookie: sessionCookie },
+    headers: ownerHeaders(),
   });
   record('authenticated grant revocation', revoke.status === 204, revoke);
   grantRevoked = revoke.status === 204;
@@ -310,7 +349,7 @@ async function main() {
   if (revoke.status !== 204) fail('authenticated grant revocation');
 
   const grantsAfterRevoke = await request('/oauth/grants?limit=100', {
-    headers: { Cookie: sessionCookie },
+    headers: ownerHeaders(),
   });
   const stillListed = Array.isArray(grantsAfterRevoke.json?.items)
     ? grantsAfterRevoke.json.items.some((item) => item?.clientId === clientId)
@@ -339,7 +378,7 @@ async function main() {
 }
 
 async function cleanupHostedGrant() {
-  if (!grantMayExist || !registeredClientId || !sessionCookie) return;
+  if (!grantMayExist || !registeredClientId || !automationToken) return;
 
   cleanup = { required: true, attempted: true, grantRevoked, status: null };
   if (grantRevoked) return;
@@ -347,7 +386,7 @@ async function cleanupHostedGrant() {
   try {
     if (!sessionGrantId) {
       const grants = await request('/oauth/grants?limit=100', {
-        headers: { Cookie: sessionCookie },
+        headers: { Authorization: `Bearer ${automationToken}` },
       });
       const grant = Array.isArray(grants.json?.items)
         ? grants.json.items.find((item) => item?.clientId === registeredClientId)
@@ -362,7 +401,7 @@ async function cleanupHostedGrant() {
 
     const revoke = await request(`/oauth/grants/${encodeURIComponent(sessionGrantId)}`, {
       method: 'DELETE',
-      headers: { Cookie: sessionCookie },
+      headers: { Authorization: `Bearer ${automationToken}` },
     });
     grantRevoked = revoke.status === 204;
     cleanup = { ...cleanup, grantRevoked, status: revoke.status };
@@ -395,8 +434,8 @@ const receipt = {
   startedAt,
   passed,
   mutatesOAuthState: true,
-  consentMode: 'authenticated-session-plus-explicit-approve',
-  credentialSource: 'protected-environment-secret',
+  consentMode: 'authenticated-automation-identity-plus-explicit-approve',
+  credentialSource: 'github-actions-oidc',
   fatalStage,
   cleanup,
   checks,

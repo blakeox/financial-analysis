@@ -57,6 +57,61 @@ describe('resource-owner identity adapters', () => {
     expect(identity?.userId).not.toContain('user');
   });
 
+  it('accepts only the exact allowlisted GitHub Actions OIDC automation identity', async () => {
+    const token = await new SignJWT({
+      repository: 'blakeox/financial-analysis',
+      job_workflow_ref:
+        'blakeox/financial-analysis/.github/workflows/cloudflare-oauth-hosted-lifecycle.yml@refs/heads/main',
+    })
+      .setProtectedHeader({ alg: 'RS256', kid: 'oidc-test-key' })
+      .setSubject('repo:blakeox/financial-analysis:environment:preview')
+      .setIssuer('https://token.actions.githubusercontent.com')
+      .setAudience('https://github.com/blakeox/financial-analysis')
+      .setIssuedAt()
+      .setExpirationTime('5m')
+      .sign(privateKey);
+
+    const env = {
+      AUTOMATION_OIDC_ISSUER: 'https://token.actions.githubusercontent.com',
+      AUTOMATION_OIDC_AUDIENCE: 'https://github.com/blakeox/financial-analysis',
+      AUTOMATION_OIDC_JWKS_URI: 'https://token.actions.githubusercontent.com/.well-known/jwks',
+      AUTOMATION_OIDC_SUBJECT: 'repo:blakeox/financial-analysis:environment:preview',
+      AUTOMATION_OIDC_REPOSITORY: 'blakeox/financial-analysis',
+      AUTOMATION_OIDC_WORKFLOW_REF:
+        'blakeox/financial-analysis/.github/workflows/cloudflare-oauth-hosted-lifecycle.yml@refs/heads/main',
+    };
+
+    const identity = await getResourceOwnerIdentity(
+      new Request('https://example.com/oauth/authorize', {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      env
+    );
+
+    expect(identity).toMatchObject({
+      provider: 'oidc',
+      issuer: 'https://token.actions.githubusercontent.com',
+    });
+    expect(identity?.userId).toMatch(/^oidc-[a-f0-9]{64}$/);
+
+    const wrongSubject = await new SignJWT()
+      .setProtectedHeader({ alg: 'RS256', kid: 'oidc-test-key' })
+      .setSubject('repo:other/repository:environment:preview')
+      .setIssuer('https://token.actions.githubusercontent.com')
+      .setAudience('https://github.com/blakeox/financial-analysis')
+      .setIssuedAt()
+      .setExpirationTime('5m')
+      .sign(privateKey);
+    expect(
+      await getResourceOwnerIdentity(
+        new Request('https://example.com/oauth/authorize', {
+          headers: { Authorization: `Bearer ${wrongSubject}` },
+        }),
+        env
+      )
+    ).toBeNull();
+  });
+
   it('rejects wrong issuer, audience, algorithm, and missing configuration', async () => {
     const token = await new SignJWT()
       .setProtectedHeader({ alg: 'RS256', kid: 'oidc-test-key' })
