@@ -192,6 +192,7 @@ jobs:
               --silent \
               --show-error \
               --header 'Accept: application/json' \
+              --user-agent 'FanalyxBoundarySmoke/1.0 (+https://fanalyx.com)' \
               --header "x-fanalyx-smoke-token: ${FANALYX_SMOKE_TOKEN}" \
               --retry 5 \
               --retry-all-errors \

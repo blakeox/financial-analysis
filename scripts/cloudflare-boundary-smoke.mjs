@@ -10,6 +10,7 @@ const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
 const expectedBudgetEnforcementEnabled = process.env.EXPECTED_BUDGET_ENFORCEMENT_ENABLED === 'true';
 const smokeToken = process.env.FANALYX_SMOKE_TOKEN?.trim() || null;
+const smokeUserAgent = 'FanalyxBoundarySmoke/1.0 (+https://fanalyx.com)';
 const receiptPath =
   process.env.CLOUDFLARE_BOUNDARY_RECEIPT?.trim() || 'cloudflare-boundary-receipt.json';
 
@@ -29,6 +30,7 @@ function record(name, passed, details = {}) {
 
 function requestHeaders(initHeaders) {
   const headers = new Headers(initHeaders);
+  if (!headers.has('user-agent')) headers.set('user-agent', smokeUserAgent);
   if (smokeToken) headers.set('x-fanalyx-smoke-token', smokeToken);
   return headers;
 }
