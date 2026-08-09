@@ -190,6 +190,7 @@ import { isOidcBrowserLoginConfigured } from './lib/oauth-oidc-login';
 import { isOAuthEnabled } from './lib/oauth-policy';
 import { hasExpectedUploadSignature } from './lib/upload-validation';
 import { createR2PresignedUrl, getR2PresignConfig } from './lib/r2-presign';
+import { isAuthorizedSmokeProbeRequest } from './lib/smoke-probe';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
@@ -4345,6 +4346,16 @@ const apiWorker = {
   },
 };
 
+function smokeProbeDenied(request: Request, env: Env): Response | null {
+  if (isAuthorizedSmokeProbeRequest(request, env)) return null;
+
+  // Keep the direct workers.dev origin undiscoverable without the CI secret.
+  return new Response(null, {
+    status: 404,
+    headers: { 'Cache-Control': 'no-store' },
+  });
+}
+
 let oauthProviderPromise: Promise<OAuthProvider<Env>> | undefined;
 
 async function getOAuthProvider() {
@@ -4356,6 +4367,9 @@ async function getOAuthProvider() {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const probeDenial = smokeProbeDenied(request, env);
+    if (probeDenial) return probeDenial;
+
     if (isOAuthEnabled(env)) {
       if (!env.OAUTH_KV) {
         return new Response(

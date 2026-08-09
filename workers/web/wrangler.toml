@@ -54,6 +54,7 @@ service = "fanalyx-api-preview"
 # Production environment
 [env.production]
 name = "fanalyx-web"
+workers_dev = true
 
 [env.production.observability.logs]
 enabled = true
@@ -64,6 +65,7 @@ invocation_logs = true
 ENVIRONMENT = "production"
 ALLOWED_ORIGIN = "https://fanalyx.com"
 API_ORIGIN = "https://api.fanalyx.com"
+SMOKE_PROBE_HOST = "fanalyx-web.blakeoxford.workers.dev"
 
 [[env.production.services]]
 binding = "API"
