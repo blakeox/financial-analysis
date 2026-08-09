@@ -63,6 +63,10 @@ jobs:
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: node scripts/check-mcp-client-compatibility.mjs
 
+      - name: Test local MCP stdio bridge
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: pnpm exec vitest run scripts/fanalyx-mcp-stdio.test.mjs
+
       - name: Run OAuth and MCP contract tests
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: >-
@@ -100,6 +104,9 @@ jobs:
           docs/MCP_CLIENT_COMPATIBILITY.md
           docs/OAUTH_ROLLOUT.md
           scripts/check-mcp-client-compatibility.mjs
+          scripts/fanalyx-mcp-stdio-lib.mjs
+          scripts/fanalyx-mcp-stdio.mjs
+          scripts/fanalyx-mcp-stdio.test.mjs
           packages/tools/src/mcp/capabilities.ts
           packages/tools/src/__tests__/capabilities.test.ts
           workers/api/src/lib/cloudflare-access-identity.ts

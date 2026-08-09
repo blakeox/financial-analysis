@@ -90,18 +90,19 @@
       "id": "local-mcp",
       "displayName": "Local LLM or MCP application",
       "connection": "remote-oauth",
-      "status": "bridge-not-shipped",
+      "status": "bridge-shipped",
       "vendorAcceptance": "not-applicable",
       "supportedFeatures": [
         "protected-resource-discovery",
         "authorization-server-discovery",
         "dynamic-client-registration",
         "authorization-code-pkce",
-        "streamable-http"
+        "streamable-http",
+        "stdio-bridge"
       ],
-      "verification": [],
+      "verification": ["local-stdio-bridge-tests", "cloudflare-oauth-hosted-lifecycle"],
       "knownLimitations": [
-        "A first-party stdio bridge is not shipped yet; local clients must support remote Streamable HTTP.",
+        "The bridge forwards a caller-provided short-lived access token and does not perform browser OAuth itself.",
         "Use a loopback callback owned by the local client.",
         "Only analysis:read is exposed; Agent memory and workspace state are not available."
       ]

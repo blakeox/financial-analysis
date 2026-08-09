@@ -48,6 +48,7 @@ mcp:
   - 'docs/MCP_CLIENT_COMPATIBILITY.md'
   - 'docs/OAUTH_ROLLOUT.md'
   - 'scripts/check-mcp-client-compatibility.mjs'
+  - 'scripts/fanalyx-mcp-stdio*.mjs'
   - '.github/actions/repo-path-filter/action.yml'
   - '.github/path-filters.yml'
   - '.github/workflows/mcp-policy.yml'
