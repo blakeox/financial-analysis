@@ -60,12 +60,18 @@ in GitHub Actions logs:
 - `OIDC_LOGIN_HINT` (optional; configure privately if a maintainer Microsoft login hint is useful)
 - `OIDC_SESSION_TTL_SECONDS`
 - `OIDC_CLIENT_SECRET` (optional; confidential OIDC clients only, Worker secret only)
+- `AUTOMATION_OIDC_ISSUER` (preview only)
+- `AUTOMATION_OIDC_AUDIENCE` (preview only)
+- `AUTOMATION_OIDC_JWKS_URI` (preview only)
+- `AUTOMATION_OIDC_SUBJECT` (preview only)
+- `AUTOMATION_OIDC_REPOSITORY` (preview only)
+- `AUTOMATION_OIDC_WORKFLOW_REF` (preview only)
 
-For the preview hosted OAuth lifecycle receipt, store the current browser-created
-`__Host-FANALYX_OIDC_SESSION=...` value as the protected `preview` environment
-secret `FANALYX_OIDC_SESSION_COOKIE`. Never place it in repository variables,
-workflow inputs, issue comments, or artifacts. Rotate it by signing in again
-when the session expires, then rerun the confirmation-gated preview workflow.
+The preview hosted OAuth lifecycle receipt uses GitHub Actions OIDC rather than
+a stored browser session cookie. Keep the workflow's `id-token: write`
+permission and the Worker-side issuer, audience, repository, subject, and
+workflow-ref allowlist aligned. Do not add a browser cookie or bearer token to
+repository secrets, workflow inputs, issue comments, or artifacts.
 
 Hosted model egress is independently controlled by `AI_EGRESS_ENABLED`. Set it
 to `false` during an AI incident or cost-control event; deterministic formula

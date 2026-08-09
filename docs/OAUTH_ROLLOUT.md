@@ -190,15 +190,16 @@ grant before it can pass, and the preview namespace can be purged separately
 by the existing provider maintenance path.
 
 The protected preview [hosted lifecycle workflow](../.github/workflows/cloudflare-oauth-hosted-lifecycle.yml)
-is the next receipt gate. It requires the `preview` GitHub environment secret
-`FANALYX_OIDC_SESSION_COOKIE`, created by an interactive Clerk/OIDC login and
-never committed to Git. A maintainer must dispatch it with
-`confirm_preview=true`. The workflow then submits explicit consent, exchanges
-S256 PKCE credentials, calls protected MCP, verifies Cloudflare's documented
-refresh recovery grace, lists and revokes the isolated grant, and proves both
-the access and refresh tokens are rejected afterward. Its artifact is status,
-timing, and request-ID metadata only. Production is intentionally not an
-option for this mutating workflow.
+is the next receipt gate. It uses GitHub's short-lived Actions OIDC token rather
+than a stored browser cookie. The preview Worker accepts that token only when
+the issuer, audience, exact `repo:...:environment:preview` subject, repository,
+and workflow reference match its explicit non-secret configuration. A
+maintainer must dispatch it with `confirm_preview=true`. The workflow then
+submits explicit consent, exchanges S256 PKCE credentials, calls protected MCP,
+verifies Cloudflare's documented refresh recovery grace, lists and revokes the
+isolated grant, and proves both the access and refresh tokens are rejected
+afterward. Its artifact is status, timing, and request-ID metadata only.
+Production is intentionally not an option for this mutating workflow.
 
 Do not enable OAuth in preview or production until all of the following are true:
 

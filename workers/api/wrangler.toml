@@ -167,6 +167,14 @@ OIDC_CLIENT_ID = "ESxeGH9aCGLP1EYJ"
 OIDC_SCOPES = "openid profile email"
 OIDC_SESSION_TTL_SECONDS = "28800"
 OIDC_LOGIN_HINT = ""
+# GitHub Actions OIDC is an explicitly allowlisted automation principal for the
+# protected preview lifecycle receipt. Production does not configure this adapter.
+AUTOMATION_OIDC_ISSUER = "https://token.actions.githubusercontent.com"
+AUTOMATION_OIDC_AUDIENCE = "https://github.com/blakeox/financial-analysis"
+AUTOMATION_OIDC_JWKS_URI = "https://token.actions.githubusercontent.com/.well-known/jwks"
+AUTOMATION_OIDC_SUBJECT = "repo:blakeox/financial-analysis:environment:preview"
+AUTOMATION_OIDC_REPOSITORY = "blakeox/financial-analysis"
+AUTOMATION_OIDC_WORKFLOW_REF = "blakeox/financial-analysis/.github/workflows/cloudflare-oauth-hosted-lifecycle.yml@refs/heads/main"
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 AI_SEARCH_INSTANCE_NAME = "fanalyx-preview-site"
