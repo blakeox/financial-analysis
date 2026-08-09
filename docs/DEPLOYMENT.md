@@ -61,6 +61,12 @@ in GitHub Actions logs:
 - `OIDC_SESSION_TTL_SECONDS`
 - `OIDC_CLIENT_SECRET` (optional; confidential OIDC clients only, Worker secret only)
 
+For the preview hosted OAuth lifecycle receipt, store the current browser-created
+`__Host-FANALYX_OIDC_SESSION=...` value as the protected `preview` environment
+secret `FANALYX_OIDC_SESSION_COOKIE`. Never place it in repository variables,
+workflow inputs, issue comments, or artifacts. Rotate it by signing in again
+when the session expires, then rerun the confirmation-gated preview workflow.
+
 Hosted model egress is independently controlled by `AI_EGRESS_ENABLED`. Set it
 to `false` during an AI incident or cost-control event; deterministic formula
 and stateless MCP capabilities remain available while model-backed routes fail
