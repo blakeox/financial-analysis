@@ -186,6 +186,7 @@ jobs:
         id: production_smoke
         env:
           API_URL: https://api.fanalyx.com
+          VERSION_URL: https://fanalyx-api-production.blakeoxford.workers.dev
           HEALTH_URL: https://fanalyx-api-production.blakeoxford.workers.dev
           ENVIRONMENT: production
           PUBLIC_URL: https://fanalyx.com
@@ -232,7 +233,7 @@ jobs:
           jq -e \
             '.status == "ok" and .environment == "production"' <<<"${api_health}" >/dev/null
 
-          api_version="$(fetch_json "${API_URL}/version")"
+          api_version="$(fetch_json "${VERSION_URL}/version")"
           jq -e --arg sha "${EXPECTED_SHA}" \
             '.environment == "production" and .commit == $sha' <<<"${api_version}" >/dev/null
 
