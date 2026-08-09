@@ -9,6 +9,7 @@ const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
 const expectedBudgetEnforcementEnabled = process.env.EXPECTED_BUDGET_ENFORCEMENT_ENABLED === 'true';
+const smokeToken = process.env.FANALYX_SMOKE_TOKEN?.trim() || null;
 const receiptPath =
   process.env.CLOUDFLARE_BOUNDARY_RECEIPT?.trim() || 'cloudflare-boundary-receipt.json';
 
@@ -26,12 +27,19 @@ function record(name, passed, details = {}) {
   return passed;
 }
 
+function requestHeaders(initHeaders) {
+  const headers = new Headers(initHeaders);
+  if (smokeToken) headers.set('x-fanalyx-smoke-token', smokeToken);
+  return headers;
+}
+
 async function fetchAgainst(baseUrl, path, init = {}) {
   let lastError;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
       const response = await fetch(`${baseUrl}${path}`, {
         ...init,
+        headers: requestHeaders(init.headers),
         signal: AbortSignal.timeout(30_000),
       });
       if (response.status >= 500 || response.status === 408 || response.status === 429) {

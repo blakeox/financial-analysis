@@ -170,6 +170,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           EXPECTED_SHA: ${{ env.COMMIT_SHA }}
+          FANALYX_SMOKE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -191,6 +192,7 @@ jobs:
               --silent \
               --show-error \
               --header 'Accept: application/json' \
+              --header "x-fanalyx-smoke-token: ${FANALYX_SMOKE_TOKEN}" \
               --retry 5 \
               --retry-all-errors \
               --retry-delay 2 \
