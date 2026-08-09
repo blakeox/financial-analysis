@@ -72,7 +72,7 @@ for (const clientId of requiredClients) {
   requireValue(clientIds.has(clientId), `required client is missing: ${clientId}`);
 }
 
-const supportedStatuses = new Set(['protocol-verified', 'bridge-not-shipped', 'vendor-accepted']);
+const supportedStatuses = new Set(['protocol-verified', 'bridge-shipped', 'vendor-accepted']);
 for (const client of clients) {
   requireValue(
     typeof client.displayName === 'string' && client.displayName.length > 0,
@@ -91,6 +91,12 @@ for (const client of clients) {
   requireValue(
     client.status === 'vendor-accepted' ? client.verification.length > 0 : true,
     `${client.id} vendor acceptance requires explicit verification evidence`
+  );
+  requireValue(
+    client.status === 'bridge-shipped'
+      ? client.verification.includes('local-stdio-bridge-tests')
+      : true,
+    `${client.id} bridge-shipped status requires local bridge test evidence`
   );
 }
 

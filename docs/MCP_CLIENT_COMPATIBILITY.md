@@ -28,16 +28,16 @@ replace human acceptance in each vendor's client UI or account.
 
 ## Client matrix
 
-| Client class                | Connection   | Current status     | Required acceptance                                                    |
-| --------------------------- | ------------ | ------------------ | ---------------------------------------------------------------------- |
-| ChatGPT                     | Remote OAuth | Protocol verified  | Connect from a real account and call one read-only formula             |
-| Codex / OpenAI MCP client   | Remote OAuth | Protocol verified  | Connect from a real client and call one read-only formula              |
-| Claude / remote MCP client  | Remote OAuth | Protocol verified  | Connect from a real account and call one read-only formula             |
-| Local LLM / MCP application | Remote OAuth | Bridge not shipped | Use a client with remote Streamable HTTP, or wait for the stdio bridge |
+| Client class                | Connection                   | Current status    | Required acceptance                                            |
+| --------------------------- | ---------------------------- | ----------------- | -------------------------------------------------------------- |
+| ChatGPT                     | Remote OAuth                 | Protocol verified | Connect from a real account and call one read-only formula     |
+| Codex / OpenAI MCP client   | Remote OAuth                 | Protocol verified | Connect from a real client and call one read-only formula      |
+| Claude / remote MCP client  | Remote OAuth                 | Protocol verified | Connect from a real account and call one read-only formula     |
+| Local LLM / MCP application | Remote OAuth or stdio bridge | Bridge shipped    | Supply a short-lived token; browser OAuth remains client-owned |
 
 “Protocol verified” means the client class can use the documented discovery,
 registration, PKCE, and Streamable HTTP contract. It does not claim that a
-vendor has accepted Fanalyx or that the local bridge exists.
+vendor has accepted Fanalyx.
 
 ## Connection rules
 
@@ -64,3 +64,24 @@ for the detailed flow and error table.
 Client pilots must record client name/version, environment, tool name, result
 envelope, request ID, consent/revocation outcome, and any vendor-specific
 limitation without recording tokens, cookies, prompts, or financial inputs.
+
+## Local stdio bridge
+
+The bridge is a stateless process adapter. It forwards JSON-RPC over stdio to
+the approved remote `/oauth/mcp` resource, keeps only the in-memory MCP session
+identifier, and never stores prompts, tool arguments, results, or tokens.
+
+Obtain a short-lived access token through an approved OAuth client, then provide
+it to the bridge through the process environment. Do not put it in a committed
+client configuration, shell history, logs, or issue comments:
+
+```bash
+FANALYX_MCP_URL=https://fanalyx-api-preview.blakeoxford.workers.dev/oauth/mcp \
+FANALYX_MCP_ACCESS_TOKEN='(short-lived token from the approved client)' \
+node scripts/fanalyx-mcp-stdio.mjs
+```
+
+The bridge accepts only the approved preview/production resource URLs. Custom
+URLs require `FANALYX_MCP_ALLOW_CUSTOM_URL=true` and a loopback host, which is
+intended only for local fixtures. It forwards only `initialize`, `ping`,
+`notifications/initialized`, `tools/list`, and `tools/call`.
