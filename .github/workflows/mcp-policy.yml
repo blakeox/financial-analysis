@@ -63,6 +63,10 @@ jobs:
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: node scripts/check-mcp-client-compatibility.mjs
 
+      - name: Validate client acceptance receipt contract
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: node scripts/check-mcp-client-acceptance.mjs docs/MCP_CLIENT_ACCEPTANCE_RECEIPT.example.json --template
+
       - name: Test local MCP stdio bridge
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: pnpm exec vitest run scripts/fanalyx-mcp-stdio.test.mjs
@@ -102,8 +106,11 @@ jobs:
           docs/MCP_CAPABILITY_POLICY.md
           docs/MCP_CLIENT_COMPATIBILITY.json
           docs/MCP_CLIENT_COMPATIBILITY.md
+          docs/MCP_CLIENT_ACCEPTANCE.md
+          docs/MCP_CLIENT_ACCEPTANCE_RECEIPT.example.json
           docs/OAUTH_ROLLOUT.md
           scripts/check-mcp-client-compatibility.mjs
+          scripts/check-mcp-client-acceptance.mjs
           scripts/fanalyx-mcp-stdio-lib.mjs
           scripts/fanalyx-mcp-stdio.mjs
           scripts/fanalyx-mcp-stdio.test.mjs
