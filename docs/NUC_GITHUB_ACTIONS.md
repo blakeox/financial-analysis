@@ -109,6 +109,7 @@ Record these values in the related GitHub issue or project item:
 - Node and pnpm versions
 - disk capacity at admission and completion
 - smoke and verification conclusions
+- environment approval receipt for promotion certification
 - whether `NUC / certified` is required by branch protection
 
 The metric owner is the repository maintainer. Leading indicators are an
