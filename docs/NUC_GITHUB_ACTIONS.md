@@ -64,6 +64,14 @@ smoke workflow is dispatched. The exact service unit name should be taken from
 5. Only after those gates pass should `NUC / certified` be added to
    `.github/branch-protection.json` and synchronized to GitHub.
 
+Promotion certification is a maintainer-controlled operation. The
+`feature/promote-nuc-*` prefix is an admission check, not a complete trust
+boundary: never use this lane for fork PRs or code that has not received the
+required maintainer review. Before making the check required for a public
+repository, add an approval environment or move candidate execution to an
+ephemeral/containerized runner so a compromised candidate cannot persist on
+the NUC host.
+
 ## Security and failure controls
 
 - The NUC runner is repository-scoped and uses a dedicated directory and
@@ -73,6 +81,9 @@ smoke workflow is dispatched. The exact service unit name should be taken from
   where needed.
 - `pull_request_target` loads the workflow from `main`; candidate code is
   checked out only after the same-repository and branch-prefix boundary passes.
+- The promotion lane is deliberately not the ordinary fork-PR path. Its
+  persistent-host risk must be reduced with maintainer approval or an
+  ephemeral/containerized execution boundary before enforcement expands.
 - The most expensive failure is merging code that was not NUC-certified. The
   mitigation is the exact-head checkout and the future required status.
 - The silent failure is an offline or mislabeled runner leaving certification
