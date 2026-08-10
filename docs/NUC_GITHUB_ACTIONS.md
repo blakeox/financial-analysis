@@ -56,8 +56,9 @@ smoke workflow is dispatched. The exact service unit name should be taken from
    pnpm, checkout, and disk report.
 2. Dispatch it in `verify` mode against `main` and retain the run URL as the
    first NUC evidence receipt.
-3. Confirm the hosted `NUC / availability heartbeat` reports the expected
-   runner online with the `financial-analysis` label.
+3. Confirm the hosted `NUC / availability heartbeat` observes
+   `NUC / runner smoke` on `automation-nuc-financial-analysis` and reports a
+   successful completion.
 4. Create a clean promotion branch named
    `feature/promote-nuc-<sha>` only when a maintainer wants the NUC
    certification lane.
@@ -98,11 +99,11 @@ the NUC host.
   ephemeral/containerized execution boundary before enforcement expands.
 - The most expensive failure is merging code that was not NUC-certified. The
   mitigation is the exact-head checkout and the future required status.
-- The silent failure is an offline or mislabeled runner leaving certification
-  pending. The hosted heartbeat fails independently of the NUC and the weekly
-  scheduled verification confirms the runner can still execute the repository
-  gate; the owner must restore the runner or remove the lane from branch
-  protection.
+- The silent failure is an offline or mislabeled runner leaving the NUC job
+  pending. The hosted heartbeat watches the same run through the Actions API,
+  times out independently of the NUC, and the weekly scheduled verification
+  confirms the runner can still execute the repository gate; the owner must
+  restore the runner or remove the lane from branch protection.
 - Kill switch: disable `nuc-ci.yml` or stop only the
   `automation-nuc-financial-analysis` service. Do not stop the existing
   `whisperx-gui` runner.
