@@ -1,29 +1,16 @@
 /**
  * Stateless public MCP edge boundary (scaffold; no production traffic)
  *
- * Parallel boundary scaffold for #450. Health/version only.
- * Legacy MCP/Agent/indexer traffic remains on workers/api until cutover.
+ * Parallel boundary for #438 / #450. Health plus Streamable HTTP `/mcp` via
+ * `createMcpHandler`. Legacy live MCP remains on workers/api until cutover.
+ *
+ * Named constants live in `worker-meta.ts` so Wrangler does not treat them as
+ * service exports on the worker module map.
  */
 
-export const WORKER_ROLE = 'mcp' as const;
-export const WORKER_VERSION = '0.1.0';
-
-/** Bindings that must not appear on this worker's Env for independence. */
-export const FORBIDDEN_ENV_KEYS = [
-  'DB',
-  'MEMORY',
-  'AI_SEARCH',
-  'AGENT',
-  'INDEXER',
-  'VECTORIZE',
-  'DOCUMENT_BUCKET',
-] as const;
-
-export interface Env {
-  ENVIRONMENT: string;
-  WORKER_ROLE: typeof WORKER_ROLE;
-  COMMIT_SHA?: string;
-}
+import { authorizationFromRequest } from './authorization.js';
+import { createStatelessMcpServer } from './mcp-server.js';
+import { WORKER_ROLE, WORKER_VERSION, type Env } from './worker-meta.js';
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -36,7 +23,7 @@ function json(data: unknown, status = 200): Response {
 }
 
 export default {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/version')) {
       return json({
@@ -46,8 +33,24 @@ export default {
         environment: env.ENVIRONMENT,
         commitSha: env.COMMIT_SHA ?? null,
         productionTraffic: false,
+        mcpRoute: '/mcp',
       });
     }
+
+    if (url.pathname === '/mcp' || url.pathname.startsWith('/mcp/')) {
+      // Dynamic import keeps `/health` unit-testable in Node (agents uses cloudflare:).
+      const { createMcpHandler } = await import('agents/mcp');
+      const authorization = authorizationFromRequest(
+        request,
+        env.ENVIRONMENT,
+        env.MCP_DEV_AUTH_ENABLED === 'true'
+      );
+      const handler = createMcpHandler(createStatelessMcpServer(authorization), {
+        route: '/mcp',
+      });
+      return handler(request, env, ctx);
+    }
+
     return new Response('Not Found', { status: 404 });
   },
 };
