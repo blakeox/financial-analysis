@@ -60,9 +60,14 @@ smoke workflow is dispatched. The exact service unit name should be taken from
    `feature/promote-nuc-<sha>` only when a maintainer wants the NUC
    certification lane.
 4. Open a same-repository PR from that branch to `main` and confirm
+   the `nuc-certification` environment approval is granted before
    `NUC / certified` tests the exact PR head SHA.
 5. Only after those gates pass should `NUC / certified` be added to
    `.github/branch-protection.json` and synchronized to GitHub.
+
+The `nuc-certification` environment is configured with a required maintainer
+reviewer and a deployment branch policy matching `feature/promote-nuc-*`.
+Approval occurs before the certification job checks out candidate code.
 
 Promotion certification is a maintainer-controlled operation. The
 `feature/promote-nuc-*` prefix is an admission check, not a complete trust
@@ -81,6 +86,8 @@ the NUC host.
   where needed.
 - `pull_request_target` loads the workflow from `main`; candidate code is
   checked out only after the same-repository and branch-prefix boundary passes.
+- The `nuc-certification` environment approval is required before the
+  persistent NUC job can execute candidate code.
 - The promotion lane is deliberately not the ordinary fork-PR path. Its
   persistent-host risk must be reduced with maintainer approval or an
   ephemeral/containerized execution boundary before enforcement expands.
