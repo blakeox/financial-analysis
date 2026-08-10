@@ -56,13 +56,15 @@ smoke workflow is dispatched. The exact service unit name should be taken from
    pnpm, checkout, and disk report.
 2. Dispatch it in `verify` mode against `main` and retain the run URL as the
    first NUC evidence receipt.
-3. Create a clean promotion branch named
+3. Confirm the hosted `NUC / availability heartbeat` reports the expected
+   runner online with the `financial-analysis` label.
+4. Create a clean promotion branch named
    `feature/promote-nuc-<sha>` only when a maintainer wants the NUC
    certification lane.
-4. Open a same-repository PR from that branch to `main` and confirm
+5. Open a same-repository PR from that branch to `main` and confirm
    the `nuc-certification` environment approval is granted before
    `NUC / certified` tests the exact PR head SHA.
-5. Only after those gates pass should `NUC / certified` be added to
+6. Only after those gates pass should `NUC / certified` be added to
    `.github/branch-protection.json` and synchronized to GitHub.
 
 The `nuc-certification` environment is configured with a required maintainer
@@ -97,8 +99,10 @@ the NUC host.
 - The most expensive failure is merging code that was not NUC-certified. The
   mitigation is the exact-head checkout and the future required status.
 - The silent failure is an offline or mislabeled runner leaving certification
-  pending. The weekly smoke detects this; the owner must restore the runner or
-  remove the lane from branch protection.
+  pending. The hosted heartbeat fails independently of the NUC and the weekly
+  scheduled verification confirms the runner can still execute the repository
+  gate; the owner must restore the runner or remove the lane from branch
+  protection.
 - Kill switch: disable `nuc-ci.yml` or stop only the
   `automation-nuc-financial-analysis` service. Do not stop the existing
   `whisperx-gui` runner.
@@ -111,10 +115,10 @@ Record these values in the related GitHub issue or project item:
 - workflow run URL and exact commit SHA
 - Node and pnpm versions
 - disk capacity at admission and completion
-- smoke and verification conclusions
+- heartbeat, smoke, and verification conclusions
 - environment approval receipt for promotion certification
 - whether `NUC / certified` is required by branch protection
 
-The metric owner is the repository maintainer. Leading indicators are an
-online runner and successful weekly smoke; the lagging indicator is the count
-of regressions that escaped the hosted and NUC gates.
+The metric owner is the repository maintainer. Leading indicators are a
+healthy heartbeat and successful weekly verification; the lagging indicator is
+the count of regressions that escaped the hosted and NUC gates.
