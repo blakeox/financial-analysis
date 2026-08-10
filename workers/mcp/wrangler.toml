@@ -3,7 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Scaffold only (#450). Do not attach custom domains or production routes until cutover.
+# Scaffold (#450 / #438). `/mcp` is available via createMcpHandler but
+# productionTraffic remains false — do not attach custom domains or cut over
+# live clients from workers/api until an explicit cutover.
 
 [dev]
 port = 8791
@@ -14,6 +16,7 @@ name = "fanalyx-mcp-development"
 [env.development.vars]
 ENVIRONMENT = "development"
 WORKER_ROLE = "mcp"
+MCP_DEV_AUTH_ENABLED = "true"
 
 [env.preview]
 name = "fanalyx-mcp-preview"

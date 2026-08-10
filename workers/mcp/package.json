@@ -1,7 +1,7 @@
 {
   "name": "@financial-analysis/mcp-worker",
   "version": "0.1.0",
-  "description": "Stateless public MCP edge boundary (scaffold; no production traffic)",
+  "description": "Stateless public MCP edge boundary (createMcpHandler scaffold; no production traffic)",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -10,6 +10,7 @@
     "build": "tsc --noEmit",
     "deploy:preview": "echo 'Scaffold only: production traffic not enabled' && exit 1",
     "test": "vitest run --config ./vitest.config.mjs",
+    "pretest": "pnpm --filter @financial-analysis/analysis run build && pnpm --filter @financial-analysis/capabilities run build",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
@@ -26,5 +27,11 @@
     "typescript": "^6.0.3",
     "vitest": "4.1.9",
     "wrangler": "^4.105.0"
+  },
+  "dependencies": {
+    "@financial-analysis/tools": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "agents": "^0.17.1",
+    "zod": "^4.4.3"
   }
 }
