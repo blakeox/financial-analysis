@@ -11,6 +11,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [e2e-web.yml](./e2e-web.yml)                               | Every PR (Playwright when web paths change)                                     | **E2E smoke** — smoke-matrix on web PRs; fast pass otherwise                                                                                                      |
 | [codeql.yml](./codeql.yml)                                 | Every PR + push to `main`/`dev`                                                 | **CodeQL** — analysis when code changes; fast pass on doc-only PRs                                                                                                |
 | [mcp-policy.yml](./mcp-policy.yml)                         | Every PR + push to `main`/`dev`                                                 | **MCP policy** — focused OAuth, OIDC, capability, tenant-isolation, lifecycle, and interoperability checks; auth scripts/workflows are included in path detection |
+| [nuc-ci.yml](./nuc-ci.yml)                                 | Weekly/manual + controlled promotion PRs                                        | NUC runner smoke and same-repository `feature/promote-nuc-*` certification; not required until runner evidence is complete |
 | [dependabot-automerge.yml](./dependabot-automerge.yml)     | Dependabot PRs                                                                  | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review)                                                                          |
 | [pr-labeler.yml](./pr-labeler.yml)                         | Every PR                                                                        | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`)                                                                                  |
 | [sync-labels.yml](./sync-labels.yml)                       | Push to `main` when [labels.yml](../labels.yml) changes                         | Keeps GitHub labels in sync                                                                                                                                       |
@@ -97,6 +98,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 4. **Secrets** — Cloudflare deploy tokens, protected production `CLOUDFLARE_WAF_READ_TOKEN`, optional `CODECOV_TOKEN`; Slack for monitors
 5. **Environments** — `preview` / `production` with protection rules if using deploy workflows
 6. **Clerk OAuth** — add `CLERK_SECRET_KEY` only to the selected protected GitHub environment before running [provision-clerk-oauth.yml](./provision-clerk-oauth.yml); use dry-run first and require production confirmation for apply
+7. **NUC runner** — register the separate `automation-nuc-financial-analysis` service and complete the smoke/verification gates in [`docs/NUC_GITHUB_ACTIONS.md`](../../docs/NUC_GITHUB_ACTIONS.md) before adding `NUC / certified` to branch protection
 
 ## Local equivalents
 
