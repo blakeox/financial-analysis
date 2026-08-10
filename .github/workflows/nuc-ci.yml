@@ -84,6 +84,8 @@ jobs:
       startsWith(github.event.pull_request.head.ref, 'feature/promote-nuc-')
     runs-on: [self-hosted, linux, x64, nuc, financial-analysis]
     timeout-minutes: 45
+    environment:
+      name: nuc-certification
     env:
       TARGET_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
