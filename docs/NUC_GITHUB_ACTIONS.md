@@ -66,8 +66,11 @@ smoke workflow is dispatched. The exact service unit name should be taken from
    `.github/branch-protection.json` and synchronized to GitHub.
 
 The `nuc-certification` environment is configured with a required maintainer
-reviewer and a deployment branch policy matching `feature/promote-nuc-*`.
-Approval occurs before the certification job checks out candidate code.
+reviewer and a deployment branch policy matching `main`, because the
+`pull_request_target` workflow is evaluated from the protected base branch.
+The workflow itself admits only same-repository `feature/promote-nuc-*`
+candidate branches. Approval occurs before the certification job checks out
+candidate code.
 
 Promotion certification is a maintainer-controlled operation. The
 `feature/promote-nuc-*` prefix is an admission check, not a complete trust
