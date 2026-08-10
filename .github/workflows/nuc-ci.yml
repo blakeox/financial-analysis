@@ -1,0 +1,141 @@
+name: NUC CI
+
+# The NUC is a controlled Linux certification lane, not the default executor
+# for arbitrary pull-request code. Hosted checks remain the portable baseline.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to validate on the controlled NUC
+        required: true
+        default: main
+        type: string
+      mode:
+        description: NUC validation depth
+        required: true
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - verify
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: nuc-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NUC_NODE_BIN: /home/github-runner/.local/node-v24.18.0/bin
+
+jobs:
+  runner-smoke:
+    name: NUC / runner smoke
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, linux, x64, nuc, financial-analysis]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Report runner identity
+        run: |
+          set -euo pipefail
+          export PATH="$NUC_NODE_BIN:$PATH"
+          printf 'runner=%s\n' "${RUNNER_NAME:-unknown}"
+          printf 'host=%s\n' "$(hostname)"
+          printf 'platform=%s\n' "$(uname -a)"
+          printf 'node=%s\n' "$(node --version)"
+          printf 'pnpm=%s\n' "$(pnpm --version)"
+          df -h /
+          test "${RUNNER_NAME:-}" = "automation-nuc-financial-analysis"
+
+      - name: Verify repository checkout
+        run: |
+          set -euo pipefail
+          test -f package.json
+          test -f pnpm-lock.yaml
+          git status --short
+
+      - name: Run bounded verification
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'verify'
+        run: |
+          set -euo pipefail
+          export PATH="$NUC_NODE_BIN:$PATH"
+          pnpm install --frozen-lockfile
+          pnpm run test:ci
+
+  promotion-certification:
+    name: NUC / certified
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'feature/promote-nuc-')
+    runs-on: [self-hosted, linux, x64, nuc, financial-analysis]
+    timeout-minutes: 45
+    env:
+      TARGET_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout trusted workflow source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: main
+          path: control
+          persist-credentials: false
+
+      - name: Assert trusted promotion boundary
+        env:
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          test "$HEAD_REPOSITORY" = "$BASE_REPOSITORY"
+          case "$HEAD_REF" in
+            feature/promote-nuc-*) ;;
+            *) echo "unexpected promotion branch: $HEAD_REF" >&2; exit 1 ;;
+          esac
+
+      - name: Checkout promotion candidate
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ env.TARGET_SHA }}
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Report NUC identity and capacity
+        run: |
+          set -euo pipefail
+          export PATH="$NUC_NODE_BIN:$PATH"
+          printf 'runner=%s\n' "${RUNNER_NAME:-unknown}"
+          printf 'host=%s\n' "$(hostname)"
+          printf 'node=%s\n' "$(node --version)"
+          printf 'pnpm=%s\n' "$(pnpm --version)"
+          df -h /
+          test "${RUNNER_NAME:-}" = "automation-nuc-financial-analysis"
+
+      - name: Install exact candidate dependencies
+        working-directory: source
+        run: |
+          set -euo pipefail
+          export PATH="$NUC_NODE_BIN:$PATH"
+          pnpm install --frozen-lockfile
+
+      - name: Run authoritative candidate verification
+        working-directory: source
+        run: |
+          set -euo pipefail
+          export PATH="$NUC_NODE_BIN:$PATH"
+          pnpm run test:ci

@@ -74,3 +74,20 @@ Optional: add the repo to the [OpenSSF Scorecard dashboard](https://scorecard.de
 | Slack webhooks (if used)                   | `monitor-workers-health.yml`, `monitor-r2-quotas.yml` |
 
 See [workflows/README.md](./workflows/README.md) for the full workflow map.
+
+## 7. Controlled NUC runner
+
+The repository has a dedicated NUC workflow, but it must not be enabled as a
+required merge check until the host has been registered and evidence exists.
+
+Follow [`docs/NUC_GITHUB_ACTIONS.md`](../docs/NUC_GITHUB_ACTIONS.md) to:
+
+1. register a separate `automation-nuc-financial-analysis` runner on the
+   `automation` host;
+2. confirm labels `self-hosted, linux, x64, nuc, financial-analysis`;
+3. complete `NUC CI` smoke and verification dispatches; and
+4. run one controlled `feature/promote-nuc-*` certification PR.
+
+Only after those checks pass should `NUC / certified` be added to
+`.github/branch-protection.json` and synchronized to GitHub. Keep ordinary
+fork/PR checks on hosted runners.
