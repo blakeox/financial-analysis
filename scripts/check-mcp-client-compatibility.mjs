@@ -6,6 +6,14 @@ const path = new URL('../docs/MCP_CLIENT_COMPATIBILITY.json', import.meta.url);
 const document = JSON.parse(await readFile(path, 'utf8'));
 const failures = [];
 
+const mcpWorkerPackage = JSON.parse(
+  await readFile(new URL('../workers/mcp/package.json', import.meta.url), 'utf8')
+);
+const wranglerConfig = await readFile(
+  new URL('../workers/mcp/wrangler.toml', import.meta.url),
+  'utf8'
+);
+
 function requireValue(condition, message) {
   if (!condition) failures.push(message);
 }
@@ -41,6 +49,47 @@ requireValue(
 requireValue(
   document.contract?.requestPersistence === 'none-by-default',
   'request persistence must be none-by-default'
+);
+
+requireValue(
+  document.implementation?.worker === mcpWorkerPackage.name,
+  'implementation worker must match workers/mcp/package.json'
+);
+requireValue(
+  document.implementation?.handler === 'createMcpHandler',
+  'implementation handler must remain createMcpHandler'
+);
+requireValue(
+  document.implementation?.handlerImport === 'agents/mcp',
+  'pinned Agents release must use the supported agents/mcp import'
+);
+requireValue(
+  document.implementation?.agentsVersion === '0.17.1',
+  'Agents compatibility receipt must name the pinned version'
+);
+requireValue(
+  document.implementation?.mcpSdkVersion === '1.29.0',
+  'MCP SDK compatibility receipt must name the pinned version'
+);
+requireValue(
+  document.implementation?.wranglerVersion === '4.105.0',
+  'Wrangler compatibility receipt must name the pinned version'
+);
+requireValue(
+  document.implementation?.compatibilityDate === '2026-07-02',
+  'compatibility date must match the verified local workerd ceiling'
+);
+requireValue(
+  /compatibility_date\s*=\s*"2026-07-02"/.test(wranglerConfig),
+  'workers/mcp Wrangler config must use the verified local workerd ceiling'
+);
+requireValue(
+  /compatibility_flags\s*=\s*\["nodejs_compat"\]/.test(wranglerConfig),
+  'workers/mcp must keep nodejs_compat enabled'
+);
+requireValue(
+  document.migrationTrigger?.decision === 'defer-until-versioned-compatibility-spike',
+  'SDK migration must remain gated by a versioned compatibility spike'
 );
 
 const environments = Array.isArray(document.environments) ? document.environments : [];

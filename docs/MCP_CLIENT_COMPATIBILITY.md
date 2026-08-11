@@ -10,6 +10,16 @@ The machine-readable source is
 its required clients, transport, scope, environment status, and evidence
 references.
 
+## Current runtime receipt
+
+The scaffold Worker is pinned to `agents@0.17.1`,
+`@modelcontextprotocol/sdk@1.29.0`, and `wrangler@4.105.0`. Its supported
+handler import is `agents/mcp`; the newer `agents/mcp/server` plus MCP SDK v2
+path is deliberately deferred until the versioned compatibility spike proves
+local runtime support, auth-context propagation, error serialization, and
+rollback. The verified local workerd ceiling is compatibility date
+`2026-07-02`; raising it without upgrading and testing Wrangler is prohibited.
+
 ## Stable protocol contract
 
 - Transport: remote Streamable HTTP.

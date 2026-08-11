@@ -1,7 +1,19 @@
 name = "fanalyx-mcp"
 main = "src/index.ts"
-compatibility_date = "2025-09-01"
+# Keep this at the newest date supported by the pinned Wrangler/workerd
+# toolchain. Raise it only in the same change as a verified Wrangler upgrade.
+compatibility_date = "2026-07-02"
 compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+  [observability.logs]
+  head_sampling_rate = 1
+
+  [observability.traces]
+  enabled = true
+  head_sampling_rate = 0.01
 
 # Scaffold (#450 / #438). `/mcp` is available via createMcpHandler but
 # productionTraffic remains false — do not attach custom domains or cut over
