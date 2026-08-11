@@ -13,6 +13,30 @@
     "memoryExposure": "none-by-default",
     "requestPersistence": "none-by-default"
   },
+  "implementation": {
+    "worker": "@financial-analysis/mcp-worker",
+    "handler": "createMcpHandler",
+    "handlerImport": "agents/mcp",
+    "agentsVersion": "0.17.1",
+    "mcpSdkVersion": "1.29.0",
+    "wranglerVersion": "4.105.0",
+    "compatibilityDate": "2026-07-02",
+    "compatibilityFlags": ["nodejs_compat"],
+    "trafficStatus": "scaffold-only",
+    "legacyHandlerOption": "not-supported-by-pinned-agents-release"
+  },
+  "migrationTrigger": {
+    "targetHandlerImport": "agents/mcp/server",
+    "targetMcpPackage": "@modelcontextprotocol/server",
+    "targetMcpSdkVersion": "2.0.0-beta.5",
+    "requiredEvidence": [
+      "local Wrangler compatibility date support",
+      "initialize/tools-list/tools-call/error serialization",
+      "OAuth auth context propagation",
+      "preview rollback receipt"
+    ],
+    "decision": "defer-until-versioned-compatibility-spike"
+  },
   "environments": [
     {
       "id": "preview",
