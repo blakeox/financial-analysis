@@ -94,7 +94,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout selected ref
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
           persist-credentials: false
@@ -142,7 +142,7 @@ jobs:
       TARGET_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - name: Checkout trusted workflow source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           ref: main
           path: control
@@ -162,7 +162,7 @@ jobs:
           esac
 
       - name: Checkout promotion candidate
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           ref: ${{ env.TARGET_SHA }}
           path: source
