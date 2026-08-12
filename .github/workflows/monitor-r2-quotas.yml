@@ -22,21 +22,35 @@ jobs:
         id: precheck
         env:
           API_URL: ${{ vars.PROD_API_URL }}
-          API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${API_URL:-}" ] || [ -z "${API_TOKEN:-}" ]; then
-            echo "PROD_API_URL and INTERNAL_API_TOKEN are required; quota cannot be verified" >&2
+          if [ -z "${API_URL:-}" ] || [ -z "${ADMIN_API_TOKEN:-}" ]; then
+            {
+              echo "skip=false"
+              echo "failure_stage=precheck"
+              echo "failure_reason=PROD_API_URL and ADMIN_API_TOKEN are required"
+            } >> "$GITHUB_OUTPUT"
+            echo "PROD_API_URL and ADMIN_API_TOKEN are required; quota cannot be verified" >&2
             exit 1
           fi
           code=$(curl -sS -o /dev/null -w "%{http_code}" \
-            -H "x-internal-api-token: $API_TOKEN" \
+            -H "Authorization: Bearer $ADMIN_API_TOKEN" \
             "$API_URL/v1/storage/status" || true)
           if [ "$code" != "200" ]; then
+            {
+              echo "skip=false"
+              echo "failure_stage=precheck"
+              echo "failure_reason=storage status endpoint returned HTTP $code"
+            } >> "$GITHUB_OUTPUT"
             echo "Endpoint not healthy or authorized (status=$code)" >&2
             exit 1
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "skip=false"
+              echo "failure_stage="
+              echo "failure_reason="
+            } >> "$GITHUB_OUTPUT"
           fi
       - name: Ensure jq is installed
         if: steps.precheck.outputs.skip != 'true'
@@ -48,13 +62,27 @@ jobs:
         id: status
         env:
           API_URL: ${{ vars.PROD_API_URL }}
-          API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
         if: steps.precheck.outputs.skip != 'true'
         run: |
           set -euo pipefail
+          failure_stage=storage-status
+          failure_reason="storage status check failed before a valid measurement was produced"
+          on_error() {
+            status=$?
+            {
+              echo "failure_stage=$failure_stage"
+              echo "failure_reason=$failure_reason (exit=$status)"
+            } >> "$GITHUB_OUTPUT"
+          }
+          trap on_error ERR
           API="$API_URL"
-          resp=$(curl -sfSL -H "x-internal-api-token: $API_TOKEN" "$API/v1/storage/status")
+          resp=$(curl -sS -fL -H "Authorization: Bearer $ADMIN_API_TOKEN" "$API/v1/storage/status")
           echo "Response: $resp"
+          if ! echo "$resp" | jq -e '(.locked | type == "boolean") and (.approxBytes | type == "number") and (.softLimit | type == "number")' >/dev/null; then
+            failure_reason="storage status response did not match the expected quota contract"
+            exit 1
+          fi
           locked=$(echo "$resp" | jq -r '.locked')
           approx=$(echo "$resp" | jq -r '.approxBytes')
           soft=$(echo "$resp" | jq -r '.softLimit')
@@ -68,44 +96,61 @@ jobs:
             echo "thresh=$thresh"
           } >> "$GITHUB_OUTPUT"
           if [ "$locked" = "true" ]; then
+            failure_stage=quota-threshold
+            failure_reason="R2 uploads are locked due to quota"
             echo "R2 uploads locked due to quota"
             exit 1
           fi
           if [ "$approx" -ge "$thresh" ]; then
+            failure_stage=quota-threshold
+            failure_reason="R2 usage is at or above 80% of the soft limit"
             echo "R2 usage approaching soft limit (>=80%)"
             exit 1
           fi
+          {
+            echo "failure_stage="
+            echo "failure_reason="
+          } >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Notify (optional Slack)
-        if: failure() && steps.precheck.outputs.skip != 'true'
+        if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
-            msg="R2 quota alert. locked=${{ steps.status.outputs.locked }}, approx=${{ steps.status.outputs.approx }}, soft=${{ steps.status.outputs.soft }}, thresh=${{ steps.status.outputs.thresh }}"
-            curl -X POST -H 'Content-type: application/json' --data "{\"text\": \"$msg\"}" "$SLACK_WEBHOOK_URL"
+            msg="R2 quota monitor result. stage=${{ steps.status.outputs.failure_stage || steps.precheck.outputs.failure_stage || 'unknown' }}, reason=${{ steps.status.outputs.failure_reason || steps.precheck.outputs.failure_reason || 'no diagnostic was recorded' }}, locked=${{ steps.status.outputs.locked || 'unknown' }}, approx=${{ steps.status.outputs.approx || 'unknown' }}, soft=${{ steps.status.outputs.soft || 'unknown' }}, thresh=${{ steps.status.outputs.thresh || 'unknown' }}"
+            payload=$(jq -n --arg text "$msg" '{text: $text}')
+            curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
           else
             echo "No SLACK_WEBHOOK_URL configured; skipping notification"
           fi
 
       - name: Create or update GitHub Issue
-        if: failure() && steps.precheck.outputs.skip != 'true'
+        if: failure()
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          ALERT_STAGE: "${{ steps.status.outputs.failure_stage || steps.precheck.outputs.failure_stage || 'unknown' }}"
+          ALERT_REASON: "${{ steps.status.outputs.failure_reason || steps.precheck.outputs.failure_reason || 'no diagnostic was recorded' }}"
+          ALERT_LOCKED: "${{ steps.status.outputs.locked || 'unknown' }}"
+          ALERT_APPROX: "${{ steps.status.outputs.approx || 'unknown' }}"
+          ALERT_SOFT: "${{ steps.status.outputs.soft || 'unknown' }}"
+          ALERT_THRESH: "${{ steps.status.outputs.thresh || 'unknown' }}"
+          ALERT_API: "${{ steps.status.outputs.api || vars.PROD_API_URL || 'unknown' }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { locked, approx, soft, thresh, api } = {
-              locked: process.env.LOCKED || '${{ steps.status.outputs.locked }}',
-              approx: process.env.APPROX || '${{ steps.status.outputs.approx }}',
-              soft: process.env.SOFT || '${{ steps.status.outputs.soft }}',
-              thresh: process.env.THRESH || '${{ steps.status.outputs.thresh }}',
-              api: process.env.API || '${{ steps.status.outputs.api }}',
-            };
-            const title = `R2 quota alert: ${locked === 'true' ? 'LOCKED' : 'HIGH USAGE'}`;
+            const { ALERT_STAGE: stage, ALERT_REASON: reason, ALERT_LOCKED: locked, ALERT_APPROX: approx, ALERT_SOFT: soft, ALERT_THRESH: thresh, ALERT_API: api } = process.env;
+            const isThresholdAlert = stage === 'quota-threshold';
+            const title = isThresholdAlert
+              ? `R2 quota alert: ${locked === 'true' ? 'LOCKED' : 'HIGH USAGE'}`
+              : `R2 quota monitor failure: ${stage}`;
             const body = [
               `Automated alert from Monitor R2 Quotas workflow.`,
               '',
+              `- Result: ${isThresholdAlert ? 'valid quota measurement exceeded a threshold' : 'quota status could not be verified'}`,
+              `- Failure stage: ${stage}`,
+              `- Failure reason: ${reason}`,
               `- API: ${api}`,
               `- locked: ${locked}`,
               `- approxBytes: ${approx}`,
@@ -128,13 +173,14 @@ jobs:
             }
 
             const { data: issues } = await github.rest.issues.listForRepo({ owner, repo, state: 'open', labels: label });
-            const existing = issues.find(i => i.title.startsWith('R2 quota alert'));
+            const existing = issues.find(i => i.title.startsWith('R2 quota alert') || i.title.startsWith('R2 quota monitor failure'));
 
             if (existing) {
               await github.rest.issues.update({
                 owner,
                 repo,
                 issue_number: existing.number,
+                title,
                 body,
               });
               core.info(`Updated existing issue #${existing.number}`);

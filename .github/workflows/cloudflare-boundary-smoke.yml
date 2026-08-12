@@ -17,6 +17,7 @@ jobs:
     name: ${{ matrix.environment }} API boundary
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: ${{ matrix.environment }}
     strategy:
       fail-fast: false
       matrix:
@@ -37,9 +38,19 @@ jobs:
       EXPECTED_BUDGET_ENFORCEMENT_ENABLED: ${{ matrix.expected_budget_enforcement_enabled }}
       PUBLIC_URL: ${{ matrix.public_url }}
       CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-${{ matrix.environment }}.json
+      FANALYX_SMOKE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
     steps:
       - name: Checkout smoke harness
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Verify production probe credential
+        if: matrix.environment == 'production'
+        run: |
+          set -euo pipefail
+          test -n "${FANALYX_SMOKE_TOKEN:-}" || {
+            echo "FANALYX_SMOKE_TOKEN is required for the production boundary smoke; configure it in the production GitHub Actions environment." >&2
+            exit 1
+          }
 
       - name: Run machine-readable boundary conformance
         run: node scripts/cloudflare-boundary-smoke.mjs
