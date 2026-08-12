@@ -3,41 +3,87 @@
  * Calculate depreciation using multiple methods with tax impact analysis
  */
 
-import type { DepreciationInput } from '../../schemas/depreciation.js';
+import {
+  DEPRECIATION_FORMULA_METADATA,
+  type FormulaSemanticMetadata,
+} from '../../formula-semantics.js';
+import { DepreciationInputSchema, type DepreciationInput } from '../../schemas/depreciation.js';
+
+export interface DepreciationScheduleEntry {
+  year: number;
+  depreciation: number;
+  accumulatedDepreciation: number;
+  bookValue: number;
+}
+
+export interface DepreciationSchedule {
+  schedule: DepreciationScheduleEntry[];
+  totalDepreciation: number;
+}
+
+export interface DepreciationTaxSavings {
+  annualSavings: Array<{ year: number; taxSavings: number }>;
+  totalSavings: number;
+}
+
+export interface DepreciationMethodComparison {
+  methods: Array<{ method: string; totalDepreciation: number; totalTaxSavings: number }>;
+  bestMethod: string;
+}
+
+export interface DepreciationDisposalAnalysis {
+  bookValue: number;
+  gainOrLoss: number;
+  depreciationRecapture: number;
+  taxOnDisposal: number;
+  netProceeds: number;
+}
+
+export interface DepreciationResult {
+  formulaVersion?: string;
+  formulaMetadata?: FormulaSemanticMetadata;
+  summary: {
+    assetCost: number;
+    totalDepreciation: number;
+    totalTaxSavings: number;
+    bookValue: number;
+  };
+  depreciationSchedule?: DepreciationSchedule;
+  taxSavings?: DepreciationTaxSavings;
+  methodComparison?: DepreciationMethodComparison;
+  disposalAnalysis?: DepreciationDisposalAnalysis;
+  recommendations: string[];
+}
 
 export class DepreciationCalculator {
   /**
    * Calculate depreciation schedule
    */
-  static analyze(input: DepreciationInput): unknown {
-    const assetInfo = input.assetInfo;
-    const depreciationMethod = input.depreciationMethod;
-    const taxInfo = input.taxInfo;
-    const disposal = input.disposal;
-    const analysis = input.analysis;
+  static analyze(input: DepreciationInput): DepreciationResult {
+    const validated = DepreciationInputSchema.parse(input);
+    const assetInfo = validated.assetInfo;
+    const depreciationMethod = validated.depreciationMethod;
+    const taxInfo = validated.taxInfo;
+    const disposal = validated.disposal;
+    const analysis = validated.analysis;
 
-    // Calculate depreciation schedule
     const depreciationSchedule = analysis.includeSchedule
-      ? this.calculateDepreciationSchedule(input)
+      ? this.calculateDepreciationSchedule(validated)
       : undefined;
 
-    // Tax savings
     const taxSavings = analysis.includeTaxSavings
-      ? this.calculateTaxSavings(depreciationSchedule, input)
+      ? this.calculateTaxSavings(depreciationSchedule, validated)
       : undefined;
 
-    // Method comparison
     const methodComparison = analysis.includeMethodComparison
-      ? this.compareMethods(input)
+      ? this.compareMethods(validated)
       : undefined;
 
-    // Disposal analysis
     const disposalAnalysis =
       disposal && disposal.includeDisposalAnalysis
         ? this.analyzeDisposal(assetInfo, disposal, depreciationSchedule, taxInfo)
         : undefined;
 
-    // Recommendations
     const recommendations = this.generateRecommendations(
       depreciationSchedule,
       taxSavings,
@@ -46,35 +92,24 @@ export class DepreciationCalculator {
     );
 
     return {
+      formulaVersion: DEPRECIATION_FORMULA_METADATA.formulaVersion,
+      formulaMetadata: DEPRECIATION_FORMULA_METADATA,
       summary: {
         assetCost: assetInfo.purchaseCost,
         totalDepreciation: depreciationSchedule?.totalDepreciation || 0,
         totalTaxSavings: taxSavings?.totalSavings || 0,
         bookValue: assetInfo.purchaseCost - (depreciationSchedule?.totalDepreciation || 0),
       },
-      depreciationSchedule,
-      taxSavings,
-      methodComparison,
-      disposalAnalysis,
+      ...(depreciationSchedule ? { depreciationSchedule } : {}),
+      ...(taxSavings ? { taxSavings } : {}),
+      ...(methodComparison ? { methodComparison } : {}),
+      ...(disposalAnalysis ? { disposalAnalysis } : {}),
       recommendations,
     };
   }
 
-  private static calculateDepreciationSchedule(input: DepreciationInput): {
-    schedule: Array<{
-      year: number;
-      depreciation: number;
-      accumulatedDepreciation: number;
-      bookValue: number;
-    }>;
-    totalDepreciation: number;
-  } {
-    const schedule: Array<{
-      year: number;
-      depreciation: number;
-      accumulatedDepreciation: number;
-      bookValue: number;
-    }> = [];
+  private static calculateDepreciationSchedule(input: DepreciationInput): DepreciationSchedule {
+    const schedule: DepreciationScheduleEntry[] = [];
     let accumulatedDepreciation = 0;
     const asset = input.assetInfo;
     const method = input.depreciationMethod;
@@ -112,6 +147,10 @@ export class DepreciationCalculator {
         case 'bonus-depreciation':
           depreciation = year === 1 ? asset.purchaseCost * taxInfo.bonusDepreciationPercentage : 0;
           break;
+        default: {
+          const _exhaustive: never = method;
+          throw new Error(`Unsupported depreciation method: ${String(_exhaustive)}`);
+        }
       }
 
       accumulatedDepreciation += depreciation;
@@ -167,22 +206,9 @@ export class DepreciationCalculator {
   }
 
   private static calculateTaxSavings(
-    schedule:
-      | {
-          schedule: Array<{
-            year: number;
-            depreciation: number;
-            accumulatedDepreciation: number;
-            bookValue: number;
-          }>;
-          totalDepreciation: number;
-        }
-      | undefined,
+    schedule: DepreciationSchedule | undefined,
     input: DepreciationInput
-  ): {
-    annualSavings: Array<{ year: number; taxSavings: number }>;
-    totalSavings: number;
-  } {
+  ): DepreciationTaxSavings {
     if (!schedule) {
       return {
         annualSavings: [],
@@ -205,10 +231,7 @@ export class DepreciationCalculator {
     };
   }
 
-  private static compareMethods(input: DepreciationInput): {
-    methods: Array<{ method: string; totalDepreciation: number; totalTaxSavings: number }>;
-    bestMethod: string;
-  } {
+  private static compareMethods(input: DepreciationInput): DepreciationMethodComparison {
     const { taxInfo, assetInfo: asset } = input;
 
     const methods = ['straight-line', 'double-declining-balance', 'macrs'].map((method) => {
@@ -239,13 +262,7 @@ export class DepreciationCalculator {
     disposal: NonNullable<DepreciationInput['disposal']>,
     schedule: { totalDepreciation: number } | undefined,
     taxInfo: DepreciationInput['taxInfo']
-  ): {
-    bookValue: number;
-    gainOrLoss: number;
-    depreciationRecapture: number;
-    taxOnDisposal: number;
-    netProceeds: number;
-  } {
+  ): DepreciationDisposalAnalysis {
     if (!schedule) {
       return {
         bookValue: asset.purchaseCost,

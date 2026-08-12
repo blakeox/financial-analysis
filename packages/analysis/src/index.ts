@@ -30,6 +30,7 @@ export { TaxLossHarvestingOptimizer } from './engines/personal/tax-loss-harvesti
 export { AccountsPayableOptimizer } from './engines/business/accounts-payable-optimization.js';
 export { AccountsReceivableAgingAnalyzer } from './engines/business/accounts-receivable-aging.js';
 export { DepreciationCalculator } from './engines/business/depreciation.js';
+export type { DepreciationResult } from './engines/business/depreciation.js';
 export { EmployeeStockOptionsValuator } from './engines/business/employee-stock-options.js';
 export { EquipmentLeaseVsBuyCalculator } from './engines/business/equipment-lease-vs-buy.js';
 export { FinancialRatioAnalyzer } from './engines/business/financial-ratio-analyzer.js';
@@ -126,6 +127,8 @@ export {
   CERTIFIED_FORMULA_CATALOG,
   DEBT_CAPACITY_CANONICAL_TEST_VECTORS,
   DEBT_CAPACITY_FORMULA_METADATA,
+  DEPRECIATION_CANONICAL_TEST_VECTORS,
+  DEPRECIATION_FORMULA_METADATA,
   DSCR_CANONICAL_TEST_VECTORS,
   DSCR_FORMULA_METADATA,
   FINANCIAL_RATIO_CANONICAL_TEST_VECTORS,
@@ -148,6 +151,7 @@ export type {
   CanonicalTestVector,
   CAPMCanonicalOutput,
   DebtCapacityCanonicalOutput,
+  DepreciationCanonicalOutput,
   DSCRCanonicalOutput,
   FinancialRatioCanonicalOutput,
   FormulaPublicationStatus,

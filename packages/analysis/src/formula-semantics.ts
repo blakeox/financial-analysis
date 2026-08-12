@@ -6,6 +6,7 @@ import type { BondPricingInput } from './schemas/bond-pricing.js';
 import type { BreakEvenInput } from './schemas/break-even.js';
 import type { CAPMInput } from './schemas/capm.js';
 import type { DebtCapacityInput } from './schemas/debt-capacity.js';
+import type { DepreciationInput } from './schemas/depreciation.js';
 import type { DSCRInput } from './schemas/dscr.js';
 import type { FinancialRatioAnalyzerInput } from './schemas/financial-ratio-analyzer.js';
 import type { NPVIRRInput } from './schemas/npv-irr.js';
@@ -121,6 +122,14 @@ export interface FinancialRatioCanonicalOutput {
   roe: number;
   roa: number;
   debtToEquity: number;
+}
+
+export interface DepreciationCanonicalOutput {
+  totalDepreciation: number;
+  bookValue: number;
+  totalTaxSavings: number;
+  scheduleLength: number;
+  yearOneDepreciation: number;
 }
 
 export const AMORTIZATION_FORMULA_METADATA: FormulaSemanticMetadata = {
@@ -1187,6 +1196,139 @@ export const FINANCIAL_RATIO_CANONICAL_TEST_VECTORS: readonly CanonicalTestVecto
   },
 ];
 
+export const DEPRECIATION_FORMULA_METADATA: FormulaSemanticMetadata = {
+  formulaId: 'analysis.depreciation',
+  formulaVersion: '1.0.0',
+  publicationStatus: 'stable',
+  description:
+    'Builds a multi-year depreciation schedule and optional tax-savings estimate for a single asset.',
+  units: {
+    purchaseCost: 'currency units',
+    salvageValue: 'currency units',
+    usefulLife: 'years',
+    federalTaxRate: 'decimal fraction of taxable income',
+    stateTaxRate: 'decimal fraction of taxable income',
+    totalDepreciation: 'currency units',
+    bookValue: 'currency units',
+    totalTaxSavings: 'currency units',
+    yearOneDepreciation: 'currency units',
+  },
+  currency:
+    'unspecified by the current input contract; cost, salvage, and savings share one currency',
+  rateConvention:
+    'tax rates are decimal fractions (0.21 = 21%); declining-balance rates are derived from useful life',
+  dateBasis:
+    'projectionYears discrete annual periods; purchaseDate is informational and does not affect certified totals',
+  rounding: {
+    mode: 'none',
+    decimalPlaces: 15,
+  },
+  validRanges: {
+    purchaseCost: 'greater than or equal to zero',
+    salvageValue:
+      'greater than or equal to zero and less than or equal to purchaseCost for meaningful schedules',
+    usefulLife: 'integer years from 1 to 50',
+    projectionYears: 'integer years from 1 to 50',
+    federalTaxRate: 'from 0 to 0.5 inclusive',
+    stateTaxRate: 'from 0 to 0.2 inclusive',
+  },
+  exclusions: [
+    'Official IRS MACRS percentage tables are not used; the macrs method is a simplified declining-balance approximation.',
+    'Mid-quarter/mid-month conventions beyond the simplified half-year first-year cut are not modeled.',
+    'Bonus and Section 179 interaction stacking, phase-outs, and taxable-income limitations are not fully modeled.',
+    'Partial-year purchase/disposal timing beyond optional disposal analysis flags is outside the certified core.',
+  ],
+  warnings: [
+    'Certified vectors cover straight-line and double-declining-balance with schedule and tax savings enabled.',
+    'summary.bookValue is purchaseCost minus totalDepreciation and may fall below salvageValue when methods overshoot floor handling on schedule rows.',
+    'Recommendations and method-comparison heuristics are interpretive and outside the certified numeric contract.',
+  ],
+};
+
+export const DEPRECIATION_CANONICAL_TEST_VECTORS: readonly CanonicalTestVector<
+  DepreciationInput,
+  DepreciationCanonicalOutput
+>[] = [
+  {
+    id: 'depreciation.straight-line-five-year',
+    formulaId: DEPRECIATION_FORMULA_METADATA.formulaId,
+    formulaVersion: DEPRECIATION_FORMULA_METADATA.formulaVersion,
+    description: 'Straight-line schedule to salvage over a five-year useful life.',
+    input: {
+      assetInfo: {
+        purchaseDate: '2024-01-01',
+        purchaseCost: 10000,
+        salvageValue: 1000,
+        usefulLife: 5,
+        assetClass: 'equipment',
+        businessUsePercentage: 1,
+      },
+      depreciationMethod: 'straight-line',
+      taxInfo: {
+        taxYear: 2024,
+        federalTaxRate: 0.21,
+        stateTaxRate: 0,
+        section179Limit: 1080000,
+        section179Threshold: 2900000,
+        bonusDepreciationPercentage: 0.6,
+      },
+      analysis: {
+        includeSchedule: true,
+        includeTaxSavings: true,
+        includeMethodComparison: false,
+        projectionYears: 5,
+      },
+    },
+    expectedOutput: {
+      totalDepreciation: 9000,
+      bookValue: 1000,
+      totalTaxSavings: 1890,
+      scheduleLength: 5,
+      yearOneDepreciation: 1800,
+    },
+    tolerance: 1e-12,
+  },
+  {
+    id: 'depreciation.double-declining-five-year',
+    formulaId: DEPRECIATION_FORMULA_METADATA.formulaId,
+    formulaVersion: DEPRECIATION_FORMULA_METADATA.formulaVersion,
+    description: 'Double-declining-balance schedule floored to depreciable base over five years.',
+    input: {
+      assetInfo: {
+        purchaseDate: '2024-01-01',
+        purchaseCost: 10000,
+        salvageValue: 1000,
+        usefulLife: 5,
+        assetClass: 'equipment',
+        businessUsePercentage: 1,
+      },
+      depreciationMethod: 'double-declining-balance',
+      taxInfo: {
+        taxYear: 2024,
+        federalTaxRate: 0.21,
+        stateTaxRate: 0,
+        section179Limit: 1080000,
+        section179Threshold: 2900000,
+        bonusDepreciationPercentage: 0.6,
+      },
+      analysis: {
+        includeSchedule: true,
+        includeTaxSavings: true,
+        includeMethodComparison: false,
+        projectionYears: 5,
+      },
+    },
+    expectedOutput: {
+      totalDepreciation: 9000,
+      bookValue: 1000,
+      totalTaxSavings: 1890,
+      scheduleLength: 5,
+      yearOneDepreciation: 4000,
+    },
+    tolerance: 1e-12,
+  },
+];
+
 /**
  * Catalog of formulas that have semantic metadata and executable canonical vectors.
  * Stable entries are eligible for stable MCP/Agent publication; unreviewed formulas
@@ -1204,6 +1346,7 @@ export const CERTIFIED_FORMULA_CATALOG: readonly FormulaSemanticMetadata[] = [
   DEBT_CAPACITY_FORMULA_METADATA,
   UNIT_ECONOMICS_FORMULA_METADATA,
   FINANCIAL_RATIO_FORMULA_METADATA,
+  DEPRECIATION_FORMULA_METADATA,
 ] as const;
 
 export function getCertifiedFormulaMetadata(

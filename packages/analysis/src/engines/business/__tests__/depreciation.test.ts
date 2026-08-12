@@ -311,22 +311,20 @@ describe('DepreciationCalculator Coverage Tests', () => {
     expect(result.methodComparison.bestMethod).toBe('double-declining-balance');
   });
 
-  it('should default MACRS property class to 5-year when unknown', () => {
-    const input: DepreciationInput = {
+  it('rejects unknown MACRS property classes at the input boundary', () => {
+    const input = {
       assetInfo: baseAsset,
-      depreciationMethod: 'macrs',
+      depreciationMethod: 'macrs' as const,
       taxInfo: baseTax,
       analysis: baseAnalysis,
       macrsDetails: {
-        propertyClass: 'unknown' as any,
-        convention: 'half-year',
+        propertyClass: 'unknown',
+        convention: 'half-year' as const,
       },
     };
 
-    const result = DepreciationCalculator.analyze(input) as any;
-    const year1 = result.depreciationSchedule.schedule[0];
-
-    // Defaults usefulLife to 5; half-year year-1 depreciation matches straight-line year-1 amount.
-    expect(year1.depreciation).toBe(18000);
+    expect(() => DepreciationCalculator.analyze(input as DepreciationInput)).toThrow(
+      /Invalid option/
+    );
   });
 });
