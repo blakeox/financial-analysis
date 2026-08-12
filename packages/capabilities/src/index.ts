@@ -62,6 +62,19 @@ export {
 } from './authorization.js';
 
 export {
+  AuthenticationMethodSchema,
+  CapabilityAuthorizationContextSchema,
+  assertCapabilityAuthorizationContext,
+  buildAuthzRequestFromContext,
+  createCapabilityAuthorizationContext,
+  createExternalMcpAuthorizationContext,
+  type AuthenticationMethod,
+  type BuildAuthzRequestOptions,
+  type CapabilityAuthorizationContext,
+  type CreateCapabilityAuthorizationContextInput,
+} from './authorization-context.js';
+
+export {
   RESPONSE_VERIFIER_VERSION,
   verifyNumericClaims,
   type NumericVerificationOptions,

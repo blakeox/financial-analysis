@@ -4,11 +4,11 @@ Provider-neutral authorization for capability invocations lives in `@financial-a
 
 ## Scopes
 
-| Scope | Purpose |
-| --- | --- |
-| `financial.calculate` | Stateless deterministic analysis |
-| `workspace.read` / `workspace.write` | Explicit workspace state |
-| `memory.search` / `memory.save` / `memory.forget` | Explicit memory capabilities |
+| Scope                                             | Purpose                          |
+| ------------------------------------------------- | -------------------------------- |
+| `financial.calculate`                             | Stateless deterministic analysis |
+| `workspace.read` / `workspace.write`              | Explicit workspace state         |
+| `memory.search` / `memory.save` / `memory.forget` | Explicit memory capabilities     |
 
 These are not MCP OAuth scopes. Map `analysis:read` ≈ `financial.calculate` in transport adapters.
 
@@ -25,3 +25,16 @@ See GitHub #437. Remaining work: Agent/Workers memory persistence with workspace
 ## Transport adapters
 
 MCP OAuth / API-key scope `analysis:read` maps to product scope `financial.calculate` in `packages/tools` (`buildProductGrantsFromMCPScopes` / `authorizeMCPCapability`). Manifest exposure, kill switches, and byte limits remain MCP-local; both gates must allow.
+
+All verified credentials now converge on the strict provider-neutral
+`CapabilityAuthorizationContext` in `@financial-analysis/capabilities` before
+`authorizeCapability()` runs. The context contains only an opaque principal,
+server-resolved grants, client surface, authentication provenance, and an
+optional host correlation ID. It deliberately rejects unknown fields so raw
+OAuth tokens, API keys, provider claims, and caller-supplied resource identity
+cannot cross the policy boundary. API key, generic OIDC/OAuth, and Cloudflare
+Access are therefore interchangeable authentication adapters; they do not
+change the product authorization contract.
+
+Resource binding is explicit in the policy request. A provider identity never
+implicitly grants workspace, case, or memory access.
