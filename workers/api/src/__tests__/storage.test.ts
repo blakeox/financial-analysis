@@ -238,6 +238,35 @@ describe('Storage endpoints', () => {
     expect(data.hardLimit).toBe(6000);
   });
 
+  it('allows the admin monitor to read storage status without granting internal proxy access', async () => {
+    env.ENVIRONMENT = 'production';
+    env.ADMIN_API_TOKEN = 'admin-secret';
+    env.INTERNAL_API_TOKEN = 'internal-secret';
+    const internalRes = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { 'x-internal-api-token': 'internal-secret' },
+      }),
+      env,
+      ctx
+    );
+    expect(internalRes.status).toBe(401);
+
+    const res = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { Authorization: 'Bearer admin-secret' },
+      }),
+      env,
+      ctx
+    );
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toMatchObject({
+      bucket: 'configured',
+      softLimit: 5000,
+      hardLimit: 6000,
+      locked: false,
+    });
+  });
+
   it('returns storage usage with thresholds and timestamp', async () => {
     // Seed a value in approx bytes
     await env.SESSIONS.put('quota:bytes', '1234');
