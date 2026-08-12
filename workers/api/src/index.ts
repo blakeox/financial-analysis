@@ -722,9 +722,34 @@ function allowsPublicInternalAccess(pathname: string): boolean {
   );
 }
 
-function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>) {
+function withAuth(
+  handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>,
+  options: { allowReadOnlyAdmin?: boolean } = {}
+) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
+
+    if (
+      options.allowReadOnlyAdmin &&
+      request.method === 'GET' &&
+      isAuthorizedAdminRequest(request, env)
+    ) {
+      const adminKeyInfo: ApiKeyInfo = {
+        id: -1,
+        keyHash: 'admin-read-only-monitor',
+        keyPrefix: 'admin_',
+        customerId: 'fanalyx-admin-monitor',
+        customerEmail: 'admin-monitor@fanalyx.com',
+        tier: 'enterprise',
+        active: true,
+        monthlyQuota: Number.MAX_SAFE_INTEGER,
+        rateLimitPerSec: 100,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+        metadata: { authSource: 'admin-token' },
+      };
+      return handler(request, env, adminKeyInfo);
+    }
 
     // Skip auth in test/development environments
     if (env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') {
@@ -1037,22 +1062,25 @@ registerChatRoutes(router);
 router.get(
   '/v1/storage/status',
   withErrorHandler(
-    withAuth(async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-      const { softLimit, hardLimit } = getThresholds(env);
-      const approx = await getApproxBytes(env);
-      const locked = await isQuotaLocked(env);
-      const hasBucket = Boolean(env.DOCUMENTS);
-      return new Response(
-        JSON.stringify({
-          bucket: hasBucket ? 'configured' : 'absent',
-          approxBytes: approx,
-          softLimit,
-          hardLimit,
-          locked,
-        }),
-        { headers: buildDefaultHeaders(env) }
-      );
-    })
+    withAuth(
+      async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+        const { softLimit, hardLimit } = getThresholds(env);
+        const approx = await getApproxBytes(env);
+        const locked = await isQuotaLocked(env);
+        const hasBucket = Boolean(env.DOCUMENTS);
+        return new Response(
+          JSON.stringify({
+            bucket: hasBucket ? 'configured' : 'absent',
+            approxBytes: approx,
+            softLimit,
+            hardLimit,
+            locked,
+          }),
+          { headers: buildDefaultHeaders(env) }
+        );
+      },
+      { allowReadOnlyAdmin: true }
+    )
   )
 );
 

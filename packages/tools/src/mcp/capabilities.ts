@@ -14,6 +14,9 @@
 import {
   CAPABILITY_SCOPES,
   authorizeCapability,
+  buildAuthzRequestFromContext,
+  createCapabilityAuthorizationContext,
+  createExternalMcpAuthorizationContext,
   type AuthzRequest,
   type CapabilityGrant,
   type CapabilityScope,
@@ -333,6 +336,22 @@ function toPrincipal(authorization: MCPAuthorizationContext): Principal {
   }
 }
 
+function toAuthenticationMethod(
+  source: MCPAuthorizationSource
+): 'api-key' | 'oauth' | 'internal' | 'development' {
+  switch (source) {
+    case 'api-key':
+    case 'oauth':
+    case 'internal':
+    case 'development':
+      return source;
+    default: {
+      const _exhaustive: never = source;
+      return _exhaustive;
+    }
+  }
+}
+
 /**
  * Map MCP OAuth / API-key scopes onto product capability grants.
  * `analysis:read` ≈ `financial.calculate`. Document/admin scopes do not mint
@@ -377,14 +396,32 @@ export function buildProductAuthzRequestFromMCP(
   policy: MCPCapabilityPolicy = getMCPCapabilityPolicy(toolName)
 ): AuthzRequest {
   const requiredScope = mcpPolicyScopeToProductScope(policy.scope);
-  const request: AuthzRequest = {
+  const grants = buildProductGrantsFromMCPScopes(authorization.scopes);
+  const context =
+    authorization.source === 'api-key' || authorization.source === 'oauth'
+      ? createExternalMcpAuthorizationContext({
+          authenticationMethod: authorization.source,
+          principalId: authorization.subject?.trim() || 'anonymous',
+          grants,
+          ...(authorization.auditCorrelationId
+            ? { auditCorrelationId: authorization.auditCorrelationId }
+            : {}),
+        })
+      : createCapabilityAuthorizationContext({
+          authenticationMethod: toAuthenticationMethod(authorization.source),
+          principal: toPrincipal(authorization),
+          grants,
+          clientSurface: toClientSurface(authorization.source),
+          ...(authorization.auditCorrelationId
+            ? { auditCorrelationId: authorization.auditCorrelationId }
+            : {}),
+        });
+
+  const request: AuthzRequest = buildAuthzRequestFromContext(context, {
     capabilityId: toolName,
     requiredScope,
-    principal: toPrincipal(authorization),
-    grants: [...buildProductGrantsFromMCPScopes(authorization.scopes)],
-    clientSurface: toClientSurface(authorization.source),
     sideEffects: policy.readOnly ? 'none' : 'writes-state',
-  };
+  });
 
   if (
     requiredScope === CAPABILITY_SCOPES.WORKSPACE_READ ||
