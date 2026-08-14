@@ -64,6 +64,7 @@ export type CodeModeDecisionCode =
   | 'ALLOW'
   | 'CODE_MODE_DISABLED'
   | 'CAPABILITY_NOT_ALLOWED'
+  | 'CAPABILITY_REGISTRY_PENDING'
   | 'BUDGET_EXCEEDED'
   | 'CONNECTORS_DISABLED'
   | 'SANDBOX_AUTHORITY_DENIED'
@@ -212,6 +213,18 @@ export function authorizeCodeModeCapability(
       code: 'CAPABILITY_NOT_ALLOWED',
       policyVersion: CODE_MODE_POLICY_VERSION,
       reason: 'The shared capability policy denied the underlying Code Mode capability.',
+      capability,
+      mcpDecision,
+    };
+  }
+
+  if (mcpDecision.policy.registryStatus !== 'canonical') {
+    return {
+      allowed: false,
+      code: 'CAPABILITY_REGISTRY_PENDING',
+      policyVersion: CODE_MODE_POLICY_VERSION,
+      reason:
+        'Code Mode may invoke only capabilities with canonical registry provenance; this capability is still transitional.',
       capability,
       mcpDecision,
     };

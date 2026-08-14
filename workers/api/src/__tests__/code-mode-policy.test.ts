@@ -111,4 +111,27 @@ describe('Code Mode policy', () => {
       mcpDecision: { allowed: false, capability: 'future_unreviewed_tool' },
     });
   });
+
+  it('denies reviewed transitional capabilities until canonical registration exists', () => {
+    const policy = codeModePolicyFromConfig({
+      enabled: 'true',
+      allowedCapabilities: 'analyze_enhanced_lease',
+    });
+    const decision = authorizeCodeModeCapability(
+      policy,
+      'analyze_enhanced_lease',
+      { capabilities: ['analyze_enhanced_lease'] },
+      analysisAuthorization
+    );
+
+    expect(decision).toMatchObject({
+      allowed: false,
+      code: 'CAPABILITY_REGISTRY_PENDING',
+      mcpDecision: {
+        allowed: true,
+        capability: 'analyze_enhanced_lease',
+        policy: { registryStatus: 'adapter-pending' },
+      },
+    });
+  });
 });
