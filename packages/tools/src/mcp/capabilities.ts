@@ -41,6 +41,8 @@ export const MCP_CAPABILITY_POLICY_VERSION = '1.0.0';
 export type MCPPolicyScope = (typeof MCP_SCOPES)[keyof typeof MCP_SCOPES];
 
 export type MCPCapabilityStatus = 'stable' | 'preview' | 'deprecated' | 'disabled';
+/** Registry provenance used by downstream surfaces during adapter migration. */
+export type MCPRegistryStatus = 'canonical' | 'adapter-pending' | 'internal-only';
 export type MCPPolicyDecisionState =
   | 'allow'
   | 'deny'
@@ -69,6 +71,8 @@ export interface MCPCapabilityPolicy {
   name: string;
   /** Canonical product capability, when this MCP tool is registry-backed. */
   canonicalCapabilityId?: string;
+  /** Explicitly distinguishes certified capabilities from transitional tools. */
+  registryStatus: MCPRegistryStatus;
   exposed: boolean;
   status: MCPCapabilityStatus;
   formulaVersion: string;
@@ -266,6 +270,7 @@ function createStablePolicy(name: string): MCPCapabilityPolicy {
   return {
     name,
     ...(canonical ? { canonicalCapabilityId: canonical.id } : {}),
+    registryStatus: canonical ? 'canonical' : 'adapter-pending',
     exposed: true,
     status: 'stable',
     formulaVersion: canonical?.version ?? '1.0.0',
@@ -290,10 +295,12 @@ function createStablePolicy(name: string): MCPCapabilityPolicy {
 function createDisabledPolicy(
   name: string,
   scope: MCPPolicyScope,
-  reason: string
+  reason: string,
+  registryStatus: MCPRegistryStatus
 ): MCPCapabilityPolicy {
   return {
     name,
+    registryStatus,
     exposed: false,
     status: 'disabled',
     formulaVersion: '1.0.0',
@@ -321,7 +328,7 @@ export const MCP_CAPABILITY_MANIFEST: Readonly<Record<string, MCPCapabilityPolic
   ...Object.fromEntries(
     Object.entries(INTERNAL_ONLY_CAPABILITIES).map(([name, definition]) => [
       name,
-      createDisabledPolicy(name, definition.scope, definition.reason),
+      createDisabledPolicy(name, definition.scope, definition.reason, 'internal-only'),
     ])
   ),
 };
@@ -330,7 +337,12 @@ export const MCP_CAPABILITY_MANIFEST: Readonly<Record<string, MCPCapabilityPolic
 export function getMCPCapabilityPolicy(toolName: string): MCPCapabilityPolicy {
   return (
     MCP_CAPABILITY_MANIFEST[toolName] ??
-    createDisabledPolicy(toolName, MCP_SCOPES.ANALYSIS_READ, 'Capability is not reviewed.')
+    createDisabledPolicy(
+      toolName,
+      MCP_SCOPES.ANALYSIS_READ,
+      'Capability is not reviewed.',
+      'adapter-pending'
+    )
   );
 }
 

@@ -33,6 +33,7 @@ describe('MCP capability policy', () => {
     });
     expect(policy).toMatchObject({
       canonicalCapabilityId: 'analysis.amortization',
+      registryStatus: 'canonical',
       formulaVersion: canonical?.version,
       owner: canonical?.owner,
       auditEvent: canonical?.auditEvent,
@@ -58,6 +59,10 @@ describe('MCP capability policy', () => {
       expect(policy.policyVersion).toBe('1.0.0');
       expect(policy.formulaVersion).toBeTruthy();
       expect(policy.budgetClass).toBe('deterministic');
+      expect(policy.registryStatus).toMatch(/canonical|adapter-pending|internal-only/);
+      if (policy.canonicalCapabilityId) {
+        expect(policy.registryStatus).toBe('canonical');
+      }
     }
   });
 
@@ -74,6 +79,18 @@ describe('MCP capability policy', () => {
     expect(decision.policyVersion).toBe('1.0.0');
     expect(decision.policy.status).toBe('disabled');
     expect(decision.policy.exposed).toBe(false);
+    expect(decision.policy.registryStatus).toBe('adapter-pending');
+  });
+
+  it('classifies internal-only registrations separately from unknown tools', () => {
+    expect(getMCPCapabilityPolicy('search_documents')).toMatchObject({
+      exposed: false,
+      registryStatus: 'internal-only',
+    });
+    expect(getMCPCapabilityPolicy('future-unreviewed-tool')).toMatchObject({
+      exposed: false,
+      registryStatus: 'adapter-pending',
+    });
   });
 
   it('filters tools/list to capabilities allowed by the caller scope', async () => {
