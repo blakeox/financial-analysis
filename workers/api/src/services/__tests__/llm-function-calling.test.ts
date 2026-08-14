@@ -7,6 +7,7 @@ import {
 } from '../llm-function-calling';
 import type { Ai } from '@cloudflare/workers-types';
 import { MCP_SCOPES, type MCPTool } from '@financial-analysis/tools';
+import type { ModelProvider } from '../model-provider';
 
 const {
   preFilterTools,
@@ -18,9 +19,13 @@ const {
 
 describe('FunctionCallingService', () => {
   let mockAi: { run: ReturnType<typeof vi.fn> };
+  let mockModelProvider: { run: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockAi = {
+      run: vi.fn(),
+    };
+    mockModelProvider = {
       run: vi.fn(),
     };
   });
@@ -43,26 +48,34 @@ describe('FunctionCallingService', () => {
 
   describe('simpleChat', () => {
     it('sends messages to AI without tools', async () => {
-      mockAi.run.mockResolvedValue({ response: 'Hello! How can I help you?' });
+      mockModelProvider.run.mockResolvedValue({ response: 'Hello! How can I help you?' });
 
-      const service = createFunctionCallingService(mockAi as unknown as Ai);
+      const service = createFunctionCallingService(
+        mockAi as unknown as Ai,
+        undefined,
+        mockModelProvider as unknown as ModelProvider
+      );
       const messages: FunctionCallingMessage[] = [{ role: 'user', content: 'Hi there' }];
 
       const result = await service.simpleChat(messages);
 
       expect(result).toBe('Hello! How can I help you?');
-      expect(mockAi.run).toHaveBeenCalledTimes(1);
+      expect(mockModelProvider.run).toHaveBeenCalledTimes(1);
     });
 
     it('includes system prompt when provided', async () => {
-      mockAi.run.mockResolvedValue({ response: 'I am a financial assistant.' });
+      mockModelProvider.run.mockResolvedValue({ response: 'I am a financial assistant.' });
 
-      const service = createFunctionCallingService(mockAi as unknown as Ai);
+      const service = createFunctionCallingService(
+        mockAi as unknown as Ai,
+        undefined,
+        mockModelProvider as unknown as ModelProvider
+      );
       const messages: FunctionCallingMessage[] = [{ role: 'user', content: 'What are you?' }];
 
       await service.simpleChat(messages, 'You are a financial assistant.');
 
-      expect(mockAi.run).toHaveBeenCalledWith(
+      expect(mockModelProvider.run).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           messages: expect.arrayContaining([expect.objectContaining({ role: 'system' })]),
@@ -71,9 +84,13 @@ describe('FunctionCallingService', () => {
     });
 
     it('handles string response', async () => {
-      mockAi.run.mockResolvedValue('Direct string response');
+      mockModelProvider.run.mockResolvedValue('Direct string response');
 
-      const service = createFunctionCallingService(mockAi as unknown as Ai);
+      const service = createFunctionCallingService(
+        mockAi as unknown as Ai,
+        undefined,
+        mockModelProvider as unknown as ModelProvider
+      );
       const result = await service.simpleChat([{ role: 'user', content: 'test' }]);
 
       expect(result).toBe('Direct string response');

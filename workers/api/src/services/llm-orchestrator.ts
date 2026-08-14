@@ -122,10 +122,14 @@ export class LLMOrchestrator {
     this.toolSelector = new IntelligentToolSelector(modelProvider);
 
     // Initialize function calling service and MCP tools
-    this.functionCalling = createFunctionCallingService(modelProvider.asAiBinding(), {
-      maxRecursiveToolRuns: 3,
-      verbose: false,
-    });
+    this.functionCalling = createFunctionCallingService(
+      modelProvider.asAiBinding(),
+      {
+        maxRecursiveToolRuns: 3,
+        verbose: false,
+      },
+      modelProvider
+    );
     this.mcpAuthorization = {
       source: 'internal',
       subject: 'first-party-chat',
