@@ -22,15 +22,19 @@ for (const file of await findTypeScriptFiles(`${root}/workers/api/src`)) {
   const relativePath = relative(root, file).replaceAll('\\', '/');
   if (relativePath === allowed) continue;
   const source = await readFile(file, 'utf8');
-  if (/createWorkersAI|workers-ai-provider/.test(source)) {
+  if (/createWorkersAI|workers-ai-provider|\bai\.run\s*\(/.test(source)) {
     violations.push(relativePath);
   }
 }
 
 if (violations.length > 0) {
-  console.error('Direct Workers AI provider construction is restricted to the model-provider seam:');
+  console.error(
+    'Direct Workers AI provider construction is restricted to the model-provider seam:'
+  );
   for (const file of violations) console.error(`- ${file}`);
   process.exit(1);
 }
 
-console.log(`AI provider boundary check passed (${relative(root, `${root}/${allowed}`)} is the only construction seam).`);
+console.log(
+  `AI provider boundary check passed (${relative(root, `${root}/${allowed}`)} is the only construction seam).`
+);

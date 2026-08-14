@@ -13,6 +13,7 @@ import {
   type MCPAuthorizationContext,
   type MCPTool,
 } from '@financial-analysis/tools';
+import type { ModelProvider } from './model-provider';
 
 // Model that supports function calling
 // Using hermes-2-pro which is recommended in Cloudflare examples
@@ -302,6 +303,7 @@ export class FunctionCallingService {
 
   constructor(
     private ai: Ai,
+    private modelProvider?: ModelProvider,
     config?: Partial<FunctionCallingConfig>
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -498,9 +500,11 @@ export class FunctionCallingService {
     }
     fullMessages.push(...messages);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ai = this.ai as any;
-    const response = await ai.run(FUNCTION_CALLING_MODEL, {
+    if (!this.modelProvider) {
+      throw new Error('MODEL_PROVIDER_REQUIRED');
+    }
+
+    const response = await this.modelProvider.run(FUNCTION_CALLING_MODEL, {
       messages: fullMessages.map((m) => ({
         role: m.role,
         content: m.content,
@@ -512,7 +516,12 @@ export class FunctionCallingService {
     if (typeof response === 'string') {
       return response;
     }
-    if (response?.response) {
+    if (
+      response &&
+      typeof response === 'object' &&
+      'response' in response &&
+      typeof response.response === 'string'
+    ) {
       return response.response;
     }
     return JSON.stringify(response);
@@ -524,9 +533,10 @@ export class FunctionCallingService {
  */
 export function createFunctionCallingService(
   ai: Ai,
-  config?: Partial<FunctionCallingConfig>
+  config?: Partial<FunctionCallingConfig>,
+  modelProvider?: ModelProvider
 ): FunctionCallingService {
-  return new FunctionCallingService(ai, config);
+  return new FunctionCallingService(ai, modelProvider, config);
 }
 
 // Export internals for testing
