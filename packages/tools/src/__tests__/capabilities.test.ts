@@ -5,6 +5,7 @@ import {
   authorizeMCPCapability,
   buildProductAuthzRequestFromMCP,
   buildProductGrantsFromMCPScopes,
+  getCanonicalMCPCapability,
   getMCPCapabilityPolicy,
   getMCPExternalCapabilityNames,
   MCP_CAPABILITY_MANIFEST,
@@ -21,6 +22,25 @@ const analysisAuthorization: MCPAuthorizationContext = {
 };
 
 describe('MCP capability policy', () => {
+  it('links certified formula tools to the canonical capability registry', () => {
+    const canonical = getCanonicalMCPCapability('analyze_amortization');
+    const policy = getMCPCapabilityPolicy('analyze_amortization');
+
+    expect(canonical).toMatchObject({
+      id: 'analysis.amortization',
+      lifecycle: 'stable',
+      sideEffects: 'none',
+    });
+    expect(policy).toMatchObject({
+      canonicalCapabilityId: 'analysis.amortization',
+      formulaVersion: canonical?.version,
+      owner: canonical?.owner,
+      auditEvent: canonical?.auditEvent,
+      killSwitch: 'MCP_ANALYSIS_ENABLED',
+    });
+    expect(getCanonicalMCPCapability('analyze_dcf_valuation')).toBeUndefined();
+  });
+
   it('covers every registered tool and exposes only the reviewed allowlist', () => {
     const registeredToolNames = createMCPTools().map((tool) => tool.name);
     const externalNames = new Set(getMCPExternalCapabilityNames());

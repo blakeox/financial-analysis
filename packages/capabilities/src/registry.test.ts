@@ -21,6 +21,12 @@ describe('canonical capability registry', () => {
       expect(capability.lifecycle).toBe('stable');
       expect(capability.executionScope).toBe('stateless');
       expect(capability.sideEffects).toBe('none');
+      expect(capability.requiredScope).toBe('financial.calculate');
+      expect(capability.resourceScope).toBe('stateless');
+      expect(capability.budgetClass).toBe('deterministic');
+      expect(capability.approvalRequired).toBe(false);
+      expect(capability.auditEvent).toContain(`capability.${capability.id}.execute`);
+      expect(capability.killSwitch).toBe('ANALYSIS_CAPABILITIES_ENABLED');
       expect(capability.formula?.formulaVersion).toBe(capability.version);
       expect(getCapability(capability.id, capability.version)).toEqual(capability);
       expect(isStableCapabilityPublication(capability.id, capability.version)).toBe(true);

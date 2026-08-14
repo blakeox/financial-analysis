@@ -17,10 +17,12 @@ import {
   buildAuthzRequestFromContext,
   createCapabilityAuthorizationContext,
   createExternalMcpAuthorizationContext,
+  getCapability,
   type AuthzRequest,
   type CapabilityGrant,
   type CapabilityScope,
   type ClientSurface,
+  type Capability,
   type Principal,
 } from '@financial-analysis/capabilities';
 
@@ -65,6 +67,8 @@ export interface MCPAuthorizationContext {
 
 export interface MCPCapabilityPolicy {
   name: string;
+  /** Canonical product capability, when this MCP tool is registry-backed. */
+  canonicalCapabilityId?: string;
   exposed: boolean;
   status: MCPCapabilityStatus;
   formulaVersion: string;
@@ -127,6 +131,27 @@ export class MCPPayloadLimitError extends Error {
 
 const DEFAULT_INPUT_LIMIT_BYTES = 64 * 1024;
 const DEFAULT_OUTPUT_LIMIT_BYTES = 256 * 1024;
+
+/**
+ * The MCP surface is intentionally explicit: only certified formula tools are
+ * linked to the canonical registry. Similar names are not inferred because a
+ * naming convention cannot prove semantic equivalence.
+ */
+const CANONICAL_CAPABILITY_BY_MCP_TOOL: Readonly<Record<string, string>> = {
+  analyze_amortization: 'analysis.amortization',
+  calculate_npv_irr: 'analysis.npv-irr',
+  analyze_break_even: 'analysis.break-even',
+  calculate_capm: 'analysis.capm',
+  calculate_wacc: 'analysis.wacc',
+  analyze_lease: 'analysis.lease',
+  analyze_bond_pricing: 'analysis.bond-pricing',
+  analyze_financial_ratios: 'analysis.financial-ratio',
+};
+
+export function getCanonicalMCPCapability(toolName: string): Capability | undefined {
+  const capabilityId = CANONICAL_CAPABILITY_BY_MCP_TOOL[toolName];
+  return capabilityId ? getCapability(capabilityId) : undefined;
+}
 
 const EXTERNAL_ANALYSIS_CAPABILITIES = [
   'analyze_lease',
@@ -236,23 +261,29 @@ const INTERNAL_ONLY_CAPABILITIES: Record<string, { scope: MCPPolicyScope; reason
 };
 
 function createStablePolicy(name: string): MCPCapabilityPolicy {
+  const canonical = getCanonicalMCPCapability(name);
+
   return {
     name,
+    ...(canonical ? { canonicalCapabilityId: canonical.id } : {}),
     exposed: true,
     status: 'stable',
-    formulaVersion: '1.0.0',
+    formulaVersion: canonical?.version ?? '1.0.0',
     policyVersion: MCP_CAPABILITY_POLICY_VERSION,
-    owner: 'MCP/platform',
-    readOnly: true,
+    owner: canonical?.owner ?? 'MCP/platform',
+    readOnly: canonical?.sideEffects === 'none',
     resourceScope: 'caller',
-    budgetClass: 'deterministic',
-    approvalRequired: false,
+    budgetClass: canonical?.budgetClass ?? 'deterministic',
+    approvalRequired: canonical?.approvalRequired ?? false,
+    // Keep the transport kill switch authoritative here. The canonical
+    // registry's product kill switch is enforced by the product adapter and
+    // must not be silently substituted into MCP-local evaluation.
     killSwitch: 'MCP_ANALYSIS_ENABLED',
     scope: MCP_SCOPES.ANALYSIS_READ,
-    dataClasses: ['caller-provided-analysis-input'],
-    maxInputBytes: DEFAULT_INPUT_LIMIT_BYTES,
-    maxOutputBytes: DEFAULT_OUTPUT_LIMIT_BYTES,
-    auditEvent: 'mcp.analysis.execute',
+    dataClasses: canonical?.allowedDataClassifications ?? ['caller-provided-analysis-input'],
+    maxInputBytes: canonical?.inputLimitBytes ?? DEFAULT_INPUT_LIMIT_BYTES,
+    maxOutputBytes: canonical?.outputLimitBytes ?? DEFAULT_OUTPUT_LIMIT_BYTES,
+    auditEvent: canonical?.auditEvent ?? 'mcp.analysis.execute',
   };
 }
 
