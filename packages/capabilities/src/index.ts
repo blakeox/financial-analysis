@@ -83,6 +83,14 @@ export {
 } from './response-verification.js';
 
 export {
+  RESULT_INTEGRITY_VERSION,
+  canonicalizeResultIntegrityValue,
+  createResultIntegrityReceipt,
+  digestResultIntegrityValue,
+  type ResultIntegrityReceipt,
+} from './result-integrity.js';
+
+export {
   WORKBENCH_CONTRACT_VERSION,
   AnalysisRunSchema,
   ApprovalRequestSchema,
