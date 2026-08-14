@@ -55,6 +55,13 @@ function getConfiguredHttpsEndpoint(env: Env, key: keyof Env): URL | null {
   return typeof value === 'string' ? parseHttpsUrl(value) : null;
 }
 
+function isConfiguredCallbackRequest(request: Request, env: Env): boolean {
+  const configured = getConfiguredRedirectUri(env);
+  if (!configured || configured.search || configured.hash) return false;
+  const requestUrl = new URL(request.url);
+  return configured.origin === requestUrl.origin && configured.pathname === requestUrl.pathname;
+}
+
 export function isOidcBrowserLoginConfigured(env: Env): boolean {
   return Boolean(
     env.SESSIONS &&
@@ -157,7 +164,6 @@ async function startOidcLogin(request: Request, env: Env): Promise<Response> {
 }
 
 async function readTokenResponse(response: Response): Promise<Record<string, unknown> | null> {
-  if (!response.ok) return null;
   const body = await response.text();
   if (new TextEncoder().encode(body).byteLength > 32 * 1024) return null;
   try {
@@ -170,6 +176,19 @@ async function readTokenResponse(response: Response): Promise<Record<string, unk
   }
 }
 
+async function readProviderErrorCode(response: Response): Promise<string | null> {
+  try {
+    const body = await response.clone().text();
+    if (new TextEncoder().encode(body).byteLength > 8 * 1024) return null;
+    const parsed: unknown = JSON.parse(body);
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const error = (parsed as { error?: unknown }).error;
+    return typeof error === 'string' && /^[a-zA-Z0-9._-]{1,128}$/.test(error) ? error : null;
+  } catch {
+    return null;
+  }
+}
+
 async function finishOidcLogin(request: Request, env: Env): Promise<Response> {
   if (!isOidcBrowserLoginConfigured(env) || !env.SESSIONS) {
     return errorResponse(
@@ -177,6 +196,14 @@ async function finishOidcLogin(request: Request, env: Env): Promise<Response> {
       'OIDC browser login is not configured.',
       'OIDC_LOGIN_NOT_CONFIGURED',
       503
+    );
+  }
+
+  if (!isConfiguredCallbackRequest(request, env)) {
+    return errorResponse(
+      env,
+      'The OIDC callback does not match the configured redirect URI.',
+      'OIDC_CALLBACK_MISMATCH'
     );
   }
 
@@ -211,6 +238,14 @@ async function finishOidcLogin(request: Request, env: Env): Promise<Response> {
       body: body.toString(),
     });
   } catch {
+    return errorResponse(env, 'The OIDC token exchange failed.', 'OIDC_TOKEN_EXCHANGE_FAILED', 502);
+  }
+
+  if (!tokenResponse.ok) {
+    console.warn('[OAuth] OIDC token exchange rejected', {
+      status: tokenResponse.status,
+      providerError: await readProviderErrorCode(tokenResponse),
+    });
     return errorResponse(env, 'The OIDC token exchange failed.', 'OIDC_TOKEN_EXCHANGE_FAILED', 502);
   }
 
