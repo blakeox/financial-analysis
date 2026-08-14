@@ -14,6 +14,10 @@ import {
   getMCPCapabilityPolicy,
   type MCPAuthorizationContext,
 } from '@financial-analysis/tools';
+import {
+  createResultIntegrityReceipt,
+  type ResultIntegrityReceipt,
+} from '@financial-analysis/capabilities';
 import { z } from 'zod';
 import type { Env } from '../types';
 import { buildDefaultHeaders } from './headers';
@@ -257,6 +261,12 @@ export async function handleEnhancedMCPRequest(
       success: true,
     };
 
+    const resultIntegrity = await createResultIntegrityReceipt(
+      parsedRequest.params,
+      result,
+      response
+    );
+
     auditEvent = createMCPAuditEvent(
       requestContext,
       authorization,
@@ -264,7 +274,8 @@ export async function handleEnhancedMCPRequest(
       200,
       startTime,
       undefined,
-      result
+      result,
+      resultIntegrity
     );
 
     // Log successful request
@@ -496,7 +507,8 @@ function createMCPAuditEvent(
   statusCode: number,
   startTime: number,
   errorCode?: number,
-  result?: unknown
+  result?: unknown,
+  resultIntegrity?: ResultIntegrityReceipt
 ): MCPAuditEvent {
   const apiKeyId =
     requestContext.auth?.apiKeyId && requestContext.auth.apiKeyId > 0
@@ -529,6 +541,14 @@ function createMCPAuditEvent(
     ...(inputBytes === undefined ? {} : { inputBytes }),
     ...(outputBytes === undefined ? {} : { outputBytes }),
     durationMs: Date.now() - startTime,
+    ...(resultIntegrity === undefined
+      ? {}
+      : {
+          resultIntegrityVersion: resultIntegrity.version,
+          inputDigest: resultIntegrity.inputDigest,
+          outputDigest: resultIntegrity.outputDigest,
+          resultDigest: resultIntegrity.resultDigest,
+        }),
   };
 }
 
