@@ -188,6 +188,61 @@ describe('browser OIDC login boundary', () => {
     expect(await response.text()).toContain('INVALID_RETURN_TO');
   });
 
+  it('rejects callbacks received on a host or path different from the configured redirect URI', async () => {
+    const { sessions } = createSessions();
+    const env = makeEnv(sessions);
+    const response = await handleOidcLoginRequest(
+      new Request(
+        'https://wrong.example.com/oauth/callback?state=state-from-wrong-host&code=one-time-code'
+      ),
+      env
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toContain('OIDC_CALLBACK_MISMATCH');
+  });
+
+  it('records only bounded provider error metadata when token exchange is rejected', async () => {
+    const { sessions, values } = createSessions();
+    const env = makeEnv(sessions);
+    const returnTo =
+      'https://app.example.com/oauth/authorize?response_type=code&client_id=client-1';
+    const login = await handleOidcLoginRequest(
+      new Request(`https://app.example.com/oauth/login?return_to=${encodeURIComponent(returnTo)}`),
+      env
+    );
+    const authorizationUrl = new URL(login.headers.get('location') ?? 'https://invalid.example');
+    const state = authorizationUrl.searchParams.get('state');
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({ error: 'invalid_grant', error_description: 'do-not-log-this' }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+          )
+      )
+    );
+
+    const callback = await handleOidcLoginRequest(
+      new Request(
+        `https://app.example.com/oauth/callback?state=${encodeURIComponent(state ?? '')}&code=one-time-code`
+      ),
+      env
+    );
+
+    expect(callback.status).toBe(502);
+    expect(await callback.text()).toContain('OIDC_TOKEN_EXCHANGE_FAILED');
+    expect(warning).toHaveBeenCalledWith('[OAuth] OIDC token exchange rejected', {
+      status: 400,
+      providerError: 'invalid_grant',
+    });
+    expect(JSON.stringify(warning.mock.calls)).not.toContain('do-not-log-this');
+    expect(values.has(`oauth:oidc-state:${state}`)).toBe(false);
+    warning.mockRestore();
+  });
+
   it('allows only the configured Agent frontend return path', async () => {
     const { sessions } = createSessions();
     const env = { ...makeEnv(sessions), ALLOWED_ORIGIN: 'https://fanalyx.com' };
