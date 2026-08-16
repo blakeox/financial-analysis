@@ -24,6 +24,12 @@ if (!apiUrl) {
   process.exit(2);
 }
 
+const smokeProbeHosts = new Set(
+  [versionUrl, healthUrl, publicUrl, publicToolsUrl, publicMcpUrl, publicStorageUrl]
+    .filter(Boolean)
+    .map((url) => new URL(url).host)
+);
+
 const checks = [];
 
 function record(name, passed, details = {}) {
@@ -33,10 +39,12 @@ function record(name, passed, details = {}) {
   return passed;
 }
 
-function requestHeaders(initHeaders) {
+function requestHeaders(initHeaders, baseUrl) {
   const headers = new Headers(initHeaders);
   if (!headers.has('user-agent')) headers.set('user-agent', smokeUserAgent);
-  if (smokeToken) headers.set('x-fanalyx-smoke-token', smokeToken);
+  if (smokeToken && smokeProbeHosts.has(new URL(baseUrl).host)) {
+    headers.set('x-fanalyx-smoke-token', smokeToken);
+  }
   return headers;
 }
 
@@ -46,7 +54,7 @@ async function fetchAgainst(baseUrl, path, init = {}) {
     try {
       const response = await fetch(`${baseUrl}${path}`, {
         ...init,
-        headers: requestHeaders(init.headers),
+        headers: requestHeaders(init.headers, baseUrl),
         signal: AbortSignal.timeout(30_000),
       });
       if (response.status >= 500 || response.status === 408 || response.status === 429) {
