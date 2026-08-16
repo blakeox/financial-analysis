@@ -30,7 +30,10 @@ jobs:
             expected_budget_enforcement_enabled: true
             public_url: https://fanalyx-web-preview.blakeoxford.workers.dev
           - environment: production
-            url: https://api.fanalyx.com
+            # Protected control origin: the custom API hostname is WAF-gated
+            # from GitHub-hosted runners and is validated by a separate edge
+            # synthetic rather than this semantic worker conformance job.
+            url: https://fanalyx-api-production.blakeoxford.workers.dev
             version_url: https://fanalyx-api-production.blakeoxford.workers.dev
             health_url: https://fanalyx-api-production.blakeoxford.workers.dev
             expected_oauth_enabled: false

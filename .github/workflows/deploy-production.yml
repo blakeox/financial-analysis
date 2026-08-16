@@ -185,7 +185,7 @@ jobs:
       - name: Smoke-test production deployment
         id: production_smoke
         env:
-          API_URL: https://api.fanalyx.com
+          API_URL: https://fanalyx-api-production.blakeoxford.workers.dev
           VERSION_URL: https://fanalyx-api-production.blakeoxford.workers.dev
           HEALTH_URL: https://fanalyx-api-production.blakeoxford.workers.dev
           ENVIRONMENT: production
