@@ -271,7 +271,7 @@ function createStablePolicy(name: string): MCPCapabilityPolicy {
     formulaVersion: canonical?.version ?? '1.0.0',
     policyVersion: MCP_CAPABILITY_POLICY_VERSION,
     owner: canonical?.owner ?? 'MCP/platform',
-    readOnly: canonical?.sideEffects === 'none',
+    readOnly: canonical ? canonical.sideEffects === 'none' : true,
     resourceScope: 'caller',
     budgetClass: canonical?.budgetClass ?? 'deterministic',
     approvalRequired: canonical?.approvalRequired ?? false,

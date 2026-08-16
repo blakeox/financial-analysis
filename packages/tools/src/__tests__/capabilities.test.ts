@@ -41,6 +41,14 @@ describe('MCP capability policy', () => {
     expect(getCanonicalMCPCapability('analyze_dcf_valuation')).toBeUndefined();
   });
 
+  it('keeps explicitly exposed non-canonical analysis tools read-only', () => {
+    const policy = getMCPCapabilityPolicy('analyze_enhanced_lease');
+
+    expect(policy.exposed).toBe(true);
+    expect(policy.canonicalCapabilityId).toBeUndefined();
+    expect(policy.readOnly).toBe(true);
+  });
+
   it('covers every registered tool and exposes only the reviewed allowlist', () => {
     const registeredToolNames = createMCPTools().map((tool) => tool.name);
     const externalNames = new Set(getMCPExternalCapabilityNames());
