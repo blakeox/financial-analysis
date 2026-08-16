@@ -4,6 +4,7 @@
 import { writeFile } from 'node:fs/promises';
 
 const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
+const versionUrl = process.env.VERSION_URL?.trim().replace(/\/$/, '') || apiUrl;
 const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
 const healthUrl = process.env.HEALTH_URL?.trim().replace(/\/$/, '') || apiUrl;
 const publicToolsUrl = process.env.PUBLIC_TOOLS_URL?.trim().replace(/\/$/, '') || publicUrl;
@@ -92,7 +93,7 @@ async function readVersionReceipt() {
   const maxAttempts = expectedSha ? 12 : 1;
   let version;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    version = await readResponse(await fetchWithRetry('/version'));
+    version = await readResponse(await fetchAgainst(versionUrl, '/version'));
     if (expectedSha === null || version.json?.commit === expectedSha || attempt === maxAttempts) {
       return version;
     }
@@ -305,6 +306,7 @@ async function main() {
     schemaVersion: '1.0.0',
     kind: 'cloudflare-boundary-smoke',
     apiUrl,
+    versionUrl,
     publicUrl,
     healthUrl,
     publicToolsUrl,
