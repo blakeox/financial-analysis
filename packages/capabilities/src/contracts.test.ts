@@ -119,6 +119,12 @@ describe('financial analysis contracts', () => {
       inputSchemaRef: 'schemas/cash-flow-input',
       outputSchemaRef: 'schemas/cash-flow-output',
       sideEffects: 'none',
+      requiredScope: 'financial.calculate',
+      resourceScope: 'stateless',
+      budgetClass: 'deterministic',
+      approvalRequired: false,
+      auditEvent: 'capability.business.cash-flow.execute',
+      killSwitch: 'ANALYSIS_CAPABILITIES_ENABLED',
       owner: 'analysis-team',
       inputLimitBytes: 10000,
       outputLimitBytes: 10000,
@@ -136,6 +142,37 @@ describe('financial analysis contracts', () => {
 
     expect(capability.success).toBe(false);
     expect(answer.success).toBe(false);
+  });
+
+  it('requires the policy fields needed by every execution surface', () => {
+    const capability = CapabilitySchema.safeParse({
+      contractVersion: CONTRACT_VERSION,
+      id: 'business.cash-flow',
+      version: '1.0.0',
+      name: 'Cash flow',
+      description: 'Calculates cash flow',
+      lifecycle: 'stable',
+      executionScope: 'stateless',
+      allowedDataClassifications: ['public'],
+      inputSchemaRef: 'schemas/cash-flow-input',
+      outputSchemaRef: 'schemas/cash-flow-output',
+      sideEffects: 'none',
+      requiredScope: 'financial.calculate',
+      resourceScope: 'stateless',
+      budgetClass: 'deterministic',
+      approvalRequired: false,
+      auditEvent: 'capability.business.cash-flow.execute',
+      killSwitch: 'ANALYSIS_CAPABILITIES_ENABLED',
+      owner: 'analysis-team',
+      inputLimitBytes: 10000,
+      outputLimitBytes: 10000,
+    });
+
+    const incomplete = { ...capability.data };
+    delete incomplete.requiredScope;
+
+    expect(capability.success).toBe(true);
+    expect(CapabilitySchema.safeParse(incomplete).success).toBe(false);
   });
 
   it('requires versioned, data-only provenance and freshness metadata', () => {

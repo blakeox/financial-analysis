@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AuthzResourceScopeSchema, CapabilityScopeSchema } from './authorization.js';
+
 export const CONTRACT_VERSION = '1.0.0';
 
 const IdentifierSchema = z.string().trim().min(1).max(128);
@@ -155,6 +157,12 @@ export const CapabilitySchema = z.object({
   outputSchemaRef: z.string().trim().min(1).max(256),
   formula: FormulaSemanticsSchema.optional(),
   sideEffects: z.enum(['none', 'writes-state', 'external-action']),
+  requiredScope: CapabilityScopeSchema,
+  resourceScope: AuthzResourceScopeSchema,
+  budgetClass: z.enum(['deterministic', 'model', 'external']),
+  approvalRequired: z.boolean(),
+  auditEvent: IdentifierSchema,
+  killSwitch: IdentifierSchema,
   owner: IdentifierSchema,
   inputLimitBytes: z.number().int().positive(),
   outputLimitBytes: z.number().int().positive(),

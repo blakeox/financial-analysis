@@ -12,6 +12,21 @@ Provider-neutral authorization for capability invocations lives in `@financial-a
 
 These are not MCP OAuth scopes. Map `analysis:read` ≈ `financial.calculate` in transport adapters.
 
+## Capability manifest contract
+
+Every published capability carries policy metadata in `CapabilitySchema`, not
+only formula and schema references:
+
+- `requiredScope` and `resourceScope` define the authorization target;
+- `budgetClass` and `approvalRequired` define execution controls;
+- `auditEvent` and `killSwitch` define operational accountability; and
+- `owner`, lifecycle, input/output limits, and side effects define review and
+  runtime boundaries.
+
+The canonical formula registry populates these fields for certified
+stateless calculations. Transport-specific manifests may add client metadata,
+but they must not weaken or omit the shared contract.
+
 ## Guarantees
 
 - Fail closed on missing, mismatched, or revoked grants.
