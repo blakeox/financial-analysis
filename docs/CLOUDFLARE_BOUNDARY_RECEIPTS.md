@@ -51,11 +51,12 @@ revocation, cross-tenant, and external-client conformance gates in
 `docs/OAUTH_ROLLOUT.md`.
 
 When budget enforcement is enabled in preview, the protected
-`cloudflare-budget-conformance.yml` workflow uses the server-only internal
-credential to execute one deterministic MCP formula call. It records only
-status, protocol, control, and run-header metadata; it never retains the
-formula result or credential. Production remains disabled until this receipt
-and the promotion gates are reviewed.
+`cloudflare-budget-conformance.yml` workflow uses a dedicated
+`BUDGET_CONFORMANCE_TOKEN` credential and isolated budget principal to execute
+one deterministic MCP formula call. It records only status, protocol,
+control, and run-header metadata; it never retains the formula result or
+credential. Production remains disabled until this receipt and the promotion
+gates are reviewed.
 
 ## Failure handling
 

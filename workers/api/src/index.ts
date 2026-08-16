@@ -806,6 +806,7 @@ function withAuth(
       headers.append('Vary', 'Authorization');
       headers.append('Vary', 'X-API-Key');
       headers.append('Vary', 'X-Internal-API-Token');
+      headers.append('Vary', 'X-Budget-Conformance-Token');
       headers.set('X-RateLimit-Limit', String(authResult.keyInfo.rateLimitPerSec));
       headers.set('X-RateLimit-Remaining', '0'); // Would need to fetch from KV
       headers.set('X-API-Key-Tier', authResult.keyInfo.tier);
