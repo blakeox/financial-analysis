@@ -18,3 +18,4 @@ export * from './error-handler';
 export * from './turnstile';
 export * from './outbound-destination';
 export * from './code-mode-policy';
+export * from './code-mode-budget';

@@ -46,6 +46,8 @@ export interface CodeModePolicy {
 
 export interface CodeModeExecutionRequest {
   capabilities: readonly string[];
+  /** Optional host-measured generated request size for shared budget accounting. */
+  requestBytes?: number;
   toolCalls?: number;
   outputBytes?: number;
   wallTimeMs?: number;
