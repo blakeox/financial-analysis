@@ -60,6 +60,7 @@ export function resolveMCPScopes(keyInfo: ApiKeyInfo): string[] {
 }
 
 const INTERNAL_API_TOKEN_HEADER = 'x-internal-api-token';
+const BUDGET_CONFORMANCE_TOKEN_HEADER = 'x-budget-conformance-token';
 
 /**
  * Generate a SHA-256 hash of the API key for storage
@@ -267,6 +268,37 @@ async function checkMonthlyQuota(
 export async function validateApiKey(request: Request, env: Env): Promise<AuthResult> {
   // Browser-controlled origin, referer, and marker headers are not credentials.
   // Only the web worker, which runs with a secret binding, may use this path.
+  const configuredBudgetConformanceToken = env.BUDGET_CONFORMANCE_TOKEN;
+  const suppliedBudgetConformanceToken = request.headers.get(BUDGET_CONFORMANCE_TOKEN_HEADER);
+  const isBudgetConformanceRequest =
+    env.ENVIRONMENT === 'preview' &&
+    new URL(request.url).pathname === '/mcp' &&
+    Boolean(configuredBudgetConformanceToken) &&
+    suppliedBudgetConformanceToken === configuredBudgetConformanceToken;
+
+  if (isBudgetConformanceRequest) {
+    return {
+      success: true,
+      keyInfo: {
+        id: -2,
+        keyHash: 'budget-conformance',
+        keyPrefix: 'budget_',
+        customerId: 'fanalyx-budget-conformance',
+        customerEmail: 'budget-conformance@fanalyx.invalid',
+        tier: 'internal',
+        active: true,
+        monthlyQuota: 100000,
+        rateLimitPerSec: 1000,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+        metadata: {
+          authSource: 'budget-conformance',
+          mcpScopes: [MCP_SCOPES.ANALYSIS_READ],
+        },
+      },
+    };
+  }
+
   const configuredInternalToken = env.INTERNAL_API_TOKEN;
   const suppliedInternalToken = request.headers.get(INTERNAL_API_TOKEN_HEADER);
   const isInternalRequest =

@@ -52,6 +52,11 @@ disabled until promotion evidence is approved.
 Adding the ledger tables alone does not silently change existing endpoint
 behavior. Each adapter must be migrated and tested before it is marked active.
 
+The preview conformance workflow uses a dedicated `BUDGET_CONFORMANCE_TOKEN`
+secret and maps it to the `fanalyx-budget-conformance` principal. It must not
+reuse `INTERNAL_API_TOKEN`: the conformance identity needs its own budget
+window so hourly verification cannot consume web-worker or user budget.
+
 ## Validation and operations
 
 - Migration: `0006_usage_budget_ledger.sql`.

@@ -23,6 +23,8 @@ export interface Env {
   SMOKE_PROBE_TOKEN?: string;
   ADMIN_API_TOKEN?: string;
   INTERNAL_API_TOKEN?: string;
+  /** Preview-only server credential for isolated budget conformance runs. */
+  BUDGET_CONFORMANCE_TOKEN?: string;
   AI?: Ai;
   AI_GATEWAY_ID?: string;
   /** Independent kill switch for hosted model egress; deterministic tools remain available. */
