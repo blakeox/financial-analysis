@@ -105,6 +105,13 @@ Current gates:
   `30807488844` passed on `6a7c76b960f3b61e21c20b7c9d99e31103010306` with a
   30-minute window, a 1% threshold, 4 API requests, 0 web requests, and 0
   errors; raw GraphQL responses and credentials are not retained.
+- (🟡) The production R2 quota monitor now has a dedicated admin bearer contract
+  and truthful precheck diagnostics, but its latest hosted runs remain red
+  because the protected `ADMIN_API_TOKEN` secret had not yet been provisioned or
+  propagated to the production Worker. The GitHub production secret is now
+  provisioned; the controlled production deploy verifies and writes it without
+  printing it. Close the operational gate only after one valid authenticated
+  quota receipt.
 - (✅) The hosted boundary smoke is a reusable machine-readable receipt harness
   covering MCP cache variance, storage denial, Agent authentication/origin
   isolation, method controls, and OAuth kill-switch behavior; deployment jobs
