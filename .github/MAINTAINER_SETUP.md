@@ -71,7 +71,7 @@ Optional: add the repo to the [OpenSSF Scorecard dashboard](https://scorecard.de
 | `CLOUDFLARE_PREVIEW_API_TOKEN` + account         | `deploy-preview.yml`                                     |
 | `CLOUDFLARE_API_TOKEN` + account                 | `deploy-production.yml`                                  |
 | `CLOUDFLARE_OBSERVABILITY_TOKEN` + account       | `monitor-workers-health.yml`                             |
-| `ADMIN_API_TOKEN` + `PROD_API_URL`               | `monitor-r2-quotas.yml`                                  |
+| `ADMIN_API_TOKEN` + `PROD_API_URL`               | `monitor-r2-quotas.yml`, `deploy-production.yml`          |
 | `FANALYX_SMOKE_TOKEN` (production environment)   | `cloudflare-boundary-smoke.yml`, `deploy-production.yml` |
 | `BUDGET_CONFORMANCE_TOKEN` (preview environment) | `cloudflare-budget-conformance.yml`                      |
 | Slack webhooks (if used)                         | `monitor-workers-health.yml`, `monitor-r2-quotas.yml`    |

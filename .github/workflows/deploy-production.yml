@@ -115,6 +115,16 @@ jobs:
             exit 1
           }
 
+      - name: Verify production admin monitor credential
+        env:
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ADMIN_API_TOKEN:-}" || {
+            echo 'ADMIN_API_TOKEN is required for the production R2 monitor and Worker storage-status boundary.' >&2
+            exit 1
+          }
+
       - name: Setup monorepo
         uses: ./.github/actions/setup-monorepo
 
@@ -152,6 +162,17 @@ jobs:
           set -euo pipefail
           test -n "${FANALYX_SMOKE_TOKEN:-}" || { echo "FANALYX_SMOKE_TOKEN is required" >&2; exit 1; }
           printf '%s' "${FANALYX_SMOKE_TOKEN}" | pnpm dlx wrangler secret put SMOKE_PROBE_TOKEN --env=production
+
+      - name: Configure API admin monitor secret
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ADMIN_API_TOKEN:-}" || { echo "ADMIN_API_TOKEN is required" >&2; exit 1; }
+          printf '%s' "${ADMIN_API_TOKEN}" | pnpm dlx wrangler secret put ADMIN_API_TOKEN --env=production
 
       - name: Deploy API (production)
         working-directory: workers/api
