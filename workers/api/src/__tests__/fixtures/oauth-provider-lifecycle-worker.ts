@@ -40,6 +40,9 @@ export default new OAuthProvider<Env>({
   tokenEndpoint: '/oauth/token',
   clientRegistrationEndpoint: '/oauth/register',
   scopesSupported: ['analysis:read'],
+  resourceMetadata: {
+    scopes_supported: ['analysis:read'],
+  },
   allowImplicitFlow: false,
   allowPlainPKCE: false,
   accessTokenTTL: 3600,

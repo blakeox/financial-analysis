@@ -88,6 +88,9 @@ export function createOAuthProvider(defaultHandler: HandlerWithFetch) {
     tokenEndpoint: OAUTH_TOKEN_ROUTE,
     clientRegistrationEndpoint: OAUTH_REGISTER_ROUTE,
     scopesSupported: [...OAUTH_SUPPORTED_SCOPES],
+    resourceMetadata: {
+      scopes_supported: [...OAUTH_SUPPORTED_SCOPES],
+    },
     allowImplicitFlow: false,
     allowPlainPKCE: false,
     accessTokenTTL: 3600,

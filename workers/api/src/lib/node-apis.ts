@@ -73,7 +73,12 @@ export async function deriveKey(
     return new Promise((resolve, reject) => {
       pbkdf2(password, salt, iterations, 32, 'sha512', (err: Error | null, derivedKey: Buffer) => {
         if (err) reject(err);
-        else resolve(derivedKey.toString('hex'));
+        else
+          resolve(
+            Array.from(new Uint8Array(derivedKey))
+              .map((byte) => byte.toString(16).padStart(2, '0'))
+              .join('')
+          );
       });
     });
   } catch {
