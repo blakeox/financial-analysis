@@ -21,6 +21,10 @@ export interface Env {
   SMOKE_PROBE_HOST?: string;
   /** Secret required for requests to the CI-only probe origin. */
   SMOKE_PROBE_TOKEN?: string;
+  /** Kill switch for the credential-free Cloudflare-native public-edge synthetic. */
+  EDGE_SYNTHETIC_ENABLED?: string;
+  /** HTTPS custom-domain target fetched by the edge synthetic. */
+  EDGE_SYNTHETIC_TARGET_URL?: string;
   ADMIN_API_TOKEN?: string;
   INTERNAL_API_TOKEN?: string;
   /** Preview-only server credential for isolated budget conformance runs. */

@@ -79,6 +79,10 @@ surface. The same public path must reject storage access with `MISSING_KEY`; a
 web proxy credential is never a user-data identity.
 
 The production custom-domain facade is the authoritative public-edge check.
+The production API Worker also runs the Cloudflare-native custom-domain
+synthetic described in [`CLOUDFLARE_EDGE_SYNTHETIC.md`](./CLOUDFLARE_EDGE_SYNTHETIC.md)
+from its scheduled event. This is independent of GitHub-hosted runner egress
+and is the required evidence path when a zone WAF blocks external CI.
 The preview `workers.dev` asset host currently returns an HTML 404 for API/MCP
 paths even when the deployed version reports the expected Worker-first asset
 routing metadata; direct preview API conformance remains healthy. Do not turn

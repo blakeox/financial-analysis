@@ -190,6 +190,7 @@ import { isOidcBrowserLoginConfigured } from './lib/oauth-oidc-login';
 import { isOAuthEnabled } from './lib/oauth-policy';
 import { hasExpectedUploadSignature } from './lib/upload-validation';
 import { createR2PresignedUrl, getR2PresignConfig } from './lib/r2-presign';
+import { runPublicEdgeSynthetic } from './lib/edge-synthetic';
 import { isAuthorizedSmokeProbeRequest } from './lib/smoke-probe';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
@@ -4417,6 +4418,12 @@ export default {
   },
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     await apiWorker.scheduled(event, env, ctx);
+
+    if (env.EDGE_SYNTHETIC_ENABLED === 'true') {
+      const syntheticPromise = runPublicEdgeSynthetic(env);
+      ctx.waitUntil(syntheticPromise);
+      if (env.ENVIRONMENT === 'test') await syntheticPromise;
+    }
 
     if (isOAuthEnabled(env) && env.OAUTH_KV) {
       const purgePromise = getOAuthProvider()
