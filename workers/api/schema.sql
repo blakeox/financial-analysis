@@ -127,6 +127,10 @@ CREATE TABLE IF NOT EXISTS mcp_audit_events (
     output_bytes INTEGER,
     duration_ms INTEGER NOT NULL,
     expires_at TEXT NOT NULL,
+    result_integrity_version TEXT,
+    input_digest TEXT,
+    output_digest TEXT,
+    result_digest TEXT,
     FOREIGN KEY (api_key_id) REFERENCES api_keys(id)
 );
 

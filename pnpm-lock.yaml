@@ -507,6 +507,9 @@ importers:
       '@financial-analysis/analysis':
         specifier: workspace:*
         version: link:../../packages/analysis
+      '@financial-analysis/capabilities':
+        specifier: workspace:*
+        version: link:../../packages/capabilities
       '@financial-analysis/tools':
         specifier: workspace:*
         version: link:../../packages/tools

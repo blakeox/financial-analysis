@@ -137,4 +137,29 @@ describe('MCP audit events', () => {
     expect(point.blobs).toContain('capability:cache_document');
     expect(JSON.stringify(point)).not.toContain('https://private.example/sensitive-report');
   });
+
+  it('records integrity digests for successful responses without payload content', async () => {
+    const { db, bind } = createAuditDb();
+    const request = new Request('https://example.com/mcp', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' }),
+    });
+    const requestContext = buildRequestContext(request, 'development');
+
+    const response = await handleEnhancedMCPRequest(
+      request,
+      { ENVIRONMENT: 'development', DB: db } as Env,
+      requestContext
+    );
+
+    expect(response.status).toBe(200);
+    const values = bind.mock.calls[0] ?? [];
+    expect(values).toContain('1.0.0');
+    const digestValues = (values as unknown[]).filter(
+      (value): value is string => typeof value === 'string' && value.startsWith('sha256:')
+    );
+    expect(digestValues).toHaveLength(3);
+    expect(JSON.stringify(values)).not.toContain('analyze_amortization');
+  });
 });

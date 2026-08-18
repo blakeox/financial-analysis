@@ -21,6 +21,10 @@ export interface MCPAuditEvent {
   inputBytes?: number;
   outputBytes?: number;
   durationMs: number;
+  resultIntegrityVersion?: string;
+  inputDigest?: string;
+  outputDigest?: string;
+  resultDigest?: string;
 }
 
 const DEFAULT_RETENTION_DAYS = 90;
@@ -56,8 +60,9 @@ export async function recordMCPAuditEvent(env: Env, event: MCPAuditEvent): Promi
           id, occurred_at, request_id, run_id, api_key_id, customer_id, source,
           scopes_json, method, capability, policy_version, principal_id,
           resource_scope, budget_decision, audit_correlation_id, decision,
-          error_code, status_code, input_bytes, output_bytes, duration_ms, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          error_code, status_code, input_bytes, output_bytes, duration_ms, expires_at,
+          result_integrity_version, input_digest, output_digest, result_digest
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `
     )
       .bind(
@@ -82,7 +87,11 @@ export async function recordMCPAuditEvent(env: Env, event: MCPAuditEvent): Promi
         event.inputBytes ?? null,
         event.outputBytes ?? null,
         event.durationMs,
-        getMCPAuditExpiration(env, event.occurredAt)
+        getMCPAuditExpiration(env, event.occurredAt),
+        event.resultIntegrityVersion ?? null,
+        event.inputDigest ?? null,
+        event.outputDigest ?? null,
+        event.resultDigest ?? null
       )
       .run();
   } catch (error) {

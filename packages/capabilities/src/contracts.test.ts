@@ -11,6 +11,10 @@ import {
   ResponseVerificationSchema,
 } from './index.js';
 import { verifyNumericClaims } from './response-verification.js';
+import {
+  canonicalizeResultIntegrityValue,
+  createResultIntegrityReceipt,
+} from './result-integrity.js';
 
 const timestamp = '2026-08-02T12:00:00.000Z';
 
@@ -30,6 +34,14 @@ const scenario = {
 };
 
 describe('financial analysis contracts', () => {
+  it('creates stable privacy-preserving digests independent of object key order', async () => {
+    expect(canonicalizeResultIntegrityValue({ b: 2, a: 1 })).toBe('{"a":1,"b":2}');
+    const first = await createResultIntegrityReceipt({ b: 2, a: 1 }, ['x'], { ok: true });
+    const second = await createResultIntegrityReceipt({ a: 1, b: 2 }, ['x'], { ok: true });
+    expect(first).toEqual(second);
+    expect(first.inputDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
   it('accepts a stateless deterministic request without agent state', () => {
     const result = AnalysisRequestSchema.safeParse({
       contractVersion: CONTRACT_VERSION,
@@ -167,7 +179,6 @@ describe('financial analysis contracts', () => {
       inputLimitBytes: 10000,
       outputLimitBytes: 10000,
     });
-
     const incomplete = { ...capability.data };
     delete incomplete.requiredScope;
 
