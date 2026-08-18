@@ -128,6 +128,7 @@ jobs:
           API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
           ENVIRONMENT: preview
           EXPECT_OAUTH_ENABLED: 'true'
+          OIDC_TEST_CLIENT_ID: ${{ vars.OIDC_TEST_CLIENT_ID }}
           CLOUDFLARE_OAUTH_RECEIPT: cloudflare-oauth-conformance-preview.json
         run: node scripts/cloudflare-oauth-conformance.mjs
 
