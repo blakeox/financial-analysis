@@ -471,6 +471,13 @@ Goal: Reliable data evolution.
   is not yet dispatchable from the repository default branch. The next hosted
   control receipt must run from `main`/the configured default branch before the
   WAF baseline can be treated as continuously monitored.
+- (✅) The production API Worker now runs a credential-free Cloudflare-native
+  custom-domain edge synthetic on its existing hourly Cron schedule. It probes
+  `api.fanalyx.com` for health, version, anonymous MCP denial, no-store, and
+  `Vary` behavior; emits bounded Analytics Engine/observability receipts with
+  `CF-Ray` and deployment SHA metadata; and distinguishes WAF/edge denials
+  from Worker semantic and network failures. See
+  [`docs/CLOUDFLARE_EDGE_SYNTHETIC.md`](./CLOUDFLARE_EDGE_SYNTHETIC.md).
 - CSP review (docs viewer done; add for web worker output if needed)
 - Secrets rotation cadence
 - (✅) File-type validation for PDF, DOCX, and UTF-8 text now performs byte-level
