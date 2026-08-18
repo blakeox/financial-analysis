@@ -73,7 +73,7 @@
     "@vitest/coverage-v8": "4.1.9",
     "astro-eslint-parser": "2.1.0",
     "chokidar": "^5.0.0",
-    "esbuild": "0.28.1",
+    "esbuild": "0.28.2",
     "eslint": "^10.6.0",
     "eslint-plugin-astro": "2.1.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
