@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   check:
+    environment:
+      name: production
     runs-on: ubuntu-latest
     steps:
       - name: Precheck production API URL
