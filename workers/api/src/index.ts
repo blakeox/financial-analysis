@@ -190,6 +190,8 @@ import { isOidcBrowserLoginConfigured } from './lib/oauth-oidc-login';
 import { isOAuthEnabled } from './lib/oauth-policy';
 import { hasExpectedUploadSignature } from './lib/upload-validation';
 import { createR2PresignedUrl, getR2PresignConfig } from './lib/r2-presign';
+import { runPublicEdgeSynthetic } from './lib/edge-synthetic';
+import { isAuthorizedSmokeProbeRequest } from './lib/smoke-probe';
 import { registerAnalyticsRoutes } from './routes/analytics';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
@@ -309,7 +311,8 @@ async function getUploadQuotaError(env: Env, size: number): Promise<Response | n
 
 function isAuthorizedAdminRequest(request: Request, env: Env): boolean {
   const auth = request.headers.get('authorization') || '';
-  const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
+  const token =
+    (auth.startsWith('Bearer ') && auth.slice(7)) || request.headers.get('x-admin-api-token') || '';
   return Boolean(env.ADMIN_API_TOKEN) && token === env.ADMIN_API_TOKEN;
 }
 
@@ -721,9 +724,43 @@ function allowsPublicInternalAccess(pathname: string): boolean {
   );
 }
 
-function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>) {
+function withAuth(
+  handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => Promise<Response>,
+  options: { allowReadOnlyAdmin?: boolean } = {}
+) {
   return async (request: Request, env: Env): Promise<Response> => {
     const startTime = Date.now();
+
+    if (
+      options.allowReadOnlyAdmin &&
+      request.method === 'GET' &&
+      isAuthorizedAdminRequest(request, env)
+    ) {
+      const adminKeyInfo: ApiKeyInfo = {
+        id: -1,
+        keyHash: 'admin-read-only-monitor',
+        keyPrefix: 'admin_',
+        customerId: 'fanalyx-admin-monitor',
+        customerEmail: 'admin-monitor@fanalyx.com',
+        tier: 'enterprise',
+        active: true,
+        monthlyQuota: Number.MAX_SAFE_INTEGER,
+        rateLimitPerSec: 100,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: null,
+        metadata: { authSource: 'admin-token' },
+      };
+      const response = await handler(request, env, adminKeyInfo);
+      const headers = new Headers(response.headers);
+      headers.set('Cache-Control', 'no-store');
+      headers.append('Vary', 'Authorization');
+      headers.append('Vary', 'X-Admin-API-Token');
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    }
 
     // Skip auth in test/development environments
     if (env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') {
@@ -780,6 +817,7 @@ function withAuth(handler: (request: Request, env: Env, keyInfo: ApiKeyInfo) => 
       headers.append('Vary', 'Authorization');
       headers.append('Vary', 'X-API-Key');
       headers.append('Vary', 'X-Internal-API-Token');
+      headers.append('Vary', 'X-Budget-Conformance-Token');
       headers.set('X-RateLimit-Limit', String(authResult.keyInfo.rateLimitPerSec));
       headers.set('X-RateLimit-Remaining', '0'); // Would need to fetch from KV
       headers.set('X-API-Key-Tier', authResult.keyInfo.tier);
@@ -1036,22 +1074,25 @@ registerChatRoutes(router);
 router.get(
   '/v1/storage/status',
   withErrorHandler(
-    withAuth(async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
-      const { softLimit, hardLimit } = getThresholds(env);
-      const approx = await getApproxBytes(env);
-      const locked = await isQuotaLocked(env);
-      const hasBucket = Boolean(env.DOCUMENTS);
-      return new Response(
-        JSON.stringify({
-          bucket: hasBucket ? 'configured' : 'absent',
-          approxBytes: approx,
-          softLimit,
-          hardLimit,
-          locked,
-        }),
-        { headers: buildDefaultHeaders(env) }
-      );
-    })
+    withAuth(
+      async (_request: Request, env: Env, _keyInfo: ApiKeyInfo) => {
+        const { softLimit, hardLimit } = getThresholds(env);
+        const approx = await getApproxBytes(env);
+        const locked = await isQuotaLocked(env);
+        const hasBucket = Boolean(env.DOCUMENTS);
+        return new Response(
+          JSON.stringify({
+            bucket: hasBucket ? 'configured' : 'absent',
+            approxBytes: approx,
+            softLimit,
+            hardLimit,
+            locked,
+          }),
+          { headers: buildDefaultHeaders(env) }
+        );
+      },
+      { allowReadOnlyAdmin: true }
+    )
   )
 );
 
@@ -4345,6 +4386,16 @@ const apiWorker = {
   },
 };
 
+function smokeProbeDenied(request: Request, env: Env): Response | null {
+  if (isAuthorizedSmokeProbeRequest(request, env)) return null;
+
+  // Keep the direct workers.dev origin undiscoverable without the CI secret.
+  return new Response(null, {
+    status: 404,
+    headers: { 'Cache-Control': 'no-store' },
+  });
+}
+
 let oauthProviderPromise: Promise<OAuthProvider<Env>> | undefined;
 
 async function getOAuthProvider() {
@@ -4356,6 +4407,9 @@ async function getOAuthProvider() {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const probeDenial = smokeProbeDenied(request, env);
+    if (probeDenial) return probeDenial;
+
     if (isOAuthEnabled(env)) {
       if (!env.OAUTH_KV) {
         return new Response(
@@ -4374,6 +4428,12 @@ export default {
   },
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     await apiWorker.scheduled(event, env, ctx);
+
+    if (env.EDGE_SYNTHETIC_ENABLED === 'true') {
+      const syntheticPromise = runPublicEdgeSynthetic(env);
+      ctx.waitUntil(syntheticPromise);
+      if (env.ENVIRONMENT === 'test') await syntheticPromise;
+    }
 
     if (isOAuthEnabled(env) && env.OAUTH_KV) {
       const purgePromise = getOAuthProvider()

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "mcp-client-acceptance",
+  "status": "incomplete",
+  "client": {
+    "id": "codex",
+    "version": "replace-with-client-version"
+  },
+  "environment": "preview",
+  "resourcePath": "/oauth/mcp",
+  "testedAt": "replace-with-utc-timestamp",
+  "humanConfirmed": false,
+  "protocol": {
+    "protectedResourceDiscovery": false,
+    "authorizationServerDiscovery": false,
+    "dynamicClientRegistration": false,
+    "pkceS256": false,
+    "authorizationCodeExchange": false
+  },
+  "consent": {
+    "completed": false,
+    "revoked": false
+  },
+  "readOnlyCall": {
+    "capabilityId": "replace-with-certified-analysis-capability",
+    "passed": false,
+    "requestId": "opaque-request-id-only"
+  },
+  "limitations": ["replace-with-a-bounded-vendor-limitation-or-empty-array"],
+  "evidenceRef": "replace-with-an-issue-or-run-reference"
+}

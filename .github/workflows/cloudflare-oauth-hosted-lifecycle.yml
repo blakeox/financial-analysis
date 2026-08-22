@@ -1,0 +1,79 @@
+name: Cloudflare OAuth Hosted Lifecycle
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_preview:
+        description: Confirm that this run may create and revoke an isolated preview grant
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: cloudflare-oauth-hosted-lifecycle-preview
+  cancel-in-progress: false
+
+jobs:
+  lifecycle:
+    name: Hosted OAuth lifecycle (preview)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preview
+    env:
+      API_URL: https://fanalyx-api-preview.blakeoxford.workers.dev
+      ENVIRONMENT: preview
+      CLOUDFLARE_OAUTH_HOSTED_RECEIPT: cloudflare-oauth-hosted-lifecycle.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+      - name: Require explicit mutation confirmation
+        if: inputs.confirm_preview != true
+        run: |
+          echo 'Set confirm_preview=true to create and revoke an isolated preview grant.' >&2
+          exit 1
+
+      - name: Run protected hosted lifecycle
+        run: node scripts/cloudflare-oauth-hosted-lifecycle.mjs
+
+      - name: Validate redacted receipt
+        run: |
+          set -euo pipefail
+          jq -e \
+            '.schemaVersion == "1.0.0" and
+             .kind == "cloudflare-oauth-hosted-lifecycle" and
+             .environment == "preview" and
+             .mutatesOAuthState == true and
+             .passed == true and
+             .cleanup.grantRevoked == true and
+             (.checks | length >= 13)' \
+            cloudflare-oauth-hosted-lifecycle.json >/dev/null
+          if grep -Eqi 'access_token|refresh_token|authorization_code|ACTIONS_ID_TOKEN|code=[A-Za-z0-9._~-]{12,}|token=[A-Za-z0-9._~-]{12,}' cloudflare-oauth-hosted-lifecycle.json; then
+            echo 'Hosted OAuth receipt contains credential-like material.' >&2
+            exit 1
+          fi
+
+      - name: Publish lifecycle summary
+        if: always()
+        run: |
+          {
+            echo '## Hosted OAuth lifecycle'
+            echo
+            echo '- Environment: `preview`'
+            echo '- The run used a short-lived, allowlisted GitHub Actions OIDC resource-owner identity.'
+            echo '- The receipt is redacted; no OIDC tokens, cookies, codes, access tokens, refresh tokens, or callback values are emitted.'
+            echo '- The isolated grant is revoked before the run can pass.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload redacted lifecycle receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: cloudflare-oauth-hosted-lifecycle-preview
+          path: cloudflare-oauth-hosted-lifecycle.json
+          if-no-files-found: ignore
+          retention-days: 7

@@ -23,17 +23,17 @@ jobs:
       ENVIRONMENT: preview
       EXPECTED_BUDGET_ENFORCEMENT_ENABLED: 'true'
       EXPECTED_SHA: ''
-      INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+      BUDGET_CONFORMANCE_TOKEN: ${{ secrets.BUDGET_CONFORMANCE_TOKEN }}
       CLOUDFLARE_BUDGET_RECEIPT: cloudflare-budget-conformance-preview.json
     steps:
       - name: Checkout conformance harness
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Run hosted budget conformance
         run: node scripts/cloudflare-budget-conformance.mjs
 
       - name: Upload budget receipt
-        if: always()
+        if: ${{ always() && hashFiles('cloudflare-budget-conformance-preview.json') != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cloudflare-budget-conformance-preview

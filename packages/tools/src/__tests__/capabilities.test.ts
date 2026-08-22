@@ -5,6 +5,7 @@ import {
   authorizeMCPCapability,
   buildProductAuthzRequestFromMCP,
   buildProductGrantsFromMCPScopes,
+  getCanonicalMCPCapability,
   getMCPCapabilityPolicy,
   getMCPExternalCapabilityNames,
   MCP_CAPABILITY_MANIFEST,
@@ -21,6 +22,34 @@ const analysisAuthorization: MCPAuthorizationContext = {
 };
 
 describe('MCP capability policy', () => {
+  it('links certified formula tools to the canonical capability registry', () => {
+    const canonical = getCanonicalMCPCapability('analyze_amortization');
+    const policy = getMCPCapabilityPolicy('analyze_amortization');
+
+    expect(canonical).toMatchObject({
+      id: 'analysis.amortization',
+      lifecycle: 'stable',
+      sideEffects: 'none',
+    });
+    expect(policy).toMatchObject({
+      canonicalCapabilityId: 'analysis.amortization',
+      registryStatus: 'canonical',
+      formulaVersion: canonical?.version,
+      owner: canonical?.owner,
+      auditEvent: canonical?.auditEvent,
+      killSwitch: 'MCP_ANALYSIS_ENABLED',
+    });
+    expect(getCanonicalMCPCapability('analyze_dcf_valuation')).toBeUndefined();
+  });
+
+  it('keeps explicitly exposed non-canonical analysis tools read-only', () => {
+    const policy = getMCPCapabilityPolicy('analyze_enhanced_lease');
+
+    expect(policy.exposed).toBe(true);
+    expect(policy.canonicalCapabilityId).toBeUndefined();
+    expect(policy.readOnly).toBe(true);
+  });
+
   it('covers every registered tool and exposes only the reviewed allowlist', () => {
     const registeredToolNames = createMCPTools().map((tool) => tool.name);
     const externalNames = new Set(getMCPExternalCapabilityNames());
@@ -38,6 +67,10 @@ describe('MCP capability policy', () => {
       expect(policy.policyVersion).toBe('1.0.0');
       expect(policy.formulaVersion).toBeTruthy();
       expect(policy.budgetClass).toBe('deterministic');
+      expect(policy.registryStatus).toMatch(/canonical|adapter-pending|internal-only/);
+      if (policy.canonicalCapabilityId) {
+        expect(policy.registryStatus).toBe('canonical');
+      }
     }
   });
 
@@ -54,6 +87,18 @@ describe('MCP capability policy', () => {
     expect(decision.policyVersion).toBe('1.0.0');
     expect(decision.policy.status).toBe('disabled');
     expect(decision.policy.exposed).toBe(false);
+    expect(decision.policy.registryStatus).toBe('adapter-pending');
+  });
+
+  it('classifies internal-only registrations separately from unknown tools', () => {
+    expect(getMCPCapabilityPolicy('search_documents')).toMatchObject({
+      exposed: false,
+      registryStatus: 'internal-only',
+    });
+    expect(getMCPCapabilityPolicy('future-unreviewed-tool')).toMatchObject({
+      exposed: false,
+      registryStatus: 'adapter-pending',
+    });
   });
 
   it('filters tools/list to capabilities allowed by the caller scope', async () => {

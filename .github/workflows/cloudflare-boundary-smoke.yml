@@ -17,29 +17,53 @@ jobs:
     name: ${{ matrix.environment }} API boundary
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: ${{ matrix.environment }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - environment: preview
             url: https://fanalyx-api-preview.blakeoxford.workers.dev
+            version_url: https://fanalyx-api-preview.blakeoxford.workers.dev
+            health_url: https://fanalyx-api-preview.blakeoxford.workers.dev
             expected_oauth_enabled: true
             expected_budget_enforcement_enabled: true
+            public_url: https://fanalyx-web-preview.blakeoxford.workers.dev
           - environment: production
-            url: https://api.fanalyx.com
+            # Protected control origin: the custom API hostname is WAF-gated
+            # from GitHub-hosted runners and is validated by a separate edge
+            # synthetic rather than this semantic worker conformance job.
+            url: https://fanalyx-api-production.blakeoxford.workers.dev
+            version_url: https://fanalyx-api-production.blakeoxford.workers.dev
+            health_url: https://fanalyx-api-production.blakeoxford.workers.dev
             expected_oauth_enabled: false
             expected_budget_enforcement_enabled: false
-            public_url: https://fanalyx.com
+            public_url: https://fanalyx-web.blakeoxford.workers.dev
     env:
       API_URL: ${{ matrix.url }}
+      VERSION_URL: ${{ matrix.version_url }}
+      HEALTH_URL: ${{ matrix.health_url }}
       ENVIRONMENT: ${{ matrix.environment }}
       EXPECTED_OAUTH_ENABLED: ${{ matrix.expected_oauth_enabled }}
       EXPECTED_BUDGET_ENFORCEMENT_ENABLED: ${{ matrix.expected_budget_enforcement_enabled }}
       PUBLIC_URL: ${{ matrix.public_url }}
+      PUBLIC_TOOLS_URL: ${{ matrix.public_url }}
+      PUBLIC_MCP_URL: ${{ matrix.public_url }}
+      PUBLIC_STORAGE_URL: ${{ matrix.public_url }}
       CLOUDFLARE_BOUNDARY_RECEIPT: boundary-receipt-${{ matrix.environment }}.json
+      FANALYX_SMOKE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
     steps:
       - name: Checkout smoke harness
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+      - name: Verify production probe credential
+        if: matrix.environment == 'production'
+        run: |
+          set -euo pipefail
+          test -n "${FANALYX_SMOKE_TOKEN:-}" || {
+            echo "FANALYX_SMOKE_TOKEN is required for the production boundary smoke; configure it in the production GitHub Actions environment." >&2
+            exit 1
+          }
 
       - name: Run machine-readable boundary conformance
         run: node scripts/cloudflare-boundary-smoke.mjs

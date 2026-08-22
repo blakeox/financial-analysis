@@ -43,14 +43,22 @@ and connector adapters attributable to one analysis without storing payloads.
 `workers/api/wrangler.toml` defines bounded per-window defaults for request
 bytes, model tokens, estimated cost, tool calls, and reservation TTL. These
 values are policy inputs for adapters. `BUDGET_ENFORCEMENT_ENABLED=false` is
-the default canary gate; MCP `tools/call`, REST chat/streaming, and Project
-Think Agent turn adapters now share the reservation contract, and each must be
-explicitly enabled only after its hosted conformance receipt is reviewed.
-Preview is the first enabled canary and is checked by the protected
-`cloudflare-budget-conformance.yml` workflow. Development and production remain
-disabled until promotion evidence is approved.
+the default canary gate; MCP `tools/call`, REST chat/streaming, Project
+Think Agent turns, and the provider-neutral Code Mode adapter now share the
+reservation contract, and each must be explicitly enabled only after its hosted
+conformance receipt is reviewed. Preview is the first enabled canary and is
+checked by the protected `cloudflare-budget-conformance.yml` workflow.
+Development and production remain disabled until promotion evidence is
+approved. The Code Mode adapter reserves its bounded tool-call/concurrency
+envelope and fails closed when the ledger is unavailable; no Code Mode executor
+endpoint is enabled by this change.
 Adding the ledger tables alone does not silently change existing endpoint
 behavior. Each adapter must be migrated and tested before it is marked active.
+
+The preview conformance workflow uses a dedicated `BUDGET_CONFORMANCE_TOKEN`
+secret and maps it to the `fanalyx-budget-conformance` principal. It must not
+reuse `INTERNAL_API_TOKEN`: the conformance identity needs its own budget
+window so hourly verification cannot consume web-worker or user budget.
 
 ## Validation and operations
 

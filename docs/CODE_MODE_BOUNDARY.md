@@ -13,6 +13,13 @@ ambient access to the Worker.
 - `workers/api/src/lib/code-mode-policy.ts` is the provider-neutral host policy
   seam. A future Cloudflare executor or replacement sandbox must use the same
   decision contract.
+- `workers/api/src/lib/code-mode-budget.ts` is the provider-neutral adapter to
+  the shared reservation ledger. It reserves the policy tool ceiling and one
+  concurrency unit before execution, commits measured tool calls, and releases
+  abandoned work. It fails closed when D1 is unavailable.
+- Code Mode requires `registryStatus=canonical` for every underlying
+  capability. Reviewed `adapter-pending` tools remain unavailable to generated
+  programs until their canonical contract is published.
 - `CODE_MODE_ENABLED=false` and an empty
   `CODE_MODE_ALLOWED_CAPABILITIES` are configured for development, preview,
   and production.

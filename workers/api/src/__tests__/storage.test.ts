@@ -110,6 +110,22 @@ describe('Storage endpoints', () => {
     }
   });
 
+  it('allows the operator token through the dedicated admin header', async () => {
+    env.ENVIRONMENT = 'production';
+    env.ADMIN_API_TOKEN = 'admin-secret';
+    const response = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { 'x-admin-api-token': 'admin-secret' },
+      }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(response.headers.get('vary')).toContain('X-Admin-API-Token');
+  });
+
   it('rejects oversized JSON bodies before extraction parsing', async () => {
     env.ANALYSIS_MAX_JSON_BYTES = String(32);
     const payload = JSON.stringify({ text: 'x'.repeat(80) });
@@ -236,6 +252,35 @@ describe('Storage endpoints', () => {
     expect(data.locked).toBe(false);
     expect(data.softLimit).toBe(5000);
     expect(data.hardLimit).toBe(6000);
+  });
+
+  it('allows the admin monitor to read storage status without granting internal proxy access', async () => {
+    env.ENVIRONMENT = 'production';
+    env.ADMIN_API_TOKEN = 'admin-secret';
+    env.INTERNAL_API_TOKEN = 'internal-secret';
+    const internalRes = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { 'x-internal-api-token': 'internal-secret' },
+      }),
+      env,
+      ctx
+    );
+    expect(internalRes.status).toBe(401);
+
+    const res = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { Authorization: 'Bearer admin-secret' },
+      }),
+      env,
+      ctx
+    );
+    expect(res.status).toBe(200);
+    await expect(res.json()).resolves.toMatchObject({
+      bucket: 'configured',
+      softLimit: 5000,
+      hardLimit: 6000,
+      locked: false,
+    });
   });
 
   it('returns storage usage with thresholds and timestamp', async () => {

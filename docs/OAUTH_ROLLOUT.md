@@ -191,6 +191,24 @@ hosted discovery harness must remain state-free because dynamic registration
 creates a persistent OAuth client. Run the enabled mode only after the
 Clerk/OIDC provider gate is complete.
 
+Dynamic client registrations are intentionally isolated to the preview
+workflow. The Cloudflare provider retains registration metadata until its
+configured client-registration TTL; the workflow revokes the resulting user
+grant before it can pass, and the preview namespace can be purged separately
+by the existing provider maintenance path.
+
+The protected preview [hosted lifecycle workflow](../.github/workflows/cloudflare-oauth-hosted-lifecycle.yml)
+is the next receipt gate. It uses GitHub's short-lived Actions OIDC token rather
+than a stored browser cookie. The preview Worker accepts that token only when
+the issuer, audience, exact `repo:...:environment:preview` subject, repository,
+and workflow reference match its explicit non-secret configuration. A
+maintainer must dispatch it with `confirm_preview=true`. The workflow then
+submits explicit consent, exchanges S256 PKCE credentials, calls protected MCP,
+verifies Cloudflare's documented refresh recovery grace, lists and revokes the
+isolated grant, and proves both the access and refresh tokens are rejected
+afterward. Its artifact is status, timing, and request-ID metadata only.
+Production is intentionally not an option for this mutating workflow.
+
 Do not enable OAuth in preview or production until all of the following are true:
 
 1. A configured OIDC provider or Cloudflare Access protects `/oauth/authorize` and supplies a verified assertion.

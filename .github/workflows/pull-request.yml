@@ -21,7 +21,7 @@ jobs:
       code_changed: ${{ steps.filter.outputs.code }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Check for duplicate files
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
@@ -70,7 +70,7 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Dependency review
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
@@ -90,12 +90,12 @@ jobs:
 
       - name: Checkout
         if: needs.gate.outputs.skip_ci != 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
       - name: TruffleHog OSS
         if: needs.gate.outputs.skip_ci != 'true'
-        uses: trufflesecurity/trufflehog@37b77001d0174ebec2fcca2bd83ff83a6d45a3ab # v3.95.3
+        uses: trufflesecurity/trufflehog@bcfcf73aaf4759d4dadc2783177c245a02792318 # v3.97.0
         with:
           extra_args: --only-verified

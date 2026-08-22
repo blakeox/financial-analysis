@@ -17,8 +17,18 @@ export interface Env {
   ENVIRONMENT: string;
   ALLOWED_ORIGIN?: string;
   COMMIT_SHA?: string;
+  /** Hostname for the CI-only workers.dev control-plane probe origin. */
+  SMOKE_PROBE_HOST?: string;
+  /** Secret required for requests to the CI-only probe origin. */
+  SMOKE_PROBE_TOKEN?: string;
+  /** Kill switch for the credential-free Cloudflare-native public-edge synthetic. */
+  EDGE_SYNTHETIC_ENABLED?: string;
+  /** HTTPS custom-domain target fetched by the edge synthetic. */
+  EDGE_SYNTHETIC_TARGET_URL?: string;
   ADMIN_API_TOKEN?: string;
   INTERNAL_API_TOKEN?: string;
+  /** Preview-only server credential for isolated budget conformance runs. */
+  BUDGET_CONFORMANCE_TOKEN?: string;
   AI?: Ai;
   AI_GATEWAY_ID?: string;
   /** Independent kill switch for hosted model egress; deterministic tools remain available. */
@@ -84,6 +94,18 @@ export interface Env {
   OIDC_LOGIN_HINT?: string;
   /** Browser session lifetime in seconds. */
   OIDC_SESSION_TTL_SECONDS?: string;
+  /** Optional, exact GitHub Actions OIDC issuer used only by protected automation. */
+  AUTOMATION_OIDC_ISSUER?: string;
+  /** Audience requested by the hosted lifecycle workflow. */
+  AUTOMATION_OIDC_AUDIENCE?: string;
+  /** Explicit GitHub Actions JWKS URI; never inferred from issuer metadata. */
+  AUTOMATION_OIDC_JWKS_URI?: string;
+  /** Exact GitHub OIDC subject allowed to manage the preview test grant. */
+  AUTOMATION_OIDC_SUBJECT?: string;
+  /** Optional exact repository claim allowed for automation. */
+  AUTOMATION_OIDC_REPOSITORY?: string;
+  /** Optional exact workflow_ref claim allowed for automation. */
+  AUTOMATION_OIDC_WORKFLOW_REF?: string;
   /** Shared AI/MCP reservation ledger policy. */
   BUDGET_MAX_REQUEST_BYTES?: string;
   BUDGET_MAX_MODEL_TOKENS?: string;

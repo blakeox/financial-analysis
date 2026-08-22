@@ -21,14 +21,57 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      development-dependencies:
+      cloudflare-ai-runtime:
+        # Keep Cloudflare Workers, AI, Agents, and MCP protocol upgrades together.
+        # These packages share runtime compatibility contracts and require the
+        # dedicated Worker/MCP gates before promotion.
+        patterns:
+          - '@cloudflare/*'
+          - '@modelcontextprotocol/*'
+          - 'agents'
+          - 'ai'
+          - 'workers-ai-provider'
+      web-runtime:
+        # Frontend framework and browser runtime changes need E2E validation.
+        patterns:
+          - '@astrojs/*'
+          - '@playwright/*'
+          - '@tailwindcss/*'
+          - 'astro'
+          - 'react'
+          - 'react-dom'
+          - 'tailwindcss'
+          - 'lucide-react'
+          - 'recharts'
+      development-toolchain:
+        # Toolchain upgrades are intentionally isolated from runtime upgrades.
         dependency-type: 'development'
         patterns:
-          - '*'
-      production-dependencies:
+          - '@types/*'
+          - '@typescript-eslint/*'
+          - 'eslint*'
+          - 'prettier*'
+          - 'typescript'
+          - 'vite'
+          - 'vitest'
+          - 'wrangler'
+      test-tooling:
+        # Test-only libraries can move together without hiding production
+        # runtime changes in the same Dependabot PR.
+        dependency-type: 'development'
+        patterns:
+          - '@axe-core/*'
+          - '@testing-library/*'
+          - 'happy-dom'
+          - 'jest-axe'
+          - 'jsdom'
+      supporting-runtime:
+        # Small, low-coupling runtime libraries remain bounded as a group.
         dependency-type: 'production'
         patterns:
-          - '*'
+          - 'ajv*'
+          - 'jose'
+          - 'zod'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

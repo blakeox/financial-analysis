@@ -34,6 +34,17 @@ Every displayed field declares:
 
 The result canvas must render from `WorkbenchResultView` / `AnalysisResult` without requiring an `Answer`.
 
+## Evidence-first compare and diffs (#454)
+
+Pure helpers in `workbench-result-view.ts`:
+
+- `projectWorkbenchResultRenderModel` — deterministic, key-sorted projection for GUI/MCP fixtures
+- `diffWorkbenchResultViews` — field-level input/output/assumption changes between runs
+- `compareWorkbenchScenarios` — side-by-side named scenarios; requires matching capability + formula version
+- `warningsByCategory` — buckets `validation` | `missing-evidence` | `stale-evidence` | `model-uncertainty`
+
+Warnings carry an optional `category` (default `validation`) on `WarningSchema`.
+
 ## Stateless MCP boundary
 
 External MCP clients use deterministic capabilities without workspace or memory access unless an explicit grant exists (`authorizeCapability` + MCP dual gate). Memory items are schema-locked to `externalMcpVisible: false`.

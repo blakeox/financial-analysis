@@ -105,6 +105,13 @@ Current gates:
   `30807488844` passed on `6a7c76b960f3b61e21c20b7c9d99e31103010306` with a
   30-minute window, a 1% threshold, 4 API requests, 0 web requests, and 0
   errors; raw GraphQL responses and credentials are not retained.
+- (🟡) The production R2 quota monitor now has a dedicated admin bearer contract
+  and truthful precheck diagnostics, but its latest hosted runs remain red
+  because the protected `ADMIN_API_TOKEN` secret had not yet been provisioned or
+  propagated to the production Worker. The GitHub production secret is now
+  provisioned; the controlled production deploy verifies and writes it without
+  printing it. Close the operational gate only after one valid authenticated
+  quota receipt.
 - (✅) The hosted boundary smoke is a reusable machine-readable receipt harness
   covering MCP cache variance, storage denial, Agent authentication/origin
   isolation, method controls, and OAuth kill-switch behavior; deployment jobs
@@ -473,6 +480,13 @@ Goal: Reliable data evolution.
   is not yet dispatchable from the repository default branch. The next hosted
   control receipt must run from `main`/the configured default branch before the
   WAF baseline can be treated as continuously monitored.
+- (✅) The production API Worker now runs a credential-free Cloudflare-native
+  custom-domain edge synthetic on its existing hourly Cron schedule. It probes
+  `api.fanalyx.com` for health, version, anonymous MCP denial, no-store, and
+  `Vary` behavior; emits bounded Analytics Engine/observability receipts with
+  `CF-Ray` and deployment SHA metadata; and distinguishes WAF/edge denials
+  from Worker semantic and network failures. See
+  [`docs/CLOUDFLARE_EDGE_SYNTHETIC.md`](./CLOUDFLARE_EDGE_SYNTHETIC.md).
 - CSP review (docs viewer done; add for web worker output if needed)
 - Secrets rotation cadence
 - (✅) File-type validation for PDF, DOCX, and UTF-8 text now performs byte-level

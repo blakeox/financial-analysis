@@ -26,7 +26,7 @@ Target topology for the financial analysis workbench (#450). New boundaries are 
 ## Current status
 
 - `workers/mcp`, `workers/agent`, and `workers/indexer` are **scaffold only** (`productionTraffic: false`).
-- `workers/mcp` mounts Streamable HTTP `createMcpHandler` at `/mcp` with a single allowlisted formula (`analyze_amortization`) gated by `authorizeMCPCapability` (#438 slice). No production routes or OAuth cutover yet.
+- `workers/mcp` mounts stateless-only Streamable HTTP `createMcpHandler` at `/mcp` with a single allowlisted formula (`analyze_amortization`) gated by `authorizeMCPCapability` (#438 slice). Its Wrangler config uses the current compatibility date, Workers observability, and no legacy MCP session lane. No production routes or OAuth cutover yet.
 - Canonical live MCP remains `workers/api` `/mcp` until an explicit cutover.
 - No custom domains or production routes are attached to the new workers.
 

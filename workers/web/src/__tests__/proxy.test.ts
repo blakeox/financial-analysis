@@ -6,11 +6,17 @@ function makeEnv({
   apiDevOrigin,
   apiProdOrigin,
   internalApiToken,
+  apiService,
+  smokeProbeHost,
+  smokeProbeToken,
 }: {
   environment: string;
   apiDevOrigin?: string;
   apiProdOrigin?: string;
   internalApiToken?: string;
+  apiService?: Fetcher;
+  smokeProbeHost?: string;
+  smokeProbeToken?: string;
 }) {
   const fetchSpy = vi.fn(
     async (_req: Request) =>
@@ -26,11 +32,17 @@ function makeEnv({
     API_DEV_ORIGIN?: string;
     API_ORIGIN?: string;
     INTERNAL_API_TOKEN?: string;
+    SMOKE_PROBE_HOST?: string;
+    SMOKE_PROBE_TOKEN?: string;
+    API?: Fetcher;
   } = {
     ENVIRONMENT: environment,
     API_DEV_ORIGIN: apiDevOrigin,
     API_ORIGIN: apiProdOrigin,
     INTERNAL_API_TOKEN: internalApiToken,
+    SMOKE_PROBE_HOST: smokeProbeHost,
+    SMOKE_PROBE_TOKEN: smokeProbeToken,
+    API: apiService,
     ASSETS: { fetch: fetchSpy } as unknown as Fetcher,
   };
   const ctx: ExecutionContext = {
@@ -41,6 +53,49 @@ function makeEnv({
 }
 
 describe('web worker dev proxy', () => {
+  it('keeps the direct production probe origin undiscoverable without its token', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'production',
+      apiProdOrigin: 'https://api.fanalyx.com',
+      smokeProbeHost: 'fanalyx-web.blakeoxford.workers.dev',
+      smokeProbeToken: 'test-token',
+    });
+
+    const res = await web.fetch(
+      new Request('https://fanalyx-web.blakeoxford.workers.dev/api/v1/mcp/tools'),
+      env as never,
+      ctx
+    );
+
+    expect(res.status).toBe(404);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('allows the token-gated production probe origin to use the API binding', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'production',
+      apiProdOrigin: 'https://api.fanalyx.com',
+      smokeProbeHost: 'fanalyx-web.blakeoxford.workers.dev',
+      smokeProbeToken: 'test-token',
+    });
+    const serviceFetch = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ tools: [] }), { status: 200 }));
+    env.API = { fetch: serviceFetch } as unknown as Fetcher;
+
+    const res = await web.fetch(
+      new Request('https://fanalyx-web.blakeoxford.workers.dev/api/v1/mcp/tools', {
+        headers: { 'x-fanalyx-smoke-token': 'test-token' },
+      }),
+      env as never,
+      ctx
+    );
+
+    expect(res.status).toBe(200);
+    expect(serviceFetch).toHaveBeenCalledOnce();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('forwards preview MCP routes before static assets', async () => {
     const { env, ctx, fetchSpy } = makeEnv({
       environment: 'preview',
@@ -129,6 +184,29 @@ describe('web worker dev proxy', () => {
     globalFetch.mockRestore();
   });
 
+  it('uses the API service binding for same-zone production proxying', async () => {
+    const { env, ctx, fetchSpy } = makeEnv({
+      environment: 'production',
+      apiProdOrigin: 'https://api.fanalyx.com',
+    });
+    const apiResponse = new Response(JSON.stringify({ ok: true }), { status: 200 });
+    const serviceFetch = vi.fn().mockResolvedValue(apiResponse);
+    env.API = { fetch: serviceFetch } as unknown as Fetcher;
+    const globalFetch = vi.spyOn(globalThis, 'fetch');
+
+    const res = await web.fetch(
+      new Request('https://fanalyx.com/api/v1/mcp/tools'),
+      env as never,
+      ctx
+    );
+
+    expect(res.status).toBe(200);
+    expect(serviceFetch).toHaveBeenCalledOnce();
+    expect(globalFetch).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    globalFetch.mockRestore();
+  });
+
   it('serves ASSETS for non-API paths in development', async () => {
     const { env, ctx, fetchSpy } = makeEnv({
       environment: 'development',
@@ -179,7 +257,7 @@ describe('web worker dev proxy', () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ error: 'API_ORIGIN not configured' });
+    expect(await res.json()).toEqual({ error: 'API_ORIGIN or API service binding not configured' });
   });
 
   it('forwards /api/ requests to API in development', async () => {

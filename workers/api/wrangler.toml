@@ -14,6 +14,8 @@ CONNECTOR_ALLOWED_HOSTS = ""
 CONNECTOR_MAX_REDIRECTS = "3"
 # Code Mode remains disabled until sandbox, approval, and artifact gates pass.
 CODE_MODE_ENABLED = "false"
+EDGE_SYNTHETIC_ENABLED = "false"
+EDGE_SYNTHETIC_TARGET_URL = ""
 CODE_MODE_ALLOWED_CAPABILITIES = ""
 CODE_MODE_MAX_TOOL_CALLS = "25"
 CODE_MODE_MAX_OUTPUT_BYTES = "262144"
@@ -135,6 +137,8 @@ CONNECTOR_EGRESS_ENABLED = "false"
 CONNECTOR_ALLOWED_HOSTS = ""
 CONNECTOR_MAX_REDIRECTS = "3"
 CODE_MODE_ENABLED = "false"
+EDGE_SYNTHETIC_ENABLED = "false"
+EDGE_SYNTHETIC_TARGET_URL = ""
 CODE_MODE_ALLOWED_CAPABILITIES = ""
 CODE_MODE_MAX_TOOL_CALLS = "25"
 CODE_MODE_MAX_OUTPUT_BYTES = "262144"
@@ -167,6 +171,14 @@ OIDC_CLIENT_ID = "ESxeGH9aCGLP1EYJ"
 OIDC_SCOPES = "openid profile email"
 OIDC_SESSION_TTL_SECONDS = "28800"
 OIDC_LOGIN_HINT = ""
+# GitHub Actions OIDC is an explicitly allowlisted automation principal for the
+# protected preview lifecycle receipt. Production does not configure this adapter.
+AUTOMATION_OIDC_ISSUER = "https://token.actions.githubusercontent.com"
+AUTOMATION_OIDC_AUDIENCE = "https://github.com/blakeox/financial-analysis"
+AUTOMATION_OIDC_JWKS_URI = "https://token.actions.githubusercontent.com/.well-known/jwks"
+AUTOMATION_OIDC_SUBJECT = "repo:blakeox/financial-analysis:environment:preview"
+AUTOMATION_OIDC_REPOSITORY = "blakeox/financial-analysis"
+AUTOMATION_OIDC_WORKFLOW_REF = "blakeox/financial-analysis/.github/workflows/cloudflare-oauth-hosted-lifecycle.yml@refs/heads/main"
 # Tighten MIME allowlist in preview if needed for testing stricter policies.
 ALLOWED_UPLOAD_MIME_PREFIXES = "application/pdf,application/vnd.openxmlformats"
 AI_SEARCH_INSTANCE_NAME = "fanalyx-preview-site"
@@ -235,6 +247,7 @@ binding = "BROWSER"
 # Production environment
 [env.production]
 name = "fanalyx-api-production"
+workers_dev = true
 
 [env.production.observability.logs]
 enabled = true
@@ -244,6 +257,9 @@ invocation_logs = true
 [env.production.vars]
 ENVIRONMENT = "production"
 ALLOWED_ORIGIN = "https://fanalyx.com"
+SMOKE_PROBE_HOST = "fanalyx-api-production.blakeoxford.workers.dev"
+EDGE_SYNTHETIC_ENABLED = "true"
+EDGE_SYNTHETIC_TARGET_URL = "https://api.fanalyx.com"
 AI_GATEWAY_ID = "fanalyx-chat"
 AI_EGRESS_ENABLED = "true"
 CONNECTOR_EGRESS_ENABLED = "false"

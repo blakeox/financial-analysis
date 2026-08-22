@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AuthzResourceScopeSchema, CapabilityScopeSchema } from './authorization.js';
+
 export const CONTRACT_VERSION = '1.0.0';
 
 const IdentifierSchema = z.string().trim().min(1).max(128);
@@ -38,10 +40,19 @@ export const AssumptionSchema = z.object({
   dataClassification: DataClassificationSchema,
 });
 
+export const WarningCategorySchema = z.enum([
+  'validation',
+  'missing-evidence',
+  'stale-evidence',
+  'model-uncertainty',
+]);
+
 export const WarningSchema = z.object({
   code: IdentifierSchema,
   message: z.string().trim().min(1).max(1024),
   severity: z.enum(['info', 'warning', 'error']),
+  /** Defaults to validation for backward-compatible envelopes. */
+  category: WarningCategorySchema.default('validation'),
 });
 
 export const NumericClaimSchema = z.object({
@@ -146,6 +157,12 @@ export const CapabilitySchema = z.object({
   outputSchemaRef: z.string().trim().min(1).max(256),
   formula: FormulaSemanticsSchema.optional(),
   sideEffects: z.enum(['none', 'writes-state', 'external-action']),
+  requiredScope: CapabilityScopeSchema,
+  resourceScope: AuthzResourceScopeSchema,
+  budgetClass: z.enum(['deterministic', 'model', 'external']),
+  approvalRequired: z.boolean(),
+  auditEvent: IdentifierSchema,
+  killSwitch: IdentifierSchema,
   owner: IdentifierSchema,
   inputLimitBytes: z.number().int().positive(),
   outputLimitBytes: z.number().int().positive(),
@@ -265,6 +282,7 @@ export type Lifecycle = z.infer<typeof LifecycleSchema>;
 export type Precision = z.infer<typeof PrecisionSchema>;
 export type Assumption = z.infer<typeof AssumptionSchema>;
 export type Warning = z.infer<typeof WarningSchema>;
+export type WarningCategory = z.infer<typeof WarningCategorySchema>;
 export type NumericClaim = z.infer<typeof NumericClaimSchema>;
 export type NumericClaimCheck = z.infer<typeof NumericClaimCheckSchema>;
 export type ResponseVerificationStatus = z.infer<typeof ResponseVerificationStatusSchema>;

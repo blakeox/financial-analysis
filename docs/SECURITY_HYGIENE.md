@@ -14,13 +14,13 @@ Living record of code-scanning remediation for **blakeox/financial-analysis**. F
 
 ### Dependency remediation notes
 
-`@cloudflare/puppeteer` releases through `1.4.0` pin `@puppeteer/browsers@2.2.4`,
+`@cloudflare/puppeteer@^1.1.0` pins an older `@puppeteer/browsers` release,
 which pulls `extract-zip@2.0.1`. That package has a high-severity symlink
-extraction advisory with no upstream patched release. The API now uses
-`@cloudflare/puppeteer@^1.4.0` and scopes an override to
-`@cloudflare/puppeteer>@puppeteer/browsers` at `3.2.1`, whose maintained
-extraction path removes `extract-zip`. This is intentionally scoped rather
-than a global Puppeteer override. The project and NUC runner must use Node
+extraction advisory with no upstream patched release. The workspace pins
+`@puppeteer/browsers` at `3.2.0`, whose maintained extraction path removes
+`extract-zip` while preserving the Cloudflare Puppeteer runtime API. The
+override is intentionally scoped to the browser helper rather than changing
+the Cloudflare adapter package. The project and NUC runner must use Node
 `>=22.12.0`, matching the replacement package's engine requirement.
 
 The override is a compatibility control to bridge an upstream pin, not a

@@ -22,6 +22,7 @@ export {
   ResponseVerificationStatusSchema,
   ScenarioSchema,
   WarningSchema,
+  WarningCategorySchema,
 } from './contracts.js';
 
 export {
@@ -61,12 +62,33 @@ export {
 } from './authorization.js';
 
 export {
+  AuthenticationMethodSchema,
+  CapabilityAuthorizationContextSchema,
+  assertCapabilityAuthorizationContext,
+  buildAuthzRequestFromContext,
+  createCapabilityAuthorizationContext,
+  createExternalMcpAuthorizationContext,
+  type AuthenticationMethod,
+  type BuildAuthzRequestOptions,
+  type CapabilityAuthorizationContext,
+  type CreateCapabilityAuthorizationContextInput,
+} from './authorization-context.js';
+
+export {
   RESPONSE_VERIFIER_VERSION,
   verifyNumericClaims,
   type NumericVerificationOptions,
   type NumericVerificationResult,
   type ResponseVerificationIssue,
 } from './response-verification.js';
+
+export {
+  RESULT_INTEGRITY_VERSION,
+  canonicalizeResultIntegrityValue,
+  createResultIntegrityReceipt,
+  digestResultIntegrityValue,
+  type ResultIntegrityReceipt,
+} from './result-integrity.js';
 
 export {
   WORKBENCH_CONTRACT_VERSION,
@@ -81,6 +103,9 @@ export {
   UiResourceStateSchema,
   WorkbenchResultViewSchema,
   WorkspaceSchema,
+  WorkbenchChangedFieldSchema,
+  WorkbenchRunDiffSchema,
+  WorkbenchScenarioComparisonSchema,
   type AnalysisRun,
   type ApprovalRequest,
   type Case,
@@ -92,7 +117,18 @@ export {
   type UiResourceState,
   type WorkbenchResultView,
   type Workspace,
+  type WorkbenchChangedField,
+  type WorkbenchRunDiff,
+  type WorkbenchScenarioComparison,
 } from './workbench-contracts.js';
+
+export {
+  compareWorkbenchScenarios,
+  diffWorkbenchResultViews,
+  projectWorkbenchResultRenderModel,
+  warningsByCategory,
+  type WorkbenchResultRenderModel,
+} from './workbench-result-view.js';
 
 export type {
   AnalysisRequest,
@@ -116,4 +152,5 @@ export type {
   ResponseVerificationStatus,
   Scenario,
   Warning,
+  WarningCategory,
 } from './contracts.js';

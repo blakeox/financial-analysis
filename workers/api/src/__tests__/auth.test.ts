@@ -136,6 +136,43 @@ describe('validateApiKey', () => {
     expect(result.keyInfo?.tier).toBe('internal');
   });
 
+  it('isolates the preview budget conformance principal from the web worker', async () => {
+    const request = new Request('https://fanalyx.com/mcp', {
+      headers: { 'x-budget-conformance-token': 'budget-secret' },
+    });
+
+    const result = await validateApiKey(request, {
+      ENVIRONMENT: 'preview',
+      BUDGET_CONFORMANCE_TOKEN: 'budget-secret',
+      INTERNAL_API_TOKEN: 'server-secret',
+    } as Env);
+
+    expect(result.success).toBe(true);
+    expect(result.keyInfo).toMatchObject({
+      id: -2,
+      customerId: 'fanalyx-budget-conformance',
+      tier: 'internal',
+    });
+    expect(result.keyInfo?.metadata).toMatchObject({
+      authSource: 'budget-conformance',
+      mcpScopes: ['analysis:read'],
+    });
+  });
+
+  it('does not accept the budget conformance token outside preview MCP', async () => {
+    const request = new Request('https://fanalyx.com/v1/chat', {
+      headers: { 'x-budget-conformance-token': 'budget-secret' },
+    });
+
+    const result = await validateApiKey(request, {
+      ENVIRONMENT: 'production',
+      BUDGET_CONFORMANCE_TOKEN: 'budget-secret',
+    } as Env);
+
+    expect(result.success).toBe(false);
+    expect(result.errorCode).toBe('MISSING_KEY');
+  });
+
   it('rejects spoofed internal markers and invalid server tokens', async () => {
     const request = new Request('https://fanalyx.com/v1/chat', {
       headers: {

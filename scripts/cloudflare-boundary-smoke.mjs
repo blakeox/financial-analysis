@@ -4,11 +4,18 @@
 import { writeFile } from 'node:fs/promises';
 
 const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
+const versionUrl = process.env.VERSION_URL?.trim().replace(/\/$/, '') || apiUrl;
 const publicUrl = process.env.PUBLIC_URL?.trim().replace(/\/$/, '') || null;
+const healthUrl = process.env.HEALTH_URL?.trim().replace(/\/$/, '') || apiUrl;
+const publicToolsUrl = process.env.PUBLIC_TOOLS_URL?.trim().replace(/\/$/, '') || publicUrl;
+const publicMcpUrl = process.env.PUBLIC_MCP_URL?.trim().replace(/\/$/, '') || publicUrl;
+const publicStorageUrl = process.env.PUBLIC_STORAGE_URL?.trim().replace(/\/$/, '') || publicUrl;
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedOAuthEnabled = process.env.EXPECTED_OAUTH_ENABLED === 'true';
 const expectedBudgetEnforcementEnabled = process.env.EXPECTED_BUDGET_ENFORCEMENT_ENABLED === 'true';
+const smokeToken = process.env.FANALYX_SMOKE_TOKEN?.trim() || null;
+const smokeUserAgent = 'FanalyxBoundarySmoke/1.0 (+https://fanalyx.com)';
 const receiptPath =
   process.env.CLOUDFLARE_BOUNDARY_RECEIPT?.trim() || 'cloudflare-boundary-receipt.json';
 
@@ -16,6 +23,12 @@ if (!apiUrl) {
   console.error('API_URL is required.');
   process.exit(2);
 }
+
+const smokeProbeHosts = new Set(
+  [versionUrl, healthUrl, publicUrl, publicToolsUrl, publicMcpUrl, publicStorageUrl]
+    .filter(Boolean)
+    .map((url) => new URL(url).host)
+);
 
 const checks = [];
 
@@ -26,12 +39,22 @@ function record(name, passed, details = {}) {
   return passed;
 }
 
+function requestHeaders(initHeaders, baseUrl) {
+  const headers = new Headers(initHeaders);
+  if (!headers.has('user-agent')) headers.set('user-agent', smokeUserAgent);
+  if (smokeToken && smokeProbeHosts.has(new URL(baseUrl).host)) {
+    headers.set('x-fanalyx-smoke-token', smokeToken);
+  }
+  return headers;
+}
+
 async function fetchAgainst(baseUrl, path, init = {}) {
   let lastError;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
       const response = await fetch(`${baseUrl}${path}`, {
         ...init,
+        headers: requestHeaders(init.headers, baseUrl),
         signal: AbortSignal.timeout(30_000),
       });
       if (response.status >= 500 || response.status === 408 || response.status === 429) {
@@ -78,7 +101,7 @@ async function readVersionReceipt() {
   const maxAttempts = expectedSha ? 12 : 1;
   let version;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    version = await readResponse(await fetchWithRetry('/version'));
+    version = await readResponse(await fetchAgainst(versionUrl, '/version'));
     if (expectedSha === null || version.json?.commit === expectedSha || attempt === maxAttempts) {
       return version;
     }
@@ -97,7 +120,7 @@ function hasVary(value, expected) {
 async function main() {
   const startedAt = new Date().toISOString();
   try {
-    const health = await readResponse(await fetchWithRetry('/health'));
+    const health = await readResponse(await fetchAgainst(healthUrl, '/health'));
     record('health', health.status === 200 && health.json?.status === 'ok', {
       status: health.status,
       reportedEnvironment: health.json?.environment,
@@ -217,7 +240,7 @@ async function main() {
 
     if (publicUrl) {
       const publicTools = await readResponse(
-        await fetchAgainst(publicUrl, '/api/v1/mcp/tools', {
+        await fetchAgainst(publicToolsUrl, '/api/v1/mcp/tools', {
           headers: { Accept: 'application/json' },
         })
       );
@@ -238,7 +261,7 @@ async function main() {
       );
 
       const publicInitialize = await readResponse(
-        await fetchAgainst(publicUrl, '/mcp', {
+        await fetchAgainst(publicMcpUrl, '/mcp', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -269,7 +292,7 @@ async function main() {
       );
 
       const publicStorage = await readResponse(
-        await fetchAgainst(publicUrl, '/v1/storage/presign', {
+        await fetchAgainst(publicStorageUrl, '/v1/storage/presign', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ operation: 'download', key: 'lease-documents/smoke.txt' }),
@@ -291,7 +314,12 @@ async function main() {
     schemaVersion: '1.0.0',
     kind: 'cloudflare-boundary-smoke',
     apiUrl,
+    versionUrl,
     publicUrl,
+    healthUrl,
+    publicToolsUrl,
+    publicMcpUrl,
+    publicStorageUrl,
     environment,
     expectedSha,
     expectedOAuthEnabled,

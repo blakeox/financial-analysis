@@ -1,0 +1,54 @@
+{
+  "contractVersion": "1.0.0",
+  "analysisRunId": "run-amortization-higher-rate",
+  "resultId": "result-amortization-higher-rate",
+  "capabilityId": "analysis.amortization",
+  "formulaVersion": "1.0.0",
+  "scenario": {
+    "id": "scenario-higher-rate",
+    "name": "Higher rate",
+    "inputs": {
+      "principal": 250000,
+      "annualRate": 0.07,
+      "termMonths": 360
+    },
+    "assumptions": []
+  },
+  "status": "completed",
+  "inputs": {
+    "principal": 250000,
+    "annualRate": 0.07,
+    "termMonths": 360
+  },
+  "assumptions": [
+    {
+      "id": "rate",
+      "label": "Annual rate",
+      "ownership": "user",
+      "dataClassification": "user",
+      "retention": "case",
+      "value": 0.07
+    }
+  ],
+  "outputs": {
+    "payment": 1663.26,
+    "totalInterest": 348772.45
+  },
+  "warnings": [
+    {
+      "code": "RATE_FEED_STALE",
+      "message": "Optional rate feed last refreshed more than thirty days ago.",
+      "severity": "warning",
+      "category": "stale-evidence"
+    },
+    {
+      "code": "NARRATIVE_NOT_CANONICAL",
+      "message": "Any assistant explanation of payment impact is model uncertainty, not a formula output.",
+      "severity": "info",
+      "category": "model-uncertainty"
+    }
+  ],
+  "evidence": [],
+  "answerIds": ["answer-explanatory-only"],
+  "uiState": "ready"
+}

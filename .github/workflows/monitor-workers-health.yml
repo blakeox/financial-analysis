@@ -26,7 +26,7 @@ jobs:
       ERROR_RATE_THRESHOLD: '1.0'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
       - name: Precheck required secrets
         id: precheck
         env:
@@ -34,10 +34,19 @@ jobs:
           ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
+            {
+              echo "skip=false"
+              echo "failure_stage=precheck"
+              echo "failure_reason=Cloudflare observability credentials are required"
+            } >> "$GITHUB_OUTPUT"
             echo "Missing Cloudflare secrets; health cannot be verified" >&2
             exit 1
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "skip=false"
+              echo "failure_stage="
+              echo "failure_reason="
+            } >> "$GITHUB_OUTPUT"
           fi
       - name: Ensure jq is installed
         if: steps.precheck.outputs.skip != 'true'
@@ -50,6 +59,18 @@ jobs:
         if: steps.precheck.outputs.skip != 'true'
         run: |
           set -euo pipefail
+          failure_stage=workers-health-query
+          failure_reason="Workers health query failed before a valid receipt was produced"
+          receipt_valid=false
+          on_error() {
+            status=$?
+            {
+              echo "receipt_valid=$receipt_valid"
+              echo "failure_stage=$failure_stage"
+              echo "failure_reason=$failure_reason (exit=$status)"
+            } >> "$GITHUB_OUTPUT"
+          }
+          trap on_error ERR
           now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           from=$(date -u -v-30M +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
           scripts=$(echo "$SCRIPTS" | jq -r '.[]')
@@ -69,6 +90,8 @@ jobs:
               --data "$payload" \
               https://api.cloudflare.com/client/v4/graphql)
             if ! jq -e '((.errors // []) | length) == 0' <<<"$resp" >/dev/null; then
+              failure_stage=graphql-response
+              failure_reason="Cloudflare GraphQL returned errors: $(jq -c '{errors: (.errors // []) | map({message, path})}' <<<"$resp")"
               echo "Cloudflare GraphQL query failed: $(jq -c '{errors: (.errors // []) | map({message, path})}' <<<"$resp")" >&2
               exit 1
             fi
@@ -101,6 +124,8 @@ jobs:
             --argjson passed "$passed" \
             '{schemaVersion: "1.0.0", kind: "cloudflare-workers-health", readOnly: true, environment: $environment, generatedAt: $generatedAt, errorRateThresholdPct: $thresholdPct, passed: $passed, results: $results}' \
             > workers-health-receipt.json
+          receipt_valid=true
+          echo "receipt_valid=true" >> "$GITHUB_OUTPUT"
           {
             echo "summary<<EOF"
             cat summary.txt
@@ -116,44 +141,71 @@ jobs:
             cat summary.txt
           } >> "$GITHUB_STEP_SUMMARY"
           if [ "$any_fail" -eq 1 ]; then
+            failure_stage=error-rate-threshold
+            failure_reason="one or more Workers exceeded the configured error-rate threshold"
             echo "Workers error rate exceeded threshold" >&2
             exit 1
           fi
+          {
+            echo "failure_stage="
+            echo "failure_reason="
+          } >> "$GITHUB_OUTPUT"
 
       - name: Notify Slack (optional)
-        if: failure() && steps.precheck.outputs.skip != 'true'
+        if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           if [ -n "$SLACK_WEBHOOK_URL" ]; then
-            msg=$(printf 'Workers health alert (error rate > %s%%)\n%s' "$ERROR_RATE_THRESHOLD" "${{ steps.gq.outputs.summary }}")
-            curl -X POST -H 'Content-type: application/json' --data "{\"text\": \"$msg\"}" "$SLACK_WEBHOOK_URL"
+            msg=$(printf 'Workers health monitor result. stage=%s reason=%s\n%s' "${{ steps.gq.outputs.failure_stage || steps.precheck.outputs.failure_stage || 'unknown' }}" "${{ steps.gq.outputs.failure_reason || steps.precheck.outputs.failure_reason || 'no diagnostic was recorded' }}" "${{ steps.gq.outputs.summary || 'No valid health summary was produced.' }}")
+            payload=$(jq -n --arg text "$msg" '{text: $text}')
+            curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
           else
             echo "No SLACK_WEBHOOK_URL configured; skipping notification"
           fi
 
       - name: Create or update GitHub Issue
-        if: failure() && steps.precheck.outputs.skip != 'true'
+        if: failure()
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          RECEIPT_VALID: "${{ steps.gq.outputs.receipt_valid || 'false' }}"
+          ALERT_STAGE: "${{ steps.gq.outputs.failure_stage || steps.precheck.outputs.failure_stage || 'unknown' }}"
+          ALERT_REASON: "${{ steps.gq.outputs.failure_reason || steps.precheck.outputs.failure_reason || 'no diagnostic was recorded' }}"
+          ALERT_SUMMARY: "${{ steps.gq.outputs.summary || 'No valid health summary was produced.' }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const label = 'alert:workers-errors';
-            const title = `Workers health alert: error rate > ${{ env.ERROR_RATE_THRESHOLD }}%`;
-            const body = `Automated alert from Monitor Workers Health workflow.\n\n${{ steps.gq.outputs.summary }}`;
+            const receiptValid = process.env.RECEIPT_VALID === 'true';
+            const stage = process.env.ALERT_STAGE;
+            const reason = process.env.ALERT_REASON;
+            const summary = process.env.ALERT_SUMMARY;
+            const title = receiptValid
+              ? `Workers health alert: error rate > ${{ env.ERROR_RATE_THRESHOLD }}%`
+              : `Workers health monitor failure: ${stage}`;
+            const body = [
+              'Automated alert from Monitor Workers Health workflow.',
+              '',
+              `- Result: ${receiptValid ? 'valid health measurement exceeded the configured threshold' : 'health status could not be verified'}`,
+              `- Failure stage: ${stage}`,
+              `- Failure reason: ${reason}`,
+              '',
+              summary,
+            ].join('\n');
             // Ensure label exists
             try { await github.rest.issues.getLabel({ owner, repo, name: label }); } catch {
               try { await github.rest.issues.createLabel({ owner, repo, name: label, color: 'D93F0B', description: 'Cloudflare Workers error rate alerts' }); } catch {}
             }
             const { data: issues } = await github.rest.issues.listForRepo({ owner, repo, state: 'open', labels: label });
-            const existing = issues.find(i => i.title.startsWith('Workers health alert'));
+            const existing = issues.find(i => i.title.startsWith('Workers health alert') || i.title.startsWith('Workers health monitor failure'));
             if (existing) {
               await github.rest.issues.update({
                 owner,
                 repo,
                 issue_number: existing.number,
+                title,
                 body,
               });
               core.info(`Updated existing issue #${existing.number}`);

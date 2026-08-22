@@ -66,11 +66,39 @@ Optional: add the repo to the [OpenSSF Scorecard dashboard](https://scorecard.de
 
 ## 6. Deploy and monitors
 
-| Secret / setting                           | Used by                                               |
-| ------------------------------------------ | ----------------------------------------------------- |
-| `CLOUDFLARE_PREVIEW_API_TOKEN` + account   | `deploy-preview.yml`                                  |
-| `CLOUDFLARE_API_TOKEN` + account           | `deploy-production.yml`                               |
-| `CLOUDFLARE_OBSERVABILITY_TOKEN` + account | `monitor-workers-health.yml`                          |
-| Slack webhooks (if used)                   | `monitor-workers-health.yml`, `monitor-r2-quotas.yml` |
+| Secret / setting                                 | Used by                                                  |
+| ------------------------------------------------ | -------------------------------------------------------- |
+| `CLOUDFLARE_PREVIEW_API_TOKEN` + account         | `deploy-preview.yml`                                     |
+| `CLOUDFLARE_API_TOKEN` + account                 | `deploy-production.yml`                                  |
+| `CLOUDFLARE_OBSERVABILITY_TOKEN` + account       | `monitor-workers-health.yml`                             |
+| `ADMIN_API_TOKEN` + `PROD_API_URL`               | `monitor-r2-quotas.yml`, `deploy-production.yml`          |
+| `FANALYX_SMOKE_TOKEN` (production environment)   | `cloudflare-boundary-smoke.yml`, `deploy-production.yml` |
+| `BUDGET_CONFORMANCE_TOKEN` (preview environment) | `cloudflare-budget-conformance.yml`                      |
+| Slack webhooks (if used)                         | `monitor-workers-health.yml`, `monitor-r2-quotas.yml`    |
+
+The preview budget canary requires the same randomly generated,
+preview-only `BUDGET_CONFORMANCE_TOKEN` in both the GitHub **preview
+environment secret** and the API Worker **preview secret binding**. Set it
+through the provider UIs or interactive secret commands; never commit it,
+print it, or reuse `INTERNAL_API_TOKEN`. The API accepts this credential only
+for preview `POST /mcp` requests and maps it to an isolated conformance budget
+principal.
 
 See [workflows/README.md](./workflows/README.md) for the full workflow map.
+
+## 7. Controlled NUC runner
+
+The repository has a dedicated NUC workflow, but it must not be enabled as a
+required merge check until the host has been registered and evidence exists.
+
+Follow [`docs/NUC_GITHUB_ACTIONS.md`](../docs/NUC_GITHUB_ACTIONS.md) to:
+
+1. register a separate `automation-nuc-financial-analysis` runner on the
+   `automation` host;
+2. confirm labels `self-hosted, linux, x64, nuc, financial-analysis`;
+3. complete `NUC CI` smoke and verification dispatches; and
+4. run one controlled `feature/promote-nuc-*` certification PR.
+
+Only after those checks pass should `NUC / certified` be added to
+`.github/branch-protection.json` and synchronized to GitHub. Keep ordinary
+fork/PR checks on hosted runners.

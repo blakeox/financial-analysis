@@ -8,12 +8,12 @@ const apiUrl = process.env.API_URL?.trim().replace(/\/$/, '');
 const environment = process.env.ENVIRONMENT?.trim() || 'unknown';
 const expectedSha = process.env.EXPECTED_SHA?.trim() || null;
 const expectedEnabled = process.env.EXPECTED_BUDGET_ENFORCEMENT_ENABLED === 'true';
-const internalApiToken = process.env.INTERNAL_API_TOKEN?.trim();
+const budgetConformanceToken = process.env.BUDGET_CONFORMANCE_TOKEN?.trim();
 const receiptPath =
   process.env.CLOUDFLARE_BUDGET_RECEIPT?.trim() || 'cloudflare-budget-conformance.json';
 
-if (!apiUrl || !internalApiToken) {
-  console.error('API_URL and INTERNAL_API_TOKEN are required.');
+if (!apiUrl || !budgetConformanceToken) {
+  console.error('API_URL and BUDGET_CONFORMANCE_TOKEN are required.');
   process.exit(2);
 }
 
@@ -31,7 +31,7 @@ async function fetchJson(path, init = {}) {
     ...init,
     headers: {
       Accept: 'application/json',
-      'x-internal-api-token': internalApiToken,
+      'x-budget-conformance-token': budgetConformanceToken,
       ...init.headers,
     },
     signal: AbortSignal.timeout(30_000),

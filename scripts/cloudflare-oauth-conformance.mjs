@@ -5,18 +5,25 @@
  *
  * This never performs a browser login, exchanges a token, or stores a grant.
  * It verifies the discovery/resource contracts so ChatGPT, Codex, and local
- * MCP clients have a stable, state-free preflight receipt. Dynamic client
- * registration is covered by the Worker runtime lifecycle tests because the
- * hosted registration endpoint intentionally persists a client in OAUTH_KV.
+ * MCP clients have a stable, state-free preflight receipt. Hosted lifecycle
+ * testing uses a separately registered MCP client and is intentionally not
+ * mixed with the Clerk browser OIDC client.
  */
 
 const apiUrl = (process.env.API_URL || '').replace(/\/$/, '');
 const environment = process.env.ENVIRONMENT || 'unknown';
 const expectedEnabled = process.env.EXPECT_OAUTH_ENABLED === 'true';
-const oidcTestClientId = process.env.OIDC_TEST_CLIENT_ID?.trim() || null;
-const oidcTestRedirectUri =
-  process.env.OIDC_TEST_REDIRECT_URI?.trim() || `${apiUrl}/oauth/callback`;
+const mcpTestClientId = process.env.MCP_TEST_CLIENT_ID?.trim() || null;
+const mcpTestRedirectUri =
+  process.env.MCP_TEST_REDIRECT_URI?.trim() || 'http://127.0.0.1:8765/callback';
 const receiptPath = process.env.CLOUDFLARE_OAUTH_RECEIPT || 'cloudflare-oauth-conformance.json';
+
+if (process.env.OIDC_TEST_CLIENT_ID?.trim()) {
+  console.error(
+    'OIDC_TEST_CLIENT_ID is not accepted: Clerk browser client IDs are not MCP client IDs. Use MCP_TEST_CLIENT_ID only with a separately registered MCP client.'
+  );
+  process.exit(2);
+}
 
 if (!apiUrl || !/^https:\/\//.test(apiUrl)) {
   console.error('API_URL must be an HTTPS URL.');
@@ -131,12 +138,12 @@ if (!expectedEnabled) {
     }
   );
 
-  if (oidcTestClientId) {
+  if (mcpTestClientId) {
     const authorizeUrl = new URL('/oauth/authorize', apiUrl);
     authorizeUrl.search = new URLSearchParams({
       response_type: 'code',
-      client_id: oidcTestClientId,
-      redirect_uri: oidcTestRedirectUri,
+      client_id: mcpTestClientId,
+      redirect_uri: mcpTestRedirectUri,
       scope: 'analysis:read',
       state: 'oauth-preflight-state',
       code_challenge: 'E9Melhoa2OwvFrEMTJguCHV2B2M5f1L5tStZLZzY1GQ',
@@ -158,7 +165,7 @@ if (!expectedEnabled) {
     const providerOrigin = providerAuthorizeLocation?.origin || null;
 
     record(
-      'OIDC login redirect accepts configured scopes',
+      'MCP authorization redirect accepts configured scopes',
       authorize.status >= 300 &&
         authorize.status < 400 &&
         login?.status >= 300 &&
@@ -187,9 +194,10 @@ if (!expectedEnabled) {
       }
     );
   } else {
-    record('OIDC login redirect accepts configured scopes', true, {
+    record('MCP authorization redirect accepts configured scopes', true, {
       skipped: true,
-      reason: 'OIDC_TEST_CLIENT_ID is not configured',
+      reason:
+        'MCP_TEST_CLIENT_ID is not configured; hosted lifecycle requires a separately registered MCP client',
     });
   }
 }

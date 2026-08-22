@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "mcp-client-compatibility",
+  "product": "Fanalyx financial-analysis MCP",
+  "contract": {
+    "transport": "streamable-http",
+    "resourcePath": "/oauth/mcp",
+    "authorization": "oauth-2.1-authorization-code",
+    "pkce": "S256",
+    "dynamicClientRegistration": true,
+    "clientAuthentication": "none",
+    "scopes": ["analysis:read"],
+    "memoryExposure": "none-by-default",
+    "requestPersistence": "none-by-default"
+  },
+  "implementation": {
+    "worker": "@financial-analysis/mcp-worker",
+    "handler": "createMcpHandler",
+    "handlerImport": "agents/mcp",
+    "agentsVersion": "0.17.1",
+    "mcpSdkVersion": "1.29.0",
+    "wranglerVersion": "4.105.0",
+    "compatibilityDate": "2026-07-02",
+    "compatibilityFlags": ["nodejs_compat"],
+    "trafficStatus": "scaffold-only",
+    "legacyHandlerOption": "not-supported-by-pinned-agents-release"
+  },
+  "migrationTrigger": {
+    "targetHandlerImport": "agents/mcp/server",
+    "targetMcpPackage": "@modelcontextprotocol/server",
+    "targetMcpSdkVersion": "2.0.0-beta.5",
+    "requiredEvidence": [
+      "local Wrangler compatibility date support",
+      "initialize/tools-list/tools-call/error serialization",
+      "OAuth auth context propagation",
+      "preview rollback receipt"
+    ],
+    "decision": "defer-until-versioned-compatibility-spike"
+  },
+  "environments": [
+    {
+      "id": "preview",
+      "resourceUrl": "https://fanalyx-api-preview.blakeoxford.workers.dev/oauth/mcp",
+      "oauthStatus": "enabled",
+      "verification": ["cloudflare-oauth-hosted-lifecycle"]
+    },
+    {
+      "id": "production",
+      "resourceUrl": "https://api.fanalyx.com/oauth/mcp",
+      "oauthStatus": "disabled",
+      "verification": []
+    }
+  ],
+  "clients": [
+    {
+      "id": "chatgpt",
+      "displayName": "ChatGPT",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "Vendor account and connector acceptance are external gates.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "codex",
+      "displayName": "Codex or another OpenAI MCP client",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "The client must own and register its callback URL.",
+        "The Clerk browser OIDC client ID is never an MCP client ID.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "claude",
+      "displayName": "Claude or another remote MCP client",
+      "connection": "remote",
+      "status": "protocol-verified",
+      "vendorAcceptance": "required",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http"
+      ],
+      "verification": ["cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "Vendor account and connector acceptance are external gates.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    },
+    {
+      "id": "local-mcp",
+      "displayName": "Local LLM or MCP application",
+      "connection": "remote-oauth",
+      "status": "bridge-shipped",
+      "vendorAcceptance": "not-applicable",
+      "supportedFeatures": [
+        "protected-resource-discovery",
+        "authorization-server-discovery",
+        "dynamic-client-registration",
+        "authorization-code-pkce",
+        "streamable-http",
+        "stdio-bridge"
+      ],
+      "verification": ["local-stdio-bridge-tests", "cloudflare-oauth-hosted-lifecycle"],
+      "knownLimitations": [
+        "The bridge forwards a caller-provided short-lived access token and does not perform browser OAuth itself.",
+        "Use a loopback callback owned by the local client.",
+        "Only analysis:read is exposed; Agent memory and workspace state are not available."
+      ]
+    }
+  ]
+}

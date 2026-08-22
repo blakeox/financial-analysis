@@ -86,14 +86,21 @@ async function deriveOpaqueIdentity(
   return { userId: opaqueId, customerId: opaqueId };
 }
 
-export async function verifyOidcIdentityToken(
+type OidcVerificationEnv = Pick<Env, 'OIDC_ISSUER' | 'OIDC_AUDIENCE' | 'OIDC_JWKS_URI'>;
+
+async function verifyConfiguredOidcIdentity(
   token: string,
-  env: Pick<Env, 'OIDC_ISSUER' | 'OIDC_AUDIENCE' | 'OIDC_JWKS_URI'>,
-  expectedNonce?: string
+  issuerValue: string | undefined,
+  audienceValue: string | undefined,
+  jwksUriValue: string | undefined,
+  expectedNonce?: string,
+  expectedSubject?: string,
+  expectedRepository?: string,
+  expectedWorkflowRef?: string
 ): Promise<ResourceOwnerIdentity | null> {
-  const issuer = getIssuer(env.OIDC_ISSUER);
-  const audience = env.OIDC_AUDIENCE?.trim();
-  const jwks = issuer ? getOidcJwks(issuer, env.OIDC_JWKS_URI) : null;
+  const issuer = getIssuer(issuerValue);
+  const audience = audienceValue?.trim();
+  const jwks = issuer ? getOidcJwks(issuer, jwksUriValue) : null;
   if (!token || !issuer || !audience || !jwks) return null;
 
   try {
@@ -104,12 +111,37 @@ export async function verifyOidcIdentityToken(
     });
     if (expectedNonce !== undefined && verified.payload.nonce !== expectedNonce) return null;
     const subject = verified.payload.sub;
-    if (typeof subject !== 'string' || subject.length === 0 || subject.length > 128) return null;
+    if (
+      typeof subject !== 'string' ||
+      subject.length === 0 ||
+      subject.length > 256 ||
+      (expectedSubject !== undefined && subject !== expectedSubject) ||
+      (expectedRepository !== undefined && verified.payload.repository !== expectedRepository) ||
+      (expectedWorkflowRef !== undefined &&
+        verified.payload.job_workflow_ref !== expectedWorkflowRef)
+    ) {
+      return null;
+    }
     return { ...(await deriveOpaqueIdentity(issuer, subject)), provider: 'oidc', issuer };
   } catch {
     console.warn('[OAuth] OIDC resource-owner identity verification failed');
     return null;
   }
+}
+
+export async function verifyOidcIdentityToken(
+  token: string,
+  env: OidcVerificationEnv,
+  expectedNonce?: string
+): Promise<ResourceOwnerIdentity | null> {
+  const identity = await verifyConfiguredOidcIdentity(
+    token,
+    env.OIDC_ISSUER,
+    env.OIDC_AUDIENCE,
+    env.OIDC_JWKS_URI,
+    expectedNonce
+  );
+  return identity;
 }
 
 async function getSessionIdentity(
@@ -169,7 +201,12 @@ export async function getResourceOwnerIdentity(
     | 'OIDC_AUDIENCE'
     | 'OIDC_JWKS_URI'
     | 'SESSIONS'
-    | 'OIDC_ISSUER'
+    | 'AUTOMATION_OIDC_ISSUER'
+    | 'AUTOMATION_OIDC_AUDIENCE'
+    | 'AUTOMATION_OIDC_JWKS_URI'
+    | 'AUTOMATION_OIDC_SUBJECT'
+    | 'AUTOMATION_OIDC_REPOSITORY'
+    | 'AUTOMATION_OIDC_WORKFLOW_REF'
   >
 ): Promise<ResourceOwnerIdentity | null> {
   const sessionIdentity = await getSessionIdentity(request, env);
@@ -178,7 +215,20 @@ export async function getResourceOwnerIdentity(
   const accessIdentity = await getCloudflareAccessIdentity(request, env);
   if (accessIdentity) return fromAccessIdentity(accessIdentity);
   const token = getBearerToken(request);
-  return token ? verifyOidcIdentityToken(token, env) : null;
+  if (!token) return null;
+
+  const oidcIdentity = await verifyOidcIdentityToken(token, env);
+  if (oidcIdentity) return oidcIdentity;
+  return verifyConfiguredOidcIdentity(
+    token,
+    env.AUTOMATION_OIDC_ISSUER,
+    env.AUTOMATION_OIDC_AUDIENCE,
+    env.AUTOMATION_OIDC_JWKS_URI,
+    undefined,
+    env.AUTOMATION_OIDC_SUBJECT,
+    env.AUTOMATION_OIDC_REPOSITORY,
+    env.AUTOMATION_OIDC_WORKFLOW_REF
+  );
 }
 
 export { OIDC_SESSION_COOKIE, OIDC_SESSION_PREFIX };

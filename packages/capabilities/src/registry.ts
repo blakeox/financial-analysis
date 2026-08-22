@@ -5,6 +5,7 @@ import {
   type FormulaSemanticMetadata,
 } from '@financial-analysis/analysis';
 
+import { CAPABILITY_SCOPES } from './authorization.js';
 import { CONTRACT_VERSION, CapabilitySchema, type Capability } from './contracts.js';
 
 const DEFAULT_INPUT_LIMIT_BYTES = 64 * 1024;
@@ -52,6 +53,12 @@ function buildCapabilityFromFormula(metadata: FormulaSemanticMetadata): Capabili
       dateBasis: metadata.dateBasis.slice(0, 128),
     },
     sideEffects: 'none' as const,
+    requiredScope: CAPABILITY_SCOPES.FINANCIAL_CALCULATE,
+    resourceScope: 'stateless' as const,
+    budgetClass: 'deterministic' as const,
+    approvalRequired: false,
+    auditEvent: `capability.${metadata.formulaId}.execute`,
+    killSwitch: 'ANALYSIS_CAPABILITIES_ENABLED',
     owner: CAPABILITY_OWNER,
     inputLimitBytes: DEFAULT_INPUT_LIMIT_BYTES,
     outputLimitBytes: DEFAULT_OUTPUT_LIMIT_BYTES,

@@ -6,7 +6,14 @@ export interface Env {
   API_DEV_ORIGIN?: string;
   // Optional: explicit API origin for non-development environments
   API_ORIGIN?: string;
+  // Production/preview service binding; avoids routing Worker-to-Worker traffic
+  // back through the public zone route.
+  API?: Fetcher;
   ALLOWED_ORIGIN?: string;
+  /** Hostname for the CI-only workers.dev control-plane probe origin. */
+  SMOKE_PROBE_HOST?: string;
+  /** Secret required for requests to the CI-only probe origin. */
+  SMOKE_PROBE_TOKEN?: string;
   // Server-only credential for API worker authentication; never accept this from clients.
   INTERNAL_API_TOKEN?: string;
 }
@@ -59,6 +66,16 @@ export default {
   async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
     const defaults = buildDefaultHeaders(env);
     const isProduction = env.ENVIRONMENT === 'production';
+    const configuredProbeHost = env.SMOKE_PROBE_HOST?.trim().toLowerCase();
+    const isProbeHost =
+      configuredProbeHost && new URL(request.url).hostname.toLowerCase() === configuredProbeHost;
+    if (
+      isProbeHost &&
+      (!env.SMOKE_PROBE_TOKEN ||
+        request.headers.get('x-fanalyx-smoke-token') !== env.SMOKE_PROBE_TOKEN)
+    ) {
+      return new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
+    }
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: defaults });
     }
@@ -81,8 +98,8 @@ export default {
       pathname.startsWith('/oauth/') ||
       pathname.startsWith('/.well-known/');
 
-    if (isApiPath && apiBase) {
-      const forwardUrl = `${apiBase}${pathname}${url.search}`;
+    if (isApiPath && (apiBase || env.API)) {
+      const forwardUrl = `${apiBase ?? url.origin}${pathname}${url.search}`;
       const forwardHeaders = new Headers(request.headers);
       // Never relay a client-supplied internal credential or marker.
       forwardHeaders.delete('x-internal-api-token');
@@ -100,7 +117,7 @@ export default {
       } as RequestInit);
 
       try {
-        const apiRes = await fetch(apiReq);
+        const apiRes = await (env.API ? env.API.fetch(apiReq) : fetch(apiReq));
 
         const isWebSocketUpgrade = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
         if (isWebSocketUpgrade || apiRes.status === 101) {
@@ -140,8 +157,8 @@ export default {
       }
     }
 
-    if (isApiPath && !apiBase) {
-      const missingKey = isDev ? 'API_DEV_ORIGIN' : 'API_ORIGIN';
+    if (isApiPath && !apiBase && !env.API) {
+      const missingKey = isDev ? 'API_DEV_ORIGIN' : 'API_ORIGIN or API service binding';
       return new Response(JSON.stringify({ error: `${missingKey} not configured` }), {
         status: 502,
         headers: { ...defaults, 'Content-Type': 'application/json; charset=utf-8' },

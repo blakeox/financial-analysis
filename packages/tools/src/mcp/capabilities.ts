@@ -14,10 +14,15 @@
 import {
   CAPABILITY_SCOPES,
   authorizeCapability,
+  buildAuthzRequestFromContext,
+  createCapabilityAuthorizationContext,
+  createExternalMcpAuthorizationContext,
+  getCapability,
   type AuthzRequest,
   type CapabilityGrant,
   type CapabilityScope,
   type ClientSurface,
+  type Capability,
   type Principal,
 } from '@financial-analysis/capabilities';
 
@@ -36,6 +41,8 @@ export const MCP_CAPABILITY_POLICY_VERSION = '1.0.0';
 export type MCPPolicyScope = (typeof MCP_SCOPES)[keyof typeof MCP_SCOPES];
 
 export type MCPCapabilityStatus = 'stable' | 'preview' | 'deprecated' | 'disabled';
+/** Registry provenance used by downstream surfaces during adapter migration. */
+export type MCPRegistryStatus = 'canonical' | 'adapter-pending' | 'internal-only';
 export type MCPPolicyDecisionState =
   | 'allow'
   | 'deny'
@@ -62,6 +69,10 @@ export interface MCPAuthorizationContext {
 
 export interface MCPCapabilityPolicy {
   name: string;
+  /** Canonical product capability, when this MCP tool is registry-backed. */
+  canonicalCapabilityId?: string;
+  /** Explicitly distinguishes certified capabilities from transitional tools. */
+  registryStatus: MCPRegistryStatus;
   exposed: boolean;
   status: MCPCapabilityStatus;
   formulaVersion: string;
@@ -124,6 +135,27 @@ export class MCPPayloadLimitError extends Error {
 
 const DEFAULT_INPUT_LIMIT_BYTES = 64 * 1024;
 const DEFAULT_OUTPUT_LIMIT_BYTES = 256 * 1024;
+
+/**
+ * The MCP surface is intentionally explicit: only certified formula tools are
+ * linked to the canonical registry. Similar names are not inferred because a
+ * naming convention cannot prove semantic equivalence.
+ */
+const CANONICAL_CAPABILITY_BY_MCP_TOOL: Readonly<Record<string, string>> = {
+  analyze_amortization: 'analysis.amortization',
+  calculate_npv_irr: 'analysis.npv-irr',
+  analyze_break_even: 'analysis.break-even',
+  calculate_capm: 'analysis.capm',
+  calculate_wacc: 'analysis.wacc',
+  analyze_lease: 'analysis.lease',
+  analyze_bond_pricing: 'analysis.bond-pricing',
+  analyze_financial_ratios: 'analysis.financial-ratio',
+};
+
+export function getCanonicalMCPCapability(toolName: string): Capability | undefined {
+  const capabilityId = CANONICAL_CAPABILITY_BY_MCP_TOOL[toolName];
+  return capabilityId ? getCapability(capabilityId) : undefined;
+}
 
 const EXTERNAL_ANALYSIS_CAPABILITIES = [
   'analyze_lease',
@@ -233,33 +265,42 @@ const INTERNAL_ONLY_CAPABILITIES: Record<string, { scope: MCPPolicyScope; reason
 };
 
 function createStablePolicy(name: string): MCPCapabilityPolicy {
+  const canonical = getCanonicalMCPCapability(name);
+
   return {
     name,
+    ...(canonical ? { canonicalCapabilityId: canonical.id } : {}),
+    registryStatus: canonical ? 'canonical' : 'adapter-pending',
     exposed: true,
     status: 'stable',
-    formulaVersion: '1.0.0',
+    formulaVersion: canonical?.version ?? '1.0.0',
     policyVersion: MCP_CAPABILITY_POLICY_VERSION,
-    owner: 'MCP/platform',
-    readOnly: true,
+    owner: canonical?.owner ?? 'MCP/platform',
+    readOnly: canonical ? canonical.sideEffects === 'none' : true,
     resourceScope: 'caller',
-    budgetClass: 'deterministic',
-    approvalRequired: false,
+    budgetClass: canonical?.budgetClass ?? 'deterministic',
+    approvalRequired: canonical?.approvalRequired ?? false,
+    // Keep the transport kill switch authoritative here. The canonical
+    // registry's product kill switch is enforced by the product adapter and
+    // must not be silently substituted into MCP-local evaluation.
     killSwitch: 'MCP_ANALYSIS_ENABLED',
     scope: MCP_SCOPES.ANALYSIS_READ,
-    dataClasses: ['caller-provided-analysis-input'],
-    maxInputBytes: DEFAULT_INPUT_LIMIT_BYTES,
-    maxOutputBytes: DEFAULT_OUTPUT_LIMIT_BYTES,
-    auditEvent: 'mcp.analysis.execute',
+    dataClasses: canonical?.allowedDataClassifications ?? ['caller-provided-analysis-input'],
+    maxInputBytes: canonical?.inputLimitBytes ?? DEFAULT_INPUT_LIMIT_BYTES,
+    maxOutputBytes: canonical?.outputLimitBytes ?? DEFAULT_OUTPUT_LIMIT_BYTES,
+    auditEvent: canonical?.auditEvent ?? 'mcp.analysis.execute',
   };
 }
 
 function createDisabledPolicy(
   name: string,
   scope: MCPPolicyScope,
-  reason: string
+  reason: string,
+  registryStatus: MCPRegistryStatus
 ): MCPCapabilityPolicy {
   return {
     name,
+    registryStatus,
     exposed: false,
     status: 'disabled',
     formulaVersion: '1.0.0',
@@ -287,7 +328,7 @@ export const MCP_CAPABILITY_MANIFEST: Readonly<Record<string, MCPCapabilityPolic
   ...Object.fromEntries(
     Object.entries(INTERNAL_ONLY_CAPABILITIES).map(([name, definition]) => [
       name,
-      createDisabledPolicy(name, definition.scope, definition.reason),
+      createDisabledPolicy(name, definition.scope, definition.reason, 'internal-only'),
     ])
   ),
 };
@@ -296,7 +337,12 @@ export const MCP_CAPABILITY_MANIFEST: Readonly<Record<string, MCPCapabilityPolic
 export function getMCPCapabilityPolicy(toolName: string): MCPCapabilityPolicy {
   return (
     MCP_CAPABILITY_MANIFEST[toolName] ??
-    createDisabledPolicy(toolName, MCP_SCOPES.ANALYSIS_READ, 'Capability is not reviewed.')
+    createDisabledPolicy(
+      toolName,
+      MCP_SCOPES.ANALYSIS_READ,
+      'Capability is not reviewed.',
+      'adapter-pending'
+    )
   );
 }
 
@@ -328,6 +374,22 @@ function toPrincipal(authorization: MCPAuthorizationContext): Principal {
       return { principalId, kind: 'user' };
     default: {
       const _exhaustive: never = authorization.source;
+      return _exhaustive;
+    }
+  }
+}
+
+function toAuthenticationMethod(
+  source: MCPAuthorizationSource
+): 'api-key' | 'oauth' | 'internal' | 'development' {
+  switch (source) {
+    case 'api-key':
+    case 'oauth':
+    case 'internal':
+    case 'development':
+      return source;
+    default: {
+      const _exhaustive: never = source;
       return _exhaustive;
     }
   }
@@ -377,14 +439,32 @@ export function buildProductAuthzRequestFromMCP(
   policy: MCPCapabilityPolicy = getMCPCapabilityPolicy(toolName)
 ): AuthzRequest {
   const requiredScope = mcpPolicyScopeToProductScope(policy.scope);
-  const request: AuthzRequest = {
+  const grants = buildProductGrantsFromMCPScopes(authorization.scopes);
+  const context =
+    authorization.source === 'api-key' || authorization.source === 'oauth'
+      ? createExternalMcpAuthorizationContext({
+          authenticationMethod: authorization.source,
+          principalId: authorization.subject?.trim() || 'anonymous',
+          grants,
+          ...(authorization.auditCorrelationId
+            ? { auditCorrelationId: authorization.auditCorrelationId }
+            : {}),
+        })
+      : createCapabilityAuthorizationContext({
+          authenticationMethod: toAuthenticationMethod(authorization.source),
+          principal: toPrincipal(authorization),
+          grants,
+          clientSurface: toClientSurface(authorization.source),
+          ...(authorization.auditCorrelationId
+            ? { auditCorrelationId: authorization.auditCorrelationId }
+            : {}),
+        });
+
+  const request: AuthzRequest = buildAuthzRequestFromContext(context, {
     capabilityId: toolName,
     requiredScope,
-    principal: toPrincipal(authorization),
-    grants: [...buildProductGrantsFromMCPScopes(authorization.scopes)],
-    clientSurface: toClientSurface(authorization.source),
     sideEffects: policy.readOnly ? 'none' : 'writes-state',
-  };
+  });
 
   if (
     requiredScope === CAPABILITY_SCOPES.WORKSPACE_READ ||

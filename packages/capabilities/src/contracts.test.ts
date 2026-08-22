@@ -11,6 +11,10 @@ import {
   ResponseVerificationSchema,
 } from './index.js';
 import { verifyNumericClaims } from './response-verification.js';
+import {
+  canonicalizeResultIntegrityValue,
+  createResultIntegrityReceipt,
+} from './result-integrity.js';
 
 const timestamp = '2026-08-02T12:00:00.000Z';
 
@@ -30,6 +34,14 @@ const scenario = {
 };
 
 describe('financial analysis contracts', () => {
+  it('creates stable privacy-preserving digests independent of object key order', async () => {
+    expect(canonicalizeResultIntegrityValue({ b: 2, a: 1 })).toBe('{"a":1,"b":2}');
+    const first = await createResultIntegrityReceipt({ b: 2, a: 1 }, ['x'], { ok: true });
+    const second = await createResultIntegrityReceipt({ a: 1, b: 2 }, ['x'], { ok: true });
+    expect(first).toEqual(second);
+    expect(first.inputDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
   it('accepts a stateless deterministic request without agent state', () => {
     const result = AnalysisRequestSchema.safeParse({
       contractVersion: CONTRACT_VERSION,
@@ -119,6 +131,12 @@ describe('financial analysis contracts', () => {
       inputSchemaRef: 'schemas/cash-flow-input',
       outputSchemaRef: 'schemas/cash-flow-output',
       sideEffects: 'none',
+      requiredScope: 'financial.calculate',
+      resourceScope: 'stateless',
+      budgetClass: 'deterministic',
+      approvalRequired: false,
+      auditEvent: 'capability.business.cash-flow.execute',
+      killSwitch: 'ANALYSIS_CAPABILITIES_ENABLED',
       owner: 'analysis-team',
       inputLimitBytes: 10000,
       outputLimitBytes: 10000,
@@ -136,6 +154,36 @@ describe('financial analysis contracts', () => {
 
     expect(capability.success).toBe(false);
     expect(answer.success).toBe(false);
+  });
+
+  it('requires the policy fields needed by every execution surface', () => {
+    const capability = CapabilitySchema.safeParse({
+      contractVersion: CONTRACT_VERSION,
+      id: 'business.cash-flow',
+      version: '1.0.0',
+      name: 'Cash flow',
+      description: 'Calculates cash flow',
+      lifecycle: 'stable',
+      executionScope: 'stateless',
+      allowedDataClassifications: ['public'],
+      inputSchemaRef: 'schemas/cash-flow-input',
+      outputSchemaRef: 'schemas/cash-flow-output',
+      sideEffects: 'none',
+      requiredScope: 'financial.calculate',
+      resourceScope: 'stateless',
+      budgetClass: 'deterministic',
+      approvalRequired: false,
+      auditEvent: 'capability.business.cash-flow.execute',
+      killSwitch: 'ANALYSIS_CAPABILITIES_ENABLED',
+      owner: 'analysis-team',
+      inputLimitBytes: 10000,
+      outputLimitBytes: 10000,
+    });
+    const incomplete = { ...capability.data };
+    delete incomplete.requiredScope;
+
+    expect(capability.success).toBe(true);
+    expect(CapabilitySchema.safeParse(incomplete).success).toBe(false);
   });
 
   it('requires versioned, data-only provenance and freshness metadata', () => {

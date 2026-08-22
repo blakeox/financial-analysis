@@ -51,11 +51,12 @@ revocation, cross-tenant, and external-client conformance gates in
 `docs/OAUTH_ROLLOUT.md`.
 
 When budget enforcement is enabled in preview, the protected
-`cloudflare-budget-conformance.yml` workflow uses the server-only internal
-credential to execute one deterministic MCP formula call. It records only
-status, protocol, control, and run-header metadata; it never retains the
-formula result or credential. Production remains disabled until this receipt
-and the promotion gates are reviewed.
+`cloudflare-budget-conformance.yml` workflow uses a dedicated
+`BUDGET_CONFORMANCE_TOKEN` credential and isolated budget principal to execute
+one deterministic MCP formula call. It records only status, protocol,
+control, and run-header metadata; it never retains the formula result or
+credential. Production remains disabled until this receipt and the promotion
+gates are reviewed.
 
 ## Failure handling
 
@@ -78,6 +79,10 @@ surface. The same public path must reject storage access with `MISSING_KEY`; a
 web proxy credential is never a user-data identity.
 
 The production custom-domain facade is the authoritative public-edge check.
+The production API Worker also runs the Cloudflare-native custom-domain
+synthetic described in [`CLOUDFLARE_EDGE_SYNTHETIC.md`](./CLOUDFLARE_EDGE_SYNTHETIC.md)
+from its scheduled event. This is independent of GitHub-hosted runner egress
+and is the required evidence path when a zone WAF blocks external CI.
 The preview `workers.dev` asset host currently returns an HTML 404 for API/MCP
 paths even when the deployed version reports the expected Worker-first asset
 routing metadata; direct preview API conformance remains healthy. Do not turn

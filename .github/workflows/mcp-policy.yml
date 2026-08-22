@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
@@ -59,6 +59,18 @@ jobs:
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: pnpm run check:ai-provider-boundary
 
+      - name: Validate MCP client compatibility contract
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: node scripts/check-mcp-client-compatibility.mjs
+
+      - name: Validate client acceptance receipt contract
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: node scripts/check-mcp-client-acceptance.mjs docs/MCP_CLIENT_ACCEPTANCE_RECEIPT.example.json --template
+
+      - name: Test local MCP stdio bridge
+        if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
+        run: pnpm exec vitest run scripts/fanalyx-mcp-stdio.test.mjs
+
       - name: Run OAuth and MCP contract tests
         if: steps.skip.outputs.skip_ci != 'true' && (github.event_name == 'workflow_dispatch' || steps.paths.outputs.mcp == 'true')
         run: >-
@@ -92,7 +104,16 @@ jobs:
           .github/actions/repo-path-filter/action.yml
           .github/workflows/mcp-policy.yml
           docs/MCP_CAPABILITY_POLICY.md
+          docs/MCP_CLIENT_COMPATIBILITY.json
+          docs/MCP_CLIENT_COMPATIBILITY.md
+          docs/MCP_CLIENT_ACCEPTANCE.md
+          docs/MCP_CLIENT_ACCEPTANCE_RECEIPT.example.json
           docs/OAUTH_ROLLOUT.md
+          scripts/check-mcp-client-compatibility.mjs
+          scripts/check-mcp-client-acceptance.mjs
+          scripts/fanalyx-mcp-stdio-lib.mjs
+          scripts/fanalyx-mcp-stdio.mjs
+          scripts/fanalyx-mcp-stdio.test.mjs
           packages/tools/src/mcp/capabilities.ts
           packages/tools/src/__tests__/capabilities.test.ts
           workers/api/src/lib/cloudflare-access-identity.ts
