@@ -23,7 +23,9 @@ jobs:
       - name: Precheck production API URL
         id: precheck
         env:
-          API_URL: ${{ vars.PROD_API_URL }}
+          # Use the Worker origin for machine-to-machine monitoring so the
+          # public zone's browser challenge layer does not intercept CI.
+          API_URL: ${{ vars.PROD_MONITOR_API_URL || vars.PROD_API_URL }}
           ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
           SMOKE_PROBE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
         run: |
@@ -82,7 +84,7 @@ jobs:
       - name: Check storage status
         id: status
         env:
-          API_URL: ${{ vars.PROD_API_URL }}
+          API_URL: ${{ vars.PROD_MONITOR_API_URL || vars.PROD_API_URL }}
           ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
           SMOKE_PROBE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
         if: steps.precheck.outputs.skip != 'true'
@@ -161,7 +163,7 @@ jobs:
           ALERT_APPROX: "${{ steps.status.outputs.approx || 'unknown' }}"
           ALERT_SOFT: "${{ steps.status.outputs.soft || 'unknown' }}"
           ALERT_THRESH: "${{ steps.status.outputs.thresh || 'unknown' }}"
-          ALERT_API: "${{ steps.status.outputs.api || vars.PROD_API_URL || 'unknown' }}"
+          ALERT_API: "${{ steps.status.outputs.api || vars.PROD_MONITOR_API_URL || vars.PROD_API_URL || 'unknown' }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
