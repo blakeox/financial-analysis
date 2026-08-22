@@ -110,6 +110,22 @@ describe('Storage endpoints', () => {
     }
   });
 
+  it('allows the operator token through the dedicated admin header', async () => {
+    env.ENVIRONMENT = 'production';
+    env.ADMIN_API_TOKEN = 'admin-secret';
+    const response = await api.fetch(
+      new Request('https://example.com/v1/storage/status', {
+        headers: { 'x-admin-api-token': 'admin-secret' },
+      }),
+      env,
+      ctx
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(response.headers.get('vary')).toContain('X-Admin-API-Token');
+  });
+
   it('rejects oversized JSON bodies before extraction parsing', async () => {
     env.ANALYSIS_MAX_JSON_BYTES = String(32);
     const payload = JSON.stringify({ text: 'x'.repeat(80) });

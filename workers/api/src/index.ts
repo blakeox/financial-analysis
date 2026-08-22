@@ -311,7 +311,8 @@ async function getUploadQuotaError(env: Env, size: number): Promise<Response | n
 
 function isAuthorizedAdminRequest(request: Request, env: Env): boolean {
   const auth = request.headers.get('authorization') || '';
-  const token = (auth.startsWith('Bearer ') && auth.slice(7)) || '';
+  const token =
+    (auth.startsWith('Bearer ') && auth.slice(7)) || request.headers.get('x-admin-api-token') || '';
   return Boolean(env.ADMIN_API_TOKEN) && token === env.ADMIN_API_TOKEN;
 }
 
@@ -749,7 +750,16 @@ function withAuth(
         lastUsedAt: null,
         metadata: { authSource: 'admin-token' },
       };
-      return handler(request, env, adminKeyInfo);
+      const response = await handler(request, env, adminKeyInfo);
+      const headers = new Headers(response.headers);
+      headers.set('Cache-Control', 'no-store');
+      headers.append('Vary', 'Authorization');
+      headers.append('Vary', 'X-Admin-API-Token');
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
     }
 
     // Skip auth in test/development environments
