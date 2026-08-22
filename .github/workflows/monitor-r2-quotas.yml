@@ -163,7 +163,7 @@ jobs:
           ALERT_APPROX: "${{ steps.status.outputs.approx || 'unknown' }}"
           ALERT_SOFT: "${{ steps.status.outputs.soft || 'unknown' }}"
           ALERT_THRESH: "${{ steps.status.outputs.thresh || 'unknown' }}"
-          ALERT_API: "${{ steps.status.outputs.api || vars.PROD_API_URL || 'unknown' }}"
+          ALERT_API: "${{ steps.status.outputs.api || vars.PROD_MONITOR_API_URL || vars.PROD_API_URL || 'unknown' }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
