@@ -48,8 +48,8 @@ jobs:
               -H "$header" \
               "$API_URL/v1/storage/status" || true)
             echo "${label} status=${code}" >&2
-            echo "${label} body=$(tr '\n' ' ' < "$response_file" | cut -c1-512)" >&2
-            echo "${label} headers=$(grep -iE '^(cf-ray|content-type|cache-control|vary|x-error-code|x-request-id|server):' "$headers_file" | tr '\n' ' ' | cut -c1-512 || true)" >&2
+            echo "${label} body=$(tr '\r\n' '  ' < "$response_file" | cut -c1-512)" >&2
+            echo "${label} headers=$(grep -iE '^(cf-ray|content-type|cache-control|vary|x-error-code|x-request-id|server):' "$headers_file" | tr '\r\n' '  ' | cut -c1-512 || true)" >&2
             rm -f "$response_file" "$headers_file"
             printf '%s' "$code"
           }
