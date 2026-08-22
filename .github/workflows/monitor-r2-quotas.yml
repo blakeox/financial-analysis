@@ -25,15 +25,16 @@ jobs:
         env:
           API_URL: ${{ vars.PROD_API_URL }}
           ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+          SMOKE_PROBE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${API_URL:-}" ] || [ -z "${ADMIN_API_TOKEN:-}" ]; then
+          if [ -z "${API_URL:-}" ] || [ -z "${ADMIN_API_TOKEN:-}" ] || [ -z "${SMOKE_PROBE_TOKEN:-}" ]; then
             {
               echo "skip=false"
               echo "failure_stage=precheck"
-              echo "failure_reason=PROD_API_URL and ADMIN_API_TOKEN are required"
+              echo "failure_reason=PROD_API_URL, ADMIN_API_TOKEN, and FANALYX_SMOKE_TOKEN are required"
             } >> "$GITHUB_OUTPUT"
-            echo "PROD_API_URL and ADMIN_API_TOKEN are required; quota cannot be verified" >&2
+            echo "PROD_API_URL, ADMIN_API_TOKEN, and FANALYX_SMOKE_TOKEN are required; quota cannot be verified" >&2
             exit 1
           fi
           probe() {
@@ -45,6 +46,7 @@ jobs:
             response_file=$(mktemp)
             headers_file=$(mktemp)
             code=$(curl -sS -D "$headers_file" -o "$response_file" -w "%{http_code}" \
+              -H "x-fanalyx-smoke-token: $SMOKE_PROBE_TOKEN" \
               -H "$header" \
               "$API_URL/v1/storage/status" || true)
             echo "${label} status=${code}" >&2
@@ -82,6 +84,7 @@ jobs:
         env:
           API_URL: ${{ vars.PROD_API_URL }}
           ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+          SMOKE_PROBE_TOKEN: ${{ secrets.FANALYX_SMOKE_TOKEN }}
         if: steps.precheck.outputs.skip != 'true'
         run: |
           set -euo pipefail
@@ -96,7 +99,10 @@ jobs:
           }
           trap on_error ERR
           API="$API_URL"
-          resp=$(curl -sS -f -H "x-admin-api-token: $ADMIN_API_TOKEN" "$API/v1/storage/status")
+          resp=$(curl -sS -f \
+            -H "x-fanalyx-smoke-token: $SMOKE_PROBE_TOKEN" \
+            -H "x-admin-api-token: $ADMIN_API_TOKEN" \
+            "$API/v1/storage/status")
           echo "Response: $resp"
           if ! echo "$resp" | jq -e '(.locked | type == "boolean") and (.approxBytes | type == "number") and (.softLimit | type == "number")' >/dev/null; then
             failure_reason="storage status response did not match the expected quota contract"
