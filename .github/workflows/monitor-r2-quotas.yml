@@ -36,16 +36,33 @@ jobs:
             echo "PROD_API_URL and ADMIN_API_TOKEN are required; quota cannot be verified" >&2
             exit 1
           fi
-          code=$(curl -sS -o /dev/null -w "%{http_code}" \
-            -H "x-admin-api-token: $ADMIN_API_TOKEN" \
-            "$API_URL/v1/storage/status" || true)
+          probe() {
+            local label="$1"
+            local header="$2"
+            local response_file
+            local headers_file
+            local code
+            response_file=$(mktemp)
+            headers_file=$(mktemp)
+            code=$(curl -sS -D "$headers_file" -o "$response_file" -w "%{http_code}" \
+              -H "$header" \
+              "$API_URL/v1/storage/status" || true)
+            echo "${label} status=${code}" >&2
+            echo "${label} body=$(tr '\r\n' '  ' < "$response_file" | cut -c1-512)" >&2
+            echo "${label} headers=$(grep -iE '^(cf-ray|content-type|cache-control|vary|x-error-code|x-request-id|server):' "$headers_file" | tr '\r\n' '  ' | cut -c1-512 || true)" >&2
+            rm -f "$response_file" "$headers_file"
+            printf '%s' "$code"
+          }
+          dedicated_code=$(probe dedicated "x-admin-api-token: $ADMIN_API_TOKEN")
+          bearer_code=$(probe bearer "Authorization: Bearer $ADMIN_API_TOKEN")
+          code="$dedicated_code"
           if [ "$code" != "200" ]; then
             {
               echo "skip=false"
               echo "failure_stage=precheck"
               echo "failure_reason=storage status endpoint returned HTTP $code"
             } >> "$GITHUB_OUTPUT"
-            echo "Endpoint not healthy or authorized (status=$code)" >&2
+            echo "Endpoint not healthy or authorized (dedicated_status=$dedicated_code bearer_status=$bearer_code)" >&2
             exit 1
           else
             {
