@@ -79,7 +79,7 @@ jobs:
           }
           trap on_error ERR
           API="$API_URL"
-          resp=$(curl -sS -fL -H "x-admin-api-token: $ADMIN_API_TOKEN" "$API/v1/storage/status")
+          resp=$(curl -sS -f -H "x-admin-api-token: $ADMIN_API_TOKEN" "$API/v1/storage/status")
           echo "Response: $resp"
           if ! echo "$resp" | jq -e '(.locked | type == "boolean") and (.approxBytes | type == "number") and (.softLimit | type == "number")' >/dev/null; then
             failure_reason="storage status response did not match the expected quota contract"
