@@ -72,10 +72,17 @@ describe('OAuth consent', () => {
 
     const page = await handleOAuthAuthorizeRequest(request, makeEnv(oauth));
     const html = await page.text();
+    const cookie = page.headers.get('set-cookie');
+
+    expect(html).toContain('name="csrf"');
 
     expect(page.status).toBe(200);
     expect(html).toContain('&lt;Trusted client&gt;');
     expect(html).toContain('No Agent memory, workspace documents, or saved user information.');
+    expect(cookie).toContain('__Host-FANALYX_OAUTH_CSRF=');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('Secure');
+    expect(cookie).toContain('SameSite=Lax');
 
     const csrf = html.match(/name="csrf" value="([^"]+)"/)?.[1];
     expect(csrf).toBeTruthy();

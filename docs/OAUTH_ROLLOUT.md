@@ -150,6 +150,14 @@ from MCP client registration. MCP clients dynamically register with Fanalyx at
 `/oauth/register`; Clerk is used only to authenticate the resource owner during
 consent.
 
+Never use `OIDC_CLIENT_ID` as an MCP client's `client_id`. `OIDC_CLIENT_ID` is
+the browser-login application's Clerk client identifier; it is consumed only
+by the `/oauth/login` and `/oauth/callback` flow. ChatGPT, Codex, Claude, and
+local LLM clients must discover the Fanalyx OAuth server, register their own
+redirect URI at `/oauth/register`, and use the returned MCP client identifier
+for `/oauth/authorize`. The Fanalyx `/oauth/callback` route is reserved for
+the browser login flow and cannot be used as an MCP client's redirect URI.
+
 Configure either `ACCESS_TEAM_DOMAIN` plus `ACCESS_APPLICATION_AUD`, or
 `OIDC_ISSUER`, `OIDC_AUDIENCE`, and `OIDC_JWKS_URI`. Browser login additionally
 requires the OIDC client and endpoint settings documented below. Do not enable

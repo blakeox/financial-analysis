@@ -4,34 +4,50 @@ Living record of code-scanning remediation for **blakeox/financial-analysis**. F
 
 ## Current posture (2026-05-26)
 
-| Metric | Status |
-|--------|--------|
-| Open **CodeQL** (JavaScript/TypeScript) alerts | **0** |
-| Open **Scorecard policy** alerts | **0** (`CIIBestPracticesID` dismissed — enroll to prevent reopen; [quickstart](./OPENSSF_ENROLLMENT_QUICKSTART.md)) |
-| Dependabot | Enabled; patch/minor auto-merge via workflow |
-| CodeQL workflow | [.github/workflows/codeql.yml](../.github/workflows/codeql.yml) |
-| OpenSSF Scorecard | [.github/workflows/scorecard.yml](../.github/workflows/scorecard.yml) → SARIF on Security tab |
+| Metric                                         | Status                                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Open **CodeQL** (JavaScript/TypeScript) alerts | **0**                                                                                                               |
+| Open **Scorecard policy** alerts               | **0** (`CIIBestPracticesID` dismissed — enroll to prevent reopen; [quickstart](./OPENSSF_ENROLLMENT_QUICKSTART.md)) |
+| Dependabot                                     | Enabled; patch/minor auto-merge via workflow                                                                        |
+| CodeQL workflow                                | [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)                                                     |
+| OpenSSF Scorecard                              | [.github/workflows/scorecard.yml](../.github/workflows/scorecard.yml) → SARIF on Security tab                       |
+
+### Dependency remediation notes
+
+`@cloudflare/puppeteer@^1.1.0` pins an older `@puppeteer/browsers` release,
+which pulls `extract-zip@2.0.1`. That package has a high-severity symlink
+extraction advisory with no upstream patched release. The workspace pins
+`@puppeteer/browsers` at `3.2.0`, whose maintained extraction path removes
+`extract-zip` while preserving the Cloudflare Puppeteer runtime API. The
+override is intentionally scoped to the browser helper rather than changing
+the Cloudflare adapter package. The project and NUC runner must use Node
+`>=22.12.0`, matching the replacement package's engine requirement.
+
+The override is a compatibility control to bridge an upstream pin, not a
+permanent fork. Remove it after a Cloudflare Puppeteer release adopts a
+maintained browser-helper version, then rerun the full NUC audit and build
+gate before merging.
 
 ### Remaining open alerts (Scorecard policy)
 
 These are **not** fixable by a single code change. They reflect OpenSSF Scorecard checks uploaded as SARIF (same severity as CodeQL in the Security tab).
 
-| Alert | Rule ID | Why it remains | Practical remediation |
-|-------|---------|----------------|----------------------|
-| ~~Code-Review~~ | `CodeReviewID` | **Dismissed (won’t fix, 2026-05-26):** Solo-maintainer; branch protection still requires **1** approval on `main`/`dev`. Scorecard’s ~30-merge heuristic flags emergency self-merges documented below. | Add a second maintainer if you want Scorecard green without dismissal. |
+| Alert                  | Rule ID              | Why it remains                                                                                                                                                                                                                                                                                                                                                        | Practical remediation                                                    |
+| ---------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| ~~Code-Review~~        | `CodeReviewID`       | **Dismissed (won’t fix, 2026-05-26):** Solo-maintainer; branch protection still requires **1** approval on `main`/`dev`. Scorecard’s ~30-merge heuristic flags emergency self-merges documented below.                                                                                                                                                                | Add a second maintainer if you want Scorecard green without dismissal.   |
 | ~~CII Best Practices~~ | `CIIBestPracticesID` | **Dismissed (won’t fix, 2026-05-26):** Badge needs maintainer OAuth at [bestpractices.dev](https://www.bestpractices.dev/en/projects/new); criteria documented in [#318](https://github.com/blakeox/financial-analysis/issues/318) and [quickstart](./OPENSSF_ENROLLMENT_QUICKSTART.md). May **reopen** after Scorecard until `pnpm run check:openssf-badge` exits 0. | Complete enrollment and request **passing**; re-run Scorecard on `main`. |
-| ~~SAST~~ | `SASTID` | **Dismissed (false positive, 2026-05-26):** CodeQL is configured; Scorecard reported “27/30 commits” with SAST because doc-only / path-filter skips do not run analyze on every commit. | No action unless alert reopens after Scorecard upload. |
+| ~~SAST~~               | `SASTID`             | **Dismissed (false positive, 2026-05-26):** CodeQL is configured; Scorecard reported “27/30 commits” with SAST because doc-only / path-filter skips do not run analyze on every commit.                                                                                                                                                                               | No action unless alert reopens after Scorecard upload.                   |
 
 ## Remediation timeline (merged PRs)
 
-| PR | Focus |
-|----|--------|
-| [#302](https://github.com/blakeox/financial-analysis/pull/302) | Pinned Actions SHAs, scoped `GITHUB_TOKEN`, monitor workflow hygiene, branch protection review count, API/chat hardening |
-| [#303](https://github.com/blakeox/financial-analysis/pull/303)–[#306](https://github.com/blakeox/financial-analysis/pull/306) | CodeQL init/analyze SHA pins; Scorecard SARIF-only upload (`publish_results: false`) |
-| [#307](https://github.com/blakeox/financial-analysis/pull/307) | Error handler, validation (markers vs regex), chat HTML escape, analytics stack removal, auth hosts |
-| [#311](https://github.com/blakeox/financial-analysis/pull/311) | Safe logging (no raw `Error` objects), MCP responses without Zod issue leakage, marker threat detection, auth hostname checks, sitemap pathname parsing |
-| [#313](https://github.com/blakeox/financial-analysis/pull/313) | `advanced-security` marker detectors; API validation = control-char strip only |
-| [#314](https://github.com/blakeox/financial-analysis/pull/314) | Lease print export: DOM `textContent` / JSON in `<pre>` instead of `document.write` HTML |
+| PR                                                                                                                            | Focus                                                                                                                                                   |
+| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [#302](https://github.com/blakeox/financial-analysis/pull/302)                                                                | Pinned Actions SHAs, scoped `GITHUB_TOKEN`, monitor workflow hygiene, branch protection review count, API/chat hardening                                |
+| [#303](https://github.com/blakeox/financial-analysis/pull/303)–[#306](https://github.com/blakeox/financial-analysis/pull/306) | CodeQL init/analyze SHA pins; Scorecard SARIF-only upload (`publish_results: false`)                                                                    |
+| [#307](https://github.com/blakeox/financial-analysis/pull/307)                                                                | Error handler, validation (markers vs regex), chat HTML escape, analytics stack removal, auth hosts                                                     |
+| [#311](https://github.com/blakeox/financial-analysis/pull/311)                                                                | Safe logging (no raw `Error` objects), MCP responses without Zod issue leakage, marker threat detection, auth hostname checks, sitemap pathname parsing |
+| [#313](https://github.com/blakeox/financial-analysis/pull/313)                                                                | `advanced-security` marker detectors; API validation = control-char strip only                                                                          |
+| [#314](https://github.com/blakeox/financial-analysis/pull/314)                                                                | Lease print export: DOM `textContent` / JSON in `<pre>` instead of `document.write` HTML                                                                |
 
 **Alert count trajectory:** ~90 open → ~31 → 14 → 8 → 3 → 2 → 1 → **0** open (all policy alerts dismissed or resolved; enroll for badge to keep Scorecard green).
 

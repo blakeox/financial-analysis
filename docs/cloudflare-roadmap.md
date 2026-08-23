@@ -405,10 +405,12 @@ Deliverables:
   SHA, verifies API/web/boundary receipts after deployment, uploads a
   machine-readable boundary artifact, and records the result on the pull
   request.
-- (✅) Preview and production deployment workflows now verify Cloudflare API
-  token activity at `/user/tokens/verify` before any D1 or Worker mutation;
-  an invalid preview token was observed and stopped before mutation in run
-  `30807968934`.
+- (✅) Preview and production deployment workflows now verify their
+  account-scoped Cloudflare API token activity at
+  `/accounts/{account_id}/tokens/verify` before any D1 or Worker mutation; an
+  invalid preview token was observed and stopped before mutation in run
+  `30807968934`. The separate WAF read workflow intentionally uses the
+  user-scoped `/user/tokens/verify` endpoint for its dedicated WAF token.
 - (✅) Production deployment requires a main commit, an explicit confirmation,
   a protected production environment, and post-deploy API/web receipt checks.
 - (✅) Production promotion now requires a successful matching preview run,
