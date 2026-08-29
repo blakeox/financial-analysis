@@ -42,9 +42,10 @@ provide the same preview-URL behavior for those Workers.
 
 Migration is gated: prove a Cloudflare-managed preview build, matching commit
 receipt, binding/environment isolation, rollback, and GitHub status reporting
-before removing `deploy-preview.yml` or its token. Until then, the existing
-workflow remains the rollback path and the stale environment secret is a
-blocked release condition.
+before removing `deploy-preview.yml` or its token. Until that evidence exists,
+the existing workflow remains the rollback path. Its deployment secret is no
+longer the steady-state preview dependency, but must remain valid for an
+intentional rollback deployment.
 
 ## Execution order
 
@@ -162,10 +163,24 @@ secrets or user content.
 ## Current gate
 
 The repository-side generated Worker type and observability hardening is now
-implemented. Preview deployment remains blocked until the GitHub `preview`
-environment secret is updated with the existing Cloudflare token by the
-authenticated maintainer. After that handoff, run the preview release and
-hosted OAuth lifecycle receipt before attempting any production promotion.
+implemented. Cloudflare Workers Builds is connected for the two active preview
+surfaces:
+
+- `fanalyx-api-preview` → `blakeox/financial-analysis`, root `/workers/api`.
+- `fanalyx-web-preview` → `blakeox/financial-analysis`, root `/workers/web`.
+
+Both connections use `main` as the production branch, enable non-production
+preview builds, and pass `${WORKERS_CI_COMMIT_SHA}` into preview deploy/version
+commands. The existing `fanalyx build token` selection was not rotated. The
+Cloudflare UI reports that the token is missing unrelated permissions; that
+warning is recorded and must be resolved before relying on managed builds if a
+build fails because of it.
+
+The next gate is a legitimate repository push that produces a Cloudflare
+managed build for both preview surfaces. Capture the exact SHA, build result,
+binding/environment isolation, hosted boundary smoke, OAuth lifecycle receipt,
+and rollback evidence before removing `deploy-preview.yml` or its token. No
+production promotion is authorized by this connection alone.
 
 ## Verification receipt — 2026-08-29
 
