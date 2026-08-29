@@ -10,7 +10,6 @@
     "preview": "astro preview",
     "preview:clean": "node ./scripts/ensure-port-free.mjs && astro preview --port 4321 --host 127.0.0.1 --strictPort",
     "astro": "astro",
-    "pretypecheck": "pnpm -C ../../packages/analysis run build && pnpm -C ../../packages/capabilities run build && pnpm -C ../../packages/ui run build",
     "pretest": "pnpm -C ../../packages/analysis run build",
     "dev:prebuilt": "node ./scripts/dev-with-prebuild.mjs",
     "pretest:e2e:hmr": "pnpm -C ../../packages/analysis run build && pnpm -C ../../packages/capabilities run build && pnpm -C ../../packages/ui run build",
