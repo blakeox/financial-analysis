@@ -23,6 +23,29 @@ Keep the architecture split into four independently deployable boundaries:
 gates are evidenced. No new boundary may gain production traffic merely
 because its health endpoint works.
 
+### Deployment authority
+
+Use Cloudflare Workers Builds as the long-term deployment authority for each
+Worker connected to this GitHub repository. GitHub Actions remains the change,
+test, NUC-verification, and evidence plane; it should not require a long-lived
+Cloudflare API token merely to deploy a preview. This removes the current
+environment-secret precedence failure and keeps deployment authorization in
+Cloudflare's Git integration.
+
+For this monorepo, configure one Workers Builds project per deployable Worker
+with an explicit root directory, build command, deploy command, compatibility
+configuration, bindings, and environment mapping. Use `wrangler versions
+upload` for preview where the Worker supports version previews and
+`wrangler deploy` only for the approved production path. Durable Object-backed
+Workers require an explicit preview strategy because Cloudflare does not
+provide the same preview-URL behavior for those Workers.
+
+Migration is gated: prove a Cloudflare-managed preview build, matching commit
+receipt, binding/environment isolation, rollback, and GitHub status reporting
+before removing `deploy-preview.yml` or its token. Until then, the existing
+workflow remains the rollback path and the stale environment secret is a
+blocked release condition.
+
 ## Execution order
 
 ### 1. Foundation
@@ -36,6 +59,8 @@ because its health endpoint works.
 - Keep Cloudflare deployment tokens environment-scoped and least-privileged.
   The preview environment secret, not a same-named repository secret, is the
   credential used by `deploy-preview.yml`.
+- Prefer Workers Builds Git integration for the steady-state deployment path;
+  keep GitHub Actions deployment only as a temporary migration fallback.
 - Treat a missing, stale, or unauthorized credential as a blocked release,
   never as a skipped deployment.
 
