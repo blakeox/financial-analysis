@@ -104,6 +104,10 @@ jobs:
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm run typecheck
 
+      - name: Check generated Worker types
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        run: pnpm run check:worker-types
+
       - name: Lint
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm lint

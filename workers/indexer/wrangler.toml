@@ -3,6 +3,16 @@ main = "src/index.ts"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+[observability]
+enabled = true
+
+  [observability.logs]
+  head_sampling_rate = 1
+
+  [observability.traces]
+  enabled = true
+  head_sampling_rate = 0.01
+
 # Scaffold only (#450). Do not attach custom domains or production routes until cutover.
 
 [dev]
@@ -14,15 +24,18 @@ name = "fanalyx-indexer-development"
 [env.development.vars]
 ENVIRONMENT = "development"
 WORKER_ROLE = "indexer"
+COMMIT_SHA = "local"
 
 [env.preview]
 name = "fanalyx-indexer-preview"
 [env.preview.vars]
 ENVIRONMENT = "preview"
 WORKER_ROLE = "indexer"
+COMMIT_SHA = "preview"
 
 [env.production]
 name = "fanalyx-indexer"
 [env.production.vars]
 ENVIRONMENT = "production"
 WORKER_ROLE = "indexer"
+COMMIT_SHA = "production"

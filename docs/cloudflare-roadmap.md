@@ -31,6 +31,14 @@ The long-term architecture is a Cloudflare-native financial analysis platform:
 
 Current gates:
 
+- (✅) Target MCP, Agent, and indexer Workers now use checked-in Wrangler-generated
+  binding contracts; `pnpm run check:worker-types` blocks configuration drift in
+  CI. Agent and indexer scaffolds now carry the same structured logs/traces
+  observability posture as the MCP boundary.
+- (🟡) Compatibility dates remain pinned to the latest verified runtime for
+  each scaffold. The MCP `2026-07-02` ceiling must move only with the pinned
+  Wrangler/workerd compatibility spike, client-acceptance receipt, and rollback
+  evidence; vendor documentation alone is not sufficient.
 - (✅) OAuth provider, PKCE-only authorization, grant lifecycle, and bounded
   consent/audit surfaces implemented.
 - (✅) All current Workers AI entry points route through the configured AI
