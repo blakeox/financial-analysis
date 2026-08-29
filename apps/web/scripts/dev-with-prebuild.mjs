@@ -20,6 +20,7 @@ const run = (command, args, cwd) => {
 };
 
 run('pnpm', ['--filter', '@financial-analysis/analysis', 'build'], repoRoot);
+run('pnpm', ['--filter', '@financial-analysis/capabilities', 'build'], repoRoot);
 run('pnpm', ['--filter', '@financial-analysis/ui', 'build'], repoRoot);
 rmSync(resolve(webDir, 'node_modules/.vite'), { recursive: true, force: true });
 
