@@ -176,11 +176,12 @@ Cloudflare UI reports that the token is missing unrelated permissions; that
 warning is recorded and must be resolved before relying on managed builds if a
 build fails because of it.
 
-The next gate is a legitimate repository push that produces a Cloudflare
-managed build for both preview surfaces. Capture the exact SHA, build result,
-binding/environment isolation, hosted boundary smoke, OAuth lifecycle receipt,
-and rollback evidence before removing `deploy-preview.yml` or its token. No
-production promotion is authorized by this connection alone.
+Managed preview builds, same-SHA GitHub checks, NUC verification, and preview
+OAuth conformance/lifecycle receipts are now complete. The remaining gates are
+external ChatGPT/Codex/Claude/local-LLM client acceptance, hosted boundary
+smoke, rollback execution, and the dedicated `feature/promote-nuc-*`
+certification PR. No production promotion is authorized by these receipts
+alone.
 
 ## Managed preview build receipt — 2026-08-29
 
@@ -205,6 +206,18 @@ production promotion is authorized by this connection alone.
 - The hosted NUC availability heartbeat passed for the same run.
 - `NUC / certified` remains a separate promotion-branch gate and was not
   claimed by this feature-branch verification.
+
+## OAuth preview receipts — 2026-08-29
+
+- Credential-free OAuth conformance passed for the preview boundary in
+  [workflow run 33279421841](https://github.com/blakeox/financial-analysis/actions/runs/33279421841).
+- The protected hosted lifecycle passed in
+  [workflow run 33279443330](https://github.com/blakeox/financial-analysis/actions/runs/33279443330).
+  It created and revoked an isolated preview grant, and the redacted receipt
+  validation confirmed cleanup before success.
+- These checks validate the preview issuer, discovery, PKCE/token lifecycle,
+  and cleanup contract. They do not prove external ChatGPT, Codex, Claude, or
+  local-LLM client acceptance.
 
 ## Verification receipt — 2026-08-29
 
