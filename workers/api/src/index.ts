@@ -1921,7 +1921,14 @@ router.post(
       requestContext.auth = {
         apiKeyId: keyInfo.id,
         customerId: keyInfo.customerId,
-        clientId: `api-key:${keyInfo.id}`,
+        // Keep the hosted budget probe isolated per run. Its synthetic key is
+        // intentionally shared for authentication, but reusing the same
+        // budget client would exhaust the monthly tool-call window after
+        // enough scheduled probes and make the health check fail with 429.
+        clientId:
+          keyInfo.id === -2
+            ? `budget-conformance:${requestContext.runId}`
+            : `api-key:${keyInfo.id}`,
         tier: keyInfo.tier,
         scopes: resolveMCPScopes(keyInfo),
         mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',
