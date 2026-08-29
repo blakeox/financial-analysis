@@ -182,6 +182,19 @@ binding/environment isolation, hosted boundary smoke, OAuth lifecycle receipt,
 and rollback evidence before removing `deploy-preview.yml` or its token. No
 production promotion is authorized by this connection alone.
 
+## Managed preview build receipt — 2026-08-29
+
+- Candidate SHA `acf6523f9b2acaae04408e96bd1e636f12754521` produced a passing
+  Cloudflare managed build for `fanalyx-api-preview`:
+  `78bc9707-6d4f-4cf4-84ed-3c0a52f81b18`.
+- The same SHA produced a passing managed build for `fanalyx-web-preview`:
+  `0f700599-35e1-4fff-8ec8-73e10df66c0c`.
+- The web receipt confirms that the ordered workspace build now includes
+  `analysis → capabilities → ui` before the Astro bundle consumes `tools`.
+- These receipts prove preview build/deploy execution only. They do not prove
+  hosted OAuth, external MCP client acceptance, production bindings, or
+  rollback execution.
+
 ## Verification receipt — 2026-08-29
 
 - Candidate `feature/worker-contract-hardening` at SHA
