@@ -35,8 +35,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo "CLOUDFLARE_PREVIEW_API_TOKEN is required" >&2; exit 1; }
-          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo "CLOUDFLARE_ACCOUNT_ID is required" >&2; exit 1; }
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || {
+            echo '::error title=Missing preview Cloudflare token::Set CLOUDFLARE_PREVIEW_API_TOKEN under Settings > Environments > preview > Environment secrets. An environment secret overrides a repository-level secret with the same name.'
+            exit 1
+          }
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || {
+            echo '::error title=Missing preview Cloudflare account::Set CLOUDFLARE_ACCOUNT_ID under Settings > Environments > preview > Environment secrets.'
+            exit 1
+          }
 
       - name: Verify Cloudflare token is active
         env:
@@ -44,11 +50,14 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          token_status=$(curl --fail --silent --show-error \
-            --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify")
+          if ! token_status=$(curl --fail --silent --show-error \
+              --header "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+              "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/tokens/verify"); then
+            echo '::error title=Preview Cloudflare token rejected::The effective CLOUDFLARE_PREVIEW_API_TOKEN from the preview environment was rejected. Update Settings > Environments > preview > Environment secrets; the repository-level copy does not override it.'
+            exit 1
+          fi
           jq -e '.success == true and .result.status == "active"' <<<"${token_status}" >/dev/null || {
-            echo 'CLOUDFLARE_PREVIEW_API_TOKEN is not active.' >&2
+            echo '::error title=Preview Cloudflare token inactive::The effective CLOUDFLARE_PREVIEW_API_TOKEN is not active. Update the preview environment secret; do not rely on the repository-level copy.'
             exit 1
           }
 

@@ -172,6 +172,7 @@ import {
   withErrorHandler,
   type RateLimitInfo,
 } from './lib';
+import { getMcpBudgetClientId } from './lib/budget-conformance';
 import { handleEnhancedMCPRequest } from './lib/enhanced-mcp';
 import {
   abortDocumentUploadSession,
@@ -1921,7 +1922,7 @@ router.post(
       requestContext.auth = {
         apiKeyId: keyInfo.id,
         customerId: keyInfo.customerId,
-        clientId: `api-key:${keyInfo.id}`,
+        clientId: getMcpBudgetClientId(keyInfo.id),
         tier: keyInfo.tier,
         scopes: resolveMCPScopes(keyInfo),
         mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',

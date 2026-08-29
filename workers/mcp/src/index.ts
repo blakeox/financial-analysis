@@ -30,7 +30,7 @@ export default {
         ok: true,
         role: WORKER_ROLE,
         version: WORKER_VERSION,
-        environment: env.ENVIRONMENT,
+        environment: env.ENVIRONMENT ?? 'unknown',
         commitSha: env.COMMIT_SHA ?? null,
         productionTraffic: false,
         mcpRoute: '/mcp',
@@ -42,7 +42,7 @@ export default {
       const { createMcpHandler } = await import('agents/mcp');
       const authorization = authorizationFromRequest(
         request,
-        env.ENVIRONMENT,
+        env.ENVIRONMENT ?? 'production',
         env.MCP_DEV_AUTH_ENABLED === 'true'
       );
       const handler = createMcpHandler(createStatelessMcpServer(authorization), {

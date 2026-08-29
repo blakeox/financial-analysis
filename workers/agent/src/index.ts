@@ -8,14 +8,10 @@
 export const WORKER_ROLE = 'agent' as const;
 export const WORKER_VERSION = '0.1.0';
 
+export type Env = globalThis.Env;
+
 /** Bindings that must not appear on this worker's Env for independence. */
 export const FORBIDDEN_ENV_KEYS = ['AI_SEARCH', 'INDEXER', 'VECTORIZE'] as const;
-
-export interface Env {
-  ENVIRONMENT: string;
-  WORKER_ROLE: typeof WORKER_ROLE;
-  COMMIT_SHA?: string;
-}
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {

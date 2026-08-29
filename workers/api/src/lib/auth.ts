@@ -5,8 +5,9 @@
  * and tracking usage for the developer API tiers.
  */
 
-import type { Env } from '../types';
 import { MCP_SCOPES } from '@financial-analysis/tools';
+import type { Env } from '../types';
+import { BUDGET_CONFORMANCE_KEY_ID } from './budget-conformance';
 
 export type ApiTier = 'free' | 'pro' | 'enterprise' | 'test' | 'internal';
 
@@ -280,7 +281,7 @@ export async function validateApiKey(request: Request, env: Env): Promise<AuthRe
     return {
       success: true,
       keyInfo: {
-        id: -2,
+        id: BUDGET_CONFORMANCE_KEY_ID,
         keyHash: 'budget-conformance',
         keyPrefix: 'budget_',
         customerId: 'fanalyx-budget-conformance',

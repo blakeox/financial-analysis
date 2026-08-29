@@ -106,6 +106,7 @@ Full steps: [.github/MAINTAINER_SETUP.md](../MAINTAINER_SETUP.md).
 pnpm run test:ci       # CI without Playwright
 pnpm run test:ci:full  # test:ci + Playwright smoke (matches CI when web paths change)
 pnpm run verify        # Pre-push hook (typecheck, lint, format, unit tests)
+pnpm run check:worker-types # Ensure Wrangler-generated Worker bindings are current
 ```
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) and [AGENTS.md](../../AGENTS.md).

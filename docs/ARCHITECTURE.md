@@ -60,6 +60,20 @@ Target topology and cutover inventory: [RUNTIME_TOPOLOGY.md](./RUNTIME_TOPOLOGY.
 - Correlation / Request ID already included in responses.
 - Add route-level duration metrics & caching hit ratio.
 
+## Worker configuration contract
+
+The target Workers keep their runtime configuration in Wrangler and their
+TypeScript binding contract in the generated `worker-configuration.d.ts` file
+for each worker. Run the worker package's `types:generate` command after
+changing `wrangler.toml`; CI runs `pnpm run check:worker-types` so a binding or
+environment drift cannot silently reach deployment. The generated files are
+deliberately checked in because they are part of the compile-time contract.
+
+Compatibility dates are upgraded only with a pinned Wrangler/workerd
+compatibility receipt. The MCP worker remains at the currently verified
+`2026-07-02` ceiling until the compatibility spike updates the client receipt,
+runtime tests, and rollback evidence together.
+
 ## Performance Considerations
 
 - Keep engine code small (avoid large deps, stays in single bundle chunk).
