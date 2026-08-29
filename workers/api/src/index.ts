@@ -172,6 +172,7 @@ import {
   withErrorHandler,
   type RateLimitInfo,
 } from './lib';
+import { getMcpBudgetClientId } from './lib/budget-conformance';
 import { handleEnhancedMCPRequest } from './lib/enhanced-mcp';
 import {
   abortDocumentUploadSession,
@@ -1921,16 +1922,7 @@ router.post(
       requestContext.auth = {
         apiKeyId: keyInfo.id,
         customerId: keyInfo.customerId,
-        // Keep the hosted budget probe isolated in a bounded daily bucket. Its
-        // synthetic key is intentionally shared for authentication, but
-        // reusing one monthly budget client would exhaust the tool-call window
-        // after enough scheduled probes and make the health check fail with
-        // 429. A daily bucket avoids that while preventing unbounded D1 window
-        // creation from a random client ID on every hourly probe.
-        clientId:
-          keyInfo.id === -2
-            ? `budget-conformance:${new Date().toISOString().slice(0, 10)}`
-            : `api-key:${keyInfo.id}`,
+        clientId: getMcpBudgetClientId(keyInfo.id),
         tier: keyInfo.tier,
         scopes: resolveMCPScopes(keyInfo),
         mcpAnalysisEnabled: env.MCP_ANALYSIS_ENABLED !== 'false',
