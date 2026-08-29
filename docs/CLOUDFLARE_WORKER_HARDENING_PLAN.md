@@ -176,12 +176,11 @@ Cloudflare UI reports that the token is missing unrelated permissions; that
 warning is recorded and must be resolved before relying on managed builds if a
 build fails because of it.
 
-Managed preview builds, same-SHA GitHub checks, NUC verification, and preview
-OAuth conformance/lifecycle receipts are now complete. The remaining gates are
-external ChatGPT/Codex/Claude/local-LLM client acceptance, hosted boundary
-smoke, rollback execution, and the dedicated `feature/promote-nuc-*`
-certification PR. No production promotion is authorized by these receipts
-alone.
+Managed preview builds, same-SHA GitHub checks, NUC verification, preview
+OAuth conformance/lifecycle, and hosted boundary smoke are now complete. The
+remaining gates are external ChatGPT/Codex/Claude/local-LLM client acceptance,
+rollback execution, and the dedicated `feature/promote-nuc-*` certification
+PR. No production promotion is authorized by these receipts alone.
 
 ## Managed preview build receipt — 2026-08-29
 
@@ -218,6 +217,16 @@ alone.
 - These checks validate the preview issuer, discovery, PKCE/token lifecycle,
   and cleanup contract. They do not prove external ChatGPT, Codex, Claude, or
   local-LLM client acceptance.
+
+## Hosted boundary receipt — 2026-08-29
+
+- [Workflow run 33279487032](https://github.com/blakeox/financial-analysis/actions/runs/33279487032)
+  passed both the production and preview API boundary lanes.
+- The lanes validated health/version contracts, environment controls,
+  fail-closed canaries, anonymous MCP/storage denial, protected-response cache
+  headers, method allow-list behavior, and redacted machine-readable receipts.
+- Production was probed read-only with its protected smoke credential; no
+  production data or configuration was mutated.
 
 ## Verification receipt — 2026-08-29
 
