@@ -1921,13 +1921,15 @@ router.post(
       requestContext.auth = {
         apiKeyId: keyInfo.id,
         customerId: keyInfo.customerId,
-        // Keep the hosted budget probe isolated per run. Its synthetic key is
-        // intentionally shared for authentication, but reusing the same
-        // budget client would exhaust the monthly tool-call window after
-        // enough scheduled probes and make the health check fail with 429.
+        // Keep the hosted budget probe isolated in a bounded daily bucket. Its
+        // synthetic key is intentionally shared for authentication, but
+        // reusing one monthly budget client would exhaust the tool-call window
+        // after enough scheduled probes and make the health check fail with
+        // 429. A daily bucket avoids that while preventing unbounded D1 window
+        // creation from a random client ID on every hourly probe.
         clientId:
           keyInfo.id === -2
-            ? `budget-conformance:${requestContext.runId}`
+            ? `budget-conformance:${new Date().toISOString().slice(0, 10)}`
             : `api-key:${keyInfo.id}`,
         tier: keyInfo.tier,
         scopes: resolveMCPScopes(keyInfo),
