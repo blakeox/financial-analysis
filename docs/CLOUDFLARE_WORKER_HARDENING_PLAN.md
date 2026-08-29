@@ -195,6 +195,17 @@ production promotion is authorized by this connection alone.
   hosted OAuth, external MCP client acceptance, production bindings, or
   rollback execution.
 
+## NUC verification receipt — 2026-08-29
+
+- Exact SHA `8cf60028f5fa07713be43f65840c6517d7a91fd5` passed the manual NUC
+  smoke/verification run [33279218472](https://github.com/blakeox/financial-analysis/actions/runs/33279218472).
+- The certified runner was `automation-nuc-financial-analysis`; checkout,
+  runner identity/capacity, repository validation, and bounded `test:ci`
+  completed successfully.
+- The hosted NUC availability heartbeat passed for the same run.
+- `NUC / certified` remains a separate promotion-branch gate and was not
+  claimed by this feature-branch verification.
+
 ## Verification receipt — 2026-08-29
 
 - Candidate `feature/worker-contract-hardening` at SHA
