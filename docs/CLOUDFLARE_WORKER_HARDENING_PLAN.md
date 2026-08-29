@@ -141,3 +141,15 @@ implemented. Preview deployment remains blocked until the GitHub `preview`
 environment secret is updated with the existing Cloudflare token by the
 authenticated maintainer. After that handoff, run the preview release and
 hosted OAuth lifecycle receipt before attempting any production promotion.
+
+## Verification receipt — 2026-08-29
+
+- Candidate `feature/worker-contract-hardening` at SHA
+  `1531c4909fcb5b18adbf1eb82d67f56c81e2e1ab` passed the manual NUC `verify`
+  lane in [run 33261702492](https://github.com/blakeox/financial-analysis/actions/runs/33261702492).
+- NUC runner smoke and availability heartbeat passed. The protected NUC
+  certification job was intentionally skipped because this was not the
+  dedicated `feature/promote-nuc-*` promotion lane.
+- This receipt validates the candidate repository state only. It does not
+  prove preview deployment, OAuth lifecycle, external MCP client acceptance,
+  or production promotion.
