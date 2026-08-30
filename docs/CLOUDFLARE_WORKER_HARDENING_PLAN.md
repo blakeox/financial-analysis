@@ -123,13 +123,13 @@ intentional rollback deployment.
 
 ## Kill switches
 
-| Surface | Safe disable action | Expected fallback |
-| --- | --- | --- |
-| Remote MCP | `OAUTH_ENABLED=false` or MCP capability switch | Formula web/API paths remain available; clients receive a truthful denial |
-| Model egress | `AI_EGRESS_ENABLED=false` | Deterministic formulas remain available; AI abstains |
-| Code Mode | `CODE_MODE_ENABLED=false` | Direct approved capabilities remain available |
-| Indexing | Disable queue consumer / indexer route | Existing deterministic analysis remains available; retrieval is marked unavailable |
-| New-worker cutover | Remove route/service-binding promotion | Legacy API serves the rollback surface |
+| Surface            | Safe disable action                            | Expected fallback                                                                  |
+| ------------------ | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Remote MCP         | `OAUTH_ENABLED=false` or MCP capability switch | Formula web/API paths remain available; clients receive a truthful denial          |
+| Model egress       | `AI_EGRESS_ENABLED=false`                      | Deterministic formulas remain available; AI abstains                               |
+| Code Mode          | `CODE_MODE_ENABLED=false`                      | Direct approved capabilities remain available                                      |
+| Indexing           | Disable queue consumer / indexer route         | Existing deterministic analysis remains available; retrieval is marked unavailable |
+| New-worker cutover | Remove route/service-binding promotion         | Legacy API serves the rollback surface                                             |
 
 Every kill-switch event must emit a bounded audit record, notify the owning
 operator, and appear in the `/version`/release receipt without exposing
@@ -177,10 +177,24 @@ warning is recorded and must be resolved before relying on managed builds if a
 build fails because of it.
 
 Managed preview builds, same-SHA GitHub checks, NUC verification, preview
-OAuth conformance/lifecycle, and hosted boundary smoke are now complete. The
-remaining gates are external ChatGPT/Codex/Claude/local-LLM client acceptance,
-rollback execution, and the dedicated `feature/promote-nuc-*` certification
-PR. No production promotion is authorized by these receipts alone.
+OAuth conformance/lifecycle, hosted boundary smoke, and the dedicated
+`feature/promote-nuc-*` certification PR are complete. The candidate was
+merged to `main` and post-merge CI passed. A fresh exact-SHA preview build was
+also verified for the then-current `main` tip
+`4b2a258c345eadc04458fc6d998aea987c3088d0`. Since then, dependency updates
+have advanced `main`; a production candidate must always obtain a new paired
+preview receipt for its exact SHA.
+
+The remaining launch gates are native ChatGPT/Codex/Claude/local-LLM client
+acceptance, an explicit decision about production deployment authority, and
+executed rollback evidence. No production promotion is authorized by preview
+or certification receipts alone.
+
+Cloudflare MCP Server Portals are available in the account but no server or
+portal is configured. Keep Fanalyx's existing OAuth-protected `/oauth/mcp`
+surface as the canonical public interface until an Access policy, logging
+owner, operator audience, and rollback path are defined. Adding a portal would
+introduce a second authentication and control plane.
 
 ## Managed preview build receipt — 2026-08-29
 
@@ -227,6 +241,29 @@ PR. No production promotion is authorized by these receipts alone.
   headers, method allow-list behavior, and redacted machine-readable receipts.
 - Production was probed read-only with its protected smoke credential; no
   production data or configuration was mutated.
+
+## Post-merge and current-main receipts — 2026-08-29
+
+- Promotion PR [#598](https://github.com/blakeox/financial-analysis/pull/598)
+  passed protected `NUC / certified` and all required PR checks before merging
+  to `main` as commit
+  `710828dcd13f087399a00b0a12fce2bdd91b2ef1`.
+- Post-merge CI, CI Pipeline, MCP policy, CodeQL, Coverage, OpenSSF Scorecard,
+  and Release workflows passed for that merge commit. The full receipt is
+  tracked in [Issue #597](https://github.com/blakeox/financial-analysis/issues/597).
+- The then-current `main` tip
+  `4b2a258c345eadc04458fc6d998aea987c3088d0` had matching successful managed
+  preview builds: API `bfa2c86d-7b94-4258-b3e7-3f823f205d57` and web
+  `58fcdf69-b919-46af-a239-6c68575dd862`. Later dependency updates advanced
+  `main` to `6ae486a74a8795a27808083055a7f02182c9da59`, so that receipt is not
+  valid for the newer tip.
+- Read-only production health monitoring passed in
+  [run 33282110952](https://github.com/blakeox/financial-analysis/actions/runs/33282110952),
+  and the fresh paired API boundary smoke passed in
+  [run 33285245032](https://github.com/blakeox/financial-analysis/actions/runs/33285245032).
+- Native Codex acceptance remains unverified because the current Codex host
+  has no Fanalyx MCP registration and no caller-owned short-lived token. The
+  local stdio bridge tests pass, but that is not vendor acceptance.
 
 ## Verification receipt — 2026-08-29
 
