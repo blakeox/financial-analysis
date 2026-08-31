@@ -1,6 +1,6 @@
 import { useAgent } from 'agents/react';
 import { useAgentChat } from '@cloudflare/ai-chat/react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Card,
@@ -60,6 +60,14 @@ export function AgentChatPanel() {
     host: apiOrigin,
   });
   const { messages, sendMessage, status } = useAgentChat({ agent });
+
+  useEffect(() => {
+    const fallback = document.getElementById('agent-chat-fallback');
+    if (!fallback) return;
+
+    fallback.setAttribute('hidden', '');
+    fallback.setAttribute('aria-hidden', 'true');
+  }, []);
 
   const submitMessage = (text: string) => {
     const trimmed = text.trim();

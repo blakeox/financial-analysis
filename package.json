@@ -29,9 +29,10 @@
     "format:check": "pnpm --recursive run format:check",
     "pretypecheck": "pnpm run build:libs",
     "typecheck": "pnpm --recursive run typecheck",
-    "test:ci": "pnpm run check:duplicates && pnpm test:smoke && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm audit --audit-level moderate && pnpm test",
+    "test:ci": "pnpm run check:runtime && pnpm run check:duplicates && pnpm test:smoke && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm audit --audit-level moderate && pnpm test",
     "test:ci:full": "pnpm run test:ci && pnpm --filter @financial-analysis/web exec playwright install chromium && pnpm --filter @financial-analysis/web run test:e2e:smoke",
-    "verify": "pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
+    "verify": "pnpm run check:runtime && pnpm run check:duplicates && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
+    "check:runtime": "node scripts/check-node-runtime.mjs",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "check:openssf-badge": "node scripts/check-openssf-badge.mjs",
     "apply:openssf-badge": "node scripts/apply-openssf-badge.mjs",
@@ -41,7 +42,7 @@
     "sync:branch-protection": "node scripts/sync-branch-protection.mjs",
     "clean:finder-duplicates": "node scripts/clean-finder-duplicates.mjs",
     "reinstall": "rm -rf node_modules apps/*/node_modules packages/*/node_modules workers/*/node_modules && pnpm install",
-    "setup:local": "pnpm run reinstall && pnpm --filter @financial-analysis/web exec playwright install chromium",
+    "setup:local": "pnpm run check:runtime && pnpm run reinstall && pnpm --filter @financial-analysis/web exec playwright install chromium",
     "changeset": "changeset",
     "clean": "pnpm --recursive run clean",
     "smoke": "node scripts/smoke.mjs",
@@ -89,7 +90,7 @@
     "wrangler": "^4.105.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.0.0 || ^24.0.0 || >=26.0.0"
   },
   "packageManager": "pnpm@10.17.0"
 }
