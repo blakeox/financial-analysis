@@ -96,6 +96,6 @@ jobs:
 
       - name: TruffleHog OSS
         if: needs.gate.outputs.skip_ci != 'true'
-        uses: trufflesecurity/trufflehog@bcfcf73aaf4759d4dadc2783177c245a02792318 # v3.97.0
+        uses: trufflesecurity/trufflehog@20652fbbdefffcdaa493a5bf57ab2ac6b1db715b # v3.97.1
         with:
           extra_args: --only-verified
