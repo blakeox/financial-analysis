@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260628.1",
+    "@cloudflare/workers-types": "^5.20260828.1",
     "@types/node": "^26.0.1",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "@financial-analysis/tools": "workspace:*",
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "agents": "^0.17.1",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "agents": "^0.22.0",
     "zod": "^4.4.3"
   }
 }
