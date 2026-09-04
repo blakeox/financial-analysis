@@ -20,6 +20,28 @@ test.describe('Site route contract', () => {
     );
   });
 
+  test('agent page keeps a usable recovery surface when chat hydration is unavailable', async ({
+    page,
+  }) => {
+    const response = await page.goto('/agent');
+
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveURL(/\/agent\/?$/);
+    await expect(
+      page.getByRole('heading', { level: 1, name: /Persistent financial workspace/i })
+    ).toBeVisible();
+
+    const fallback = page.locator('#agent-chat-fallback');
+    const interactiveMessage = page.getByRole('textbox', { name: 'Message' });
+    await expect
+      .poll(async () => (await fallback.isVisible()) || (await interactiveMessage.isVisible()))
+      .toBe(true);
+    await expect(page.getByRole('link', { name: 'Open calculators' })).toHaveAttribute(
+      'href',
+      '/calculators'
+    );
+  });
+
   test('models page exposes current category and featured model entry points', async ({ page }) => {
     const response = await page.goto('/models');
 

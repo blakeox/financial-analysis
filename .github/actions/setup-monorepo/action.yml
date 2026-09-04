@@ -27,3 +27,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install ${{ inputs.install-args }}
+
+    - name: Check repository runtime
+      shell: bash
+      run: pnpm run check:runtime
