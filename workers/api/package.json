@@ -40,9 +40,9 @@
     "ai": "^6.0.191",
     "aws4fetch": "1.0.20",
     "itty-router": "^5.0.24",
-    "jose": "6.2.9",
+    "jose": "6.2.11",
     "workers-ai-provider": "^3.2.1",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
