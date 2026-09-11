@@ -138,7 +138,7 @@
       "svgo": ">=4.0.2",
       "sharp": ">=0.35.0",
       "@hono/node-server": ">=2.0.5",
-      "@ai-sdk/provider-utils": ">=4.0.33"
+      "@ai-sdk/provider-utils": ">=4.0.33 <5"
     }
   }
 }
