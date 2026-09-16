@@ -78,7 +78,7 @@
     "@types/react-dom": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
-    "autoprefixer": "^10.5.2",
+    "autoprefixer": "^10.6.0",
     "baseline-browser-mapping": "^2.11.21",
     "eslint": "^10.6.0",
     "eslint-plugin-astro": "2.1.1",
