@@ -83,7 +83,7 @@
     "prettier": "^3.9.1",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "undici": "^8.5.0",
+    "undici": "^8.10.2",
     "vite": "^8.1.0",
     "vitest": "4.1.11",
     "wrangler": "^4.105.0"
