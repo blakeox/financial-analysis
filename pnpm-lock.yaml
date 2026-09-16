@@ -111,7 +111,7 @@ importers:
         version: 6.0.3
       undici:
         specifier: '>=8.9.0'
-        version: 8.10.0
+        version: 8.10.2
       vite:
         specifier: '>=8.0.16'
         version: 8.1.0(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0)
@@ -6647,10 +6647,6 @@ packages:
     resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
 
-  undici@8.10.0:
-    resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
-    engines: {node: '>=22.19.0'}
-
   undici@8.10.2:
     resolution: {integrity: sha512-/y4/bH9YNU5hi9NIrpOuvGXFcxrj3CMrV+/AYpowAYTpHn8gX/XPFjNy766FPoYY0miQhdW977JFWKGNhBdwyQ==}
     engines: {node: '>=22.19.0'}
@@ -12473,7 +12469,7 @@ snapshots:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.35.4(@types/node@26.0.1)
-      undici: 8.10.0
+      undici: 8.10.2
       workerd: 1.20260625.1
       ws: 8.21.3
       youch: 4.1.0-beta.10
@@ -13783,8 +13779,6 @@ snapshots:
 
   undici@7.29.0: {}
 
-  undici@8.10.0: {}
-
   undici@8.10.2: {}
 
   unenv@2.0.0-rc.24:
@@ -13807,7 +13801,7 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
       ohash: 2.0.12
-      undici: 8.10.0
+      undici: 8.10.2
 
   unist-util-is@6.0.1:
     dependencies:
