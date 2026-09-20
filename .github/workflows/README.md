@@ -84,6 +84,10 @@ Patch and minor Dependabot PRs are queued for squash auto-merge when **CI** pass
 
 Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync; path labels come from `pr-labeler.yml`.
 
+**Ignored majors** (see [dependabot.yml](../dependabot.yml)): AI SDK 7 / Cloudflare Agents stack (`ai`, `agents`, `workers-ai-provider`, related `@cloudflare/*`) and toolchain majors (`typescript`, `vitest`, Astro ESLint/Prettier plugins) stay out of weekly group PRs until a coordinated migration lands (AI track: [#580](https://github.com/blakeox/financial-analysis/pull/580)). Patch/minor still open and auto-merge.
+
+**`@ai-sdk/provider-utils`:** root `pnpm.overrides` must stay `>=4.0.33 <5`. A floor-only override (`>=4.0.33`) resolves to 5.x and breaks Astro/Vite (`createProviderToolFactoryWithOutputSchema` missing) — see [#618](https://github.com/blakeox/financial-analysis/pull/618).
+
 Optional: enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** if you later require PR approvals for auto-merge.
 
 **Dependabot PRs and CI:** Enable **Settings → Actions → General → Run workflows from Dependabot pull requests** so `ci.yml` runs on dependency PRs (auto-merge waits for those checks). Without this, only `pull_request_target` workflows (e.g. auto-merge) run until a maintainer approves workflow execution.
