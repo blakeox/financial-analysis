@@ -79,7 +79,7 @@
     "eslint": "^10.6.0",
     "eslint-plugin-astro": "2.1.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
-    "knip": "^6.32.3",
+    "knip": "^6.36.0",
     "lefthook": "^2.1.12",
     "prettier": "^3.9.1",
     "tsx": "^4.23.13",
