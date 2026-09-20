@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
-    "zod": "^4.6.2"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@financial-analysis/config": "workspace:*",
