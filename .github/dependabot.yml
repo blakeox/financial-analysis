@@ -37,6 +37,9 @@ updates:
       - dependency-name: '@cloudflare/think'
       - dependency-name: '@cloudflare/codemode'
       - dependency-name: '@cloudflare/workers-oauth-provider'
+      # Keep MCP SDK locked with agents: solo 1.29→1.30 leaves dual copies and breaks
+      # workers/mcp createMcpHandler typing (#646).
+      - dependency-name: '@modelcontextprotocol/sdk'
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
       - dependency-name: 'vitest'
