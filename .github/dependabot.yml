@@ -20,6 +20,38 @@ updates:
     labels:
       - 'dependencies'
       - 'automated'
+    # Majors below need coordinated migrations; weekly group PRs that include them
+    # fail E2E/typecheck (see #620 AI SDK 7, #632 TS7/Vitest5). Patch/minor still flow.
+    # Lift an ignore when the matching migration PR is merged (AI: #580 track).
+    ignore:
+      - dependency-name: 'ai'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'workers-ai-provider'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'agents'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/workers-types'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/ai-chat'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/think'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/codemode'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/workers-oauth-provider'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/coverage-v8'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint-plugin-astro'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'prettier-plugin-astro'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'astro-eslint-parser'
+        update-types: ['version-update:semver-major']
     groups:
       cloudflare-ai-runtime:
         # Keep Cloudflare Workers, AI, Agents, and MCP protocol upgrades together.

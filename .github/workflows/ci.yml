@@ -96,6 +96,10 @@ jobs:
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && github.event_name != 'pull_request'
         run: pnpm run check:duplicates
 
+      - name: Check provider-utils override
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        run: pnpm run check:provider-utils-override
+
       - name: Run API smoke tests
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm test:smoke
