@@ -84,7 +84,7 @@ Patch and minor Dependabot PRs are queued for squash auto-merge when **CI** pass
 
 Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync; path labels come from `pr-labeler.yml`.
 
-**Ignored majors** (see [dependabot.yml](../dependabot.yml)): AI SDK 7 / Cloudflare Agents stack (`ai`, `agents`, `workers-ai-provider`, related `@cloudflare/*`) and toolchain majors (`typescript`, `vitest`, Astro ESLint/Prettier plugins) stay out of weekly group PRs until a coordinated migration lands (AI track: [#580](https://github.com/blakeox/financial-analysis/pull/580)). Patch/minor still open and auto-merge.
+**Ignored updates** (see [dependabot.yml](../dependabot.yml)): AI SDK 7 majors (`ai`, `workers-ai-provider`, `@cloudflare/workers-types`), **all** updates to 0.x Agents/Cloudflare packages that break CI (`agents`, `@cloudflare/ai-chat` / `think` / `codemode` / `workers-oauth-provider`), and toolchain majors (`typescript`, `vitest`, Astro ESLint/Prettier plugins) stay out of weekly group PRs until a coordinated migration lands (AI track: [#580](https://github.com/blakeox/financial-analysis/pull/580)). Other patch/minor still open and auto-merge.
 
 **`@ai-sdk/provider-utils`:** root `pnpm.overrides` must stay `>=4.0.33 <5`. A floor-only override (`>=4.0.33`) resolves to 5.x and breaks Astro/Vite (`createProviderToolFactoryWithOutputSchema` missing) — see [#618](https://github.com/blakeox/financial-analysis/pull/618).
 
