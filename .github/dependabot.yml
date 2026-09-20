@@ -20,26 +20,23 @@ updates:
     labels:
       - 'dependencies'
       - 'automated'
-    # Majors below need coordinated migrations; weekly group PRs that include them
-    # fail E2E/typecheck (see #620 AI SDK 7, #632 TS7/Vitest5). Patch/minor still flow.
-    # Lift an ignore when the matching migration PR is merged (AI: #580 track).
+    # Coordinated migrations only — weekly group PRs that include these fail E2E/typecheck
+    # (AI Agents stack: #620/#635; TS7/Vitest5: #632). Patch/minor still flow for packages
+    # that only list update-types. Lift ignores when the matching migration lands (#580).
+    # For 0.y Cloudflare/Agents packages, ignore ALL updates: Dependabot 0.x "majors" still
+    # slipped through semver-major ignores and broke Builds/E2E (#635).
     ignore:
       - dependency-name: 'ai'
         update-types: ['version-update:semver-major']
       - dependency-name: 'workers-ai-provider'
         update-types: ['version-update:semver-major']
-      - dependency-name: 'agents'
-        update-types: ['version-update:semver-major']
       - dependency-name: '@cloudflare/workers-types'
         update-types: ['version-update:semver-major']
+      - dependency-name: 'agents'
       - dependency-name: '@cloudflare/ai-chat'
-        update-types: ['version-update:semver-major']
       - dependency-name: '@cloudflare/think'
-        update-types: ['version-update:semver-major']
       - dependency-name: '@cloudflare/codemode'
-        update-types: ['version-update:semver-major']
       - dependency-name: '@cloudflare/workers-oauth-provider'
-        update-types: ['version-update:semver-major']
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
       - dependency-name: 'vitest'
