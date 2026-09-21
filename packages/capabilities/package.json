@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@financial-analysis/config": "workspace:*",
-    "eslint": "^10.6.0",
-    "prettier": "^3.9.1",
+    "eslint": "^10.10.0",
+    "prettier": "^3.9.8",
     "typescript": "^6.0.3",
     "vitest": "4.1.11"
   }
