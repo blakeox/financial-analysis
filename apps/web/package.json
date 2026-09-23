@@ -60,7 +60,7 @@
     "@financial-analysis/tools": "workspace:*",
     "@financial-analysis/ui": "workspace:*",
     "agents": "^0.17.1",
-    "ai": "^6.0.285",
+    "ai": "^6.0.286",
     "astro": "^7.3.3",
     "lucide-react": "^1.47.0",
     "react": "^19.3.0",
