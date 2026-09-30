@@ -79,7 +79,7 @@
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
     "autoprefixer": "^10.6.1",
-    "baseline-browser-mapping": "^2.11.25",
+    "baseline-browser-mapping": "^2.11.26",
     "eslint": "^10.10.0",
     "eslint-plugin-astro": "2.1.1",
     "happy-dom": "^20.14.5",
