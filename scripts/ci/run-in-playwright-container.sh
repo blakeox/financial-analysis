@@ -23,13 +23,11 @@ docker run --rm --user 1001:1001 \
   bash -lc '
     set -euo pipefail
     export HOME=/tmp/pw-home
-    mkdir -p "${HOME}/corepack" "${HOME}/pnpm"
-    export COREPACK_HOME="${HOME}/corepack"
-    export PNPM_HOME="${HOME}/pnpm"
-    export PATH="${PNPM_HOME}:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
+    export NPM_CONFIG_PREFIX="${HOME}/npm-global"
+    mkdir -p "${NPM_CONFIG_PREFIX}/bin" "${HOME}/pnpm"
+    export PATH="${NPM_CONFIG_PREFIX}/bin:${HOME}/pnpm:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
     if ! command -v pnpm >/dev/null 2>&1; then
-      corepack enable
-      corepack prepare pnpm@10.17.0 --activate
+      npm install --prefix "${NPM_CONFIG_PREFIX}" pnpm@10.17.0
     fi
     cd "/work/'"${WORKDIR}"'"
     eval "$PLAYWRIGHT_CONTAINER_CMD"
