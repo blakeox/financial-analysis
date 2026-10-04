@@ -66,5 +66,5 @@ auditConfig:
   ignoreGhsas:
     # GHSA-vfj7-8cjw-p6xm: braces stack-exhaustion DoS; npm latest is still 3.0.3.
     # Dev-only path: astro-eslint-parser>fast-glob>micromatch>braces (eslint tooling).
-    # Re-review: 2026-04-04
+    # Re-review: 2027-01-04
     - GHSA-vfj7-8cjw-p6xm

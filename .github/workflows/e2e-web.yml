@@ -49,69 +49,78 @@ concurrency:
 jobs:
   e2e-smoke:
     name: E2E smoke
-    if: >-
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request'
     runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
+      - name: Resolve NUC execution policy
+        id: policy
+        uses: ./.github/actions/nuc-policy
+
+      - name: Report NUC policy (no checkout)
+        if: steps.policy.outputs.run != 'true'
+        run: echo "${{ steps.policy.outputs.policy_message }}"
+
       - name: Checkout
+        if: steps.policy.outputs.run == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
       - name: Detect skip-ci label
+        if: steps.policy.outputs.run == 'true'
         id: skip
         uses: ./.github/actions/pr-skip-ci
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
       - name: Detect path changes
+        if: steps.policy.outputs.run == 'true'
         id: paths
         uses: ./.github/actions/repo-path-filter
         with:
           filters-file: .github/path-filters.yml
 
       - name: Skipped (skip-ci label)
-        if: steps.skip.outputs.skip_ci == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci == 'true'
         run: echo "E2E skipped via skip-ci label."
 
       - name: Skipped (no web-related paths)
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web != 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web != 'true'
         run: echo "E2E skipped — no web-related paths changed."
 
       - name: Setup monorepo
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: pnpm run build:libs
 
       - name: Build web
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         working-directory: apps/web
         run: pnpm build
 
       - name: Run web CI preflight (non-browser)
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
 
       - name: Start dev stack for Playwright
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: bash scripts/ci/start-dev-stack-for-playwright.sh
 
       - name: Run web smoke matrix lane
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: bash scripts/ci/playwright-docker-smoke.sh matrix
 
       - name: Stop dev stack for Playwright
-        if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: always() && steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke matrix Playwright artifacts
-        if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: always() && steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-smoke-matrix-artifacts

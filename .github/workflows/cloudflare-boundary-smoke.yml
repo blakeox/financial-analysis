@@ -8,6 +8,8 @@ on:
 permissions:
   contents: read
 
+# Shared with other cron monitors: one run at a time per group (queued, not canceled).
+# Different workflow files still queue separately; acceptable on a single NUC runner.
 concurrency:
   group: nuc-scheduled-monitors
   cancel-in-progress: false

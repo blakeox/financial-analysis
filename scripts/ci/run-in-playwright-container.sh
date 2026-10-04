@@ -29,7 +29,24 @@ docker run --rm "${NETWORK_ARGS[@]}" --user 1001:1001 \
   bash -lc '
     set -euo pipefail
     export HOME=/tmp/pw-home
-    export PATH="/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
+    mkdir -p "${HOME}/corepack" "${HOME}/npm-global/bin"
+    export COREPACK_HOME="${HOME}/corepack"
+    export NPM_CONFIG_PREFIX="${HOME}/npm-global"
+    export PATH="${NPM_CONFIG_PREFIX}/bin:${HOME}/corepack/shims:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
+
+    if ! command -v pnpm >/dev/null 2>&1; then
+      if command -v corepack >/dev/null 2>&1; then
+        corepack prepare pnpm@10.17.0 --activate 2>/dev/null || true
+      fi
+    fi
+    if ! command -v pnpm >/dev/null 2>&1; then
+      npm install --prefix "${NPM_CONFIG_PREFIX}" pnpm@10.17.0
+    fi
+    command -v pnpm >/dev/null 2>&1 || {
+      echo "pnpm is required in the Playwright container but could not be installed under \$HOME" >&2
+      exit 127
+    }
+
     cd "/work/'"${WORKDIR}"'"
     eval "$PLAYWRIGHT_CONTAINER_CMD"
   '

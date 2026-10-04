@@ -15,24 +15,37 @@ concurrency:
 jobs:
   gate:
     name: PR gate
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request'
     runs-on: [self-hosted, nuc, financial-analysis]
     outputs:
-      skip_ci: ${{ steps.skip.outputs.skip_ci }}
-      code_changed: ${{ steps.filter.outputs.code }}
+      nuc_run: ${{ steps.policy.outputs.run }}
+      policy_message: ${{ steps.policy.outputs.policy_message }}
+      skip_ci: ${{ steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci || steps.policy.outputs.skip_ci }}
+      code_changed: ${{ steps.policy.outputs.run == 'true' && steps.filter.outputs.code || steps.policy.outputs.code_changed }}
     steps:
+      - name: Resolve NUC execution policy
+        id: policy
+        uses: ./.github/actions/nuc-policy
+
+      - name: Report NUC policy (no checkout)
+        if: steps.policy.outputs.run != 'true'
+        run: echo "${{ steps.policy.outputs.policy_message }}"
+
       - name: Checkout
+        if: steps.policy.outputs.run == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
       - name: Detect skip-ci label
+        if: steps.policy.outputs.run == 'true'
         id: skip
         uses: ./.github/actions/pr-skip-ci
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
       - name: Detect non-doc code changes
+        if: steps.policy.outputs.run == 'true'
         id: filter
         uses: ./.github/actions/repo-path-filter
         with:
@@ -41,45 +54,53 @@ jobs:
   duplicate-check:
     name: Duplicate file check
     needs: gate
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: always() && needs.gate.result == 'success'
     runs-on: [self-hosted, nuc, financial-analysis]
     steps:
+      - name: NUC policy (no code execution)
+        if: needs.gate.outputs.nuc_run != 'true'
+        run: echo "${{ needs.gate.outputs.policy_message }}"
+
       - name: Skipped (skip-ci or docs-only)
-        if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && (needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true')
         run: echo "Duplicate check skipped."
 
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Ensure Node.js
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: ./.github/actions/ensure-node
 
       - name: Check for duplicate files
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: node scripts/check-repo-duplicates.mjs --files-only
 
   dependency-review:
     name: Dependency review
     needs: gate
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: always() && needs.gate.result == 'success'
     runs-on: [self-hosted, nuc, financial-analysis]
     permissions:
       contents: read
       pull-requests: write
       security-events: write
     steps:
+      - name: NUC policy (no code execution)
+        if: needs.gate.outputs.nuc_run != 'true'
+        run: echo "${{ needs.gate.outputs.policy_message }}"
+
       - name: Skipped (skip-ci or docs-only)
-        if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && (needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true')
         run: echo "Dependency review skipped."
 
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Dependency review
-        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
         with:
           fail-on-severity: high
@@ -88,21 +109,25 @@ jobs:
   secret-scan:
     name: Secret scan
     needs: gate
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: always() && needs.gate.result == 'success'
     runs-on: [self-hosted, nuc, financial-analysis]
     steps:
+      - name: NUC policy (no code execution)
+        if: needs.gate.outputs.nuc_run != 'true'
+        run: echo "${{ needs.gate.outputs.policy_message }}"
+
       - name: Skipped (skip-ci label)
-        if: needs.gate.outputs.skip_ci == 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci == 'true'
         run: echo "Secret scan skipped via skip-ci label."
 
       - name: Checkout
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
       - name: TruffleHog OSS
-        if: needs.gate.outputs.skip_ci != 'true'
+        if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true'
         uses: trufflesecurity/trufflehog@f714bf454f350590f4a24c3ddb1aef02c35bf5b6 # v3.97.5
         with:
           extra_args: --only-verified

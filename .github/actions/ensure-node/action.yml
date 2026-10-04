@@ -8,16 +8,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Bootstrap Node on NUC runner
-      if: runner.environment == 'self-hosted'
-      shell: bash
-      run: |
-        set -euo pipefail
-        NUC_NODE=/home/github-runner/.local/node-v24.18.0/bin
-        if [[ -x "${NUC_NODE}/node" ]]; then
-          echo "${NUC_NODE}" >> "$GITHUB_PATH"
-        fi
-
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
