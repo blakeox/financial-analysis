@@ -138,9 +138,17 @@ jobs:
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
         run: pnpm run build:libs && pnpm -C apps/web run build
 
+      - name: Start dev stack for Playwright
+        if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run Playwright smoke tests
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
         run: bash scripts/ci/playwright-docker-smoke.sh
+
+      - name: Stop dev stack for Playwright
+        if: always() && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Playwright skipped (workers-only / no web paths)
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e != 'true'

@@ -13,22 +13,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-docker run --rm --user 1001:1001 \
+NETWORK_ARGS=()
+if [[ "${PLAYWRIGHT_USE_HOST_NETWORK:-}" == '1' ]]; then
+  NETWORK_ARGS=(--network host)
+fi
+
+docker run --rm "${NETWORK_ARGS[@]}" --user 1001:1001 \
   -v "${GITHUB_WORKSPACE}:/work" \
   -w "/work/${WORKDIR}" \
   -e CI=true \
   -e HOME=/tmp/pw-home \
   -e PLAYWRIGHT_CONTAINER_CMD="$CMD" \
+  -e PLAYWRIGHT_SKIP_WEBSERVER="${PLAYWRIGHT_SKIP_WEBSERVER:-}" \
   "$IMAGE" \
   bash -lc '
     set -euo pipefail
     export HOME=/tmp/pw-home
-    export NPM_CONFIG_PREFIX="${HOME}/npm-global"
-    mkdir -p "${NPM_CONFIG_PREFIX}/bin" "${HOME}/pnpm"
-    export PATH="${NPM_CONFIG_PREFIX}/bin:${HOME}/pnpm:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
-    if ! command -v pnpm >/dev/null 2>&1; then
-      npm install --prefix "${NPM_CONFIG_PREFIX}" pnpm@10.17.0
-    fi
+    export PATH="/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
     cd "/work/'"${WORKDIR}"'"
     eval "$PLAYWRIGHT_CONTAINER_CMD"
   '

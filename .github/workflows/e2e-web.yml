@@ -98,9 +98,17 @@ jobs:
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
 
+      - name: Start dev stack for Playwright
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run web smoke matrix lane
         if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: bash scripts/ci/playwright-docker-smoke.sh matrix
+
+      - name: Stop dev stack for Playwright
+        if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke matrix Playwright artifacts
         if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'

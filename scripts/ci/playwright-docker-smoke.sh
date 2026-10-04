@@ -11,5 +11,7 @@ if [[ "$MODE" == matrix ]]; then
   ENV_PREFIX="PLAYWRIGHT_MATRIX=1 "
 fi
 
+export PLAYWRIGHT_SKIP_WEBSERVER=1
+export PLAYWRIGHT_USE_HOST_NETWORK=1
 bash "${ROOT}/scripts/ci/run-in-playwright-container.sh" apps/web \
   "${ENV_PREFIX}playwright test ${SPECS}"
