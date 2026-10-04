@@ -142,8 +142,15 @@ jobs:
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
 
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run web smoke lane
         run: bash scripts/ci/playwright-docker-smoke.sh
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke Playwright artifacts
         if: always()
@@ -177,8 +184,15 @@ jobs:
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
 
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run web smoke matrix lane
         run: bash scripts/ci/playwright-docker-smoke.sh matrix
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
@@ -216,10 +230,20 @@ jobs:
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests
 
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run Playwright matrix project
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          PLAYWRIGHT_USE_HOST_NETWORK: '1'
         run: >-
           bash scripts/ci/run-in-playwright-container.sh apps/web
           'PLAYWRIGHT_MATRIX=1 playwright test --project "${{ matrix.project }}"'
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload full matrix Playwright artifacts
         if: always()
@@ -249,12 +273,22 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run flake repro lane
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          PLAYWRIGHT_USE_HOST_NETWORK: '1'
         run: >-
           bash scripts/ci/run-in-playwright-container.sh apps/web
           'node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}"
           --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}"
           --json-summary test-results/runner/flake-repro-summary.json'
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload flake repro Playwright artifacts
         if: always()
