@@ -11,7 +11,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [e2e-web.yml](./e2e-web.yml)                               | Every PR (Playwright when web paths change)                                     | **E2E smoke** — smoke-matrix on web PRs; fast pass otherwise                                                                                                      |
 | [codeql.yml](./codeql.yml)                                 | Every PR + push to `main`/`dev`                                                 | **CodeQL** — analysis when code changes; fast pass on doc-only PRs                                                                                                |
 | [mcp-policy.yml](./mcp-policy.yml)                         | Every PR + push to `main`/`dev`                                                 | **MCP policy** — focused OAuth, OIDC, capability, tenant-isolation, lifecycle, and interoperability checks; auth scripts/workflows are included in path detection |
-| [nuc-ci.yml](./nuc-ci.yml)                                 | Weekly/manual + controlled promotion PRs                                        | NUC runner smoke and same-repository `feature/promote-nuc-*` certification; not required until runner evidence is complete |
+| [nuc-ci.yml](./nuc-ci.yml)                                 | Weekly/manual + controlled promotion PRs                                        | NUC runner smoke and same-repository `feature/promote-nuc-*` certification (optional promotion lane) |
 | [dependabot-automerge.yml](./dependabot-automerge.yml)     | Dependabot PRs                                                                  | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review)                                                                          |
 | [pr-labeler.yml](./pr-labeler.yml)                         | Every PR                                                                        | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`)                                                                                  |
 | [sync-labels.yml](./sync-labels.yml)                       | Push to `main` when [labels.yml](../labels.yml) changes                         | Keeps GitHub labels in sync                                                                                                                                       |
@@ -25,7 +25,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 
 | Workflow                     | Purpose                                                             |
 | ---------------------------- | ------------------------------------------------------------------- |
-| [ci-cd.yml](./ci-cd.yml)     | Quality, tests, build artifacts, CodeQL, audit                      |
+| [ci.yml](./ci.yml) (Build artifacts job) | `main` push after green **Build and test** | Uploads web/worker/package build artifacts |
 | [release.yml](./release.yml) | Changesets version PR when `.changeset/*.md` exist (no npm publish) |
 
 ## Scheduled / manual

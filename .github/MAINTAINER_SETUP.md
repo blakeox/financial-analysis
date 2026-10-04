@@ -100,5 +100,5 @@ Follow [`docs/NUC_GITHUB_ACTIONS.md`](../docs/NUC_GITHUB_ACTIONS.md) to:
 4. run one controlled `feature/promote-nuc-*` certification PR.
 
 Only after those checks pass should `NUC / certified` be added to
-`.github/branch-protection.json` and synchronized to GitHub. Keep ordinary
-fork/PR checks on hosted runners.
+`.github/branch-protection.json` and synchronized to GitHub. All workflows
+already target the NUC; fork pull requests skip NUC jobs until approved.

@@ -11,13 +11,13 @@ permissions:
   issues: write
 
 concurrency:
-  group: cloudflare-waf-audit
-  cancel-in-progress: true
+  group: nuc-scheduled-monitors
+  cancel-in-progress: false
 
 jobs:
   audit:
     name: Read WAF entrypoints
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 10
     environment:
       name: production

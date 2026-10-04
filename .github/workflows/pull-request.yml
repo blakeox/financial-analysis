@@ -15,7 +15,8 @@ concurrency:
 jobs:
   gate:
     name: PR gate
-    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nuc, financial-analysis]
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
       code_changed: ${{ steps.filter.outputs.code }}
@@ -40,7 +41,8 @@ jobs:
   duplicate-check:
     name: Duplicate file check
     needs: gate
-    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nuc, financial-analysis]
     steps:
       - name: Skipped (skip-ci or docs-only)
         if: needs.gate.outputs.skip_ci == 'true' || needs.gate.outputs.code_changed != 'true'
@@ -57,8 +59,8 @@ jobs:
   dependency-review:
     name: Dependency review
     needs: gate
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nuc, financial-analysis]
     permissions:
       contents: read
       pull-requests: write
@@ -82,7 +84,8 @@ jobs:
   secret-scan:
     name: Secret scan
     needs: gate
-    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nuc, financial-analysis]
     steps:
       - name: Skipped (skip-ci label)
         if: needs.gate.outputs.skip_ci == 'true'

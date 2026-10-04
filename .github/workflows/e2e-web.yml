@@ -49,8 +49,10 @@ concurrency:
 jobs:
   e2e-smoke:
     name: E2E smoke
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -86,13 +88,6 @@ jobs:
         if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
         if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         working-directory: apps/web
@@ -100,8 +95,7 @@ jobs:
 
       - name: Run web smoke matrix lane
         if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        working-directory: apps/web
-        run: pnpm run test:ci:smoke:matrix
+        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke:matrix'
 
       - name: Upload smoke matrix Playwright artifacts
         if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
@@ -115,7 +109,7 @@ jobs:
 
   smoke:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -127,19 +121,12 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
 
       - name: Run web smoke lane
-        working-directory: apps/web
-        run: pnpm run test:ci:smoke
+        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke'
 
       - name: Upload smoke Playwright artifacts
         if: always()
@@ -153,7 +140,7 @@ jobs:
 
   smoke-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -165,19 +152,12 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
 
       - name: Run web smoke matrix lane
-        working-directory: apps/web
-        run: pnpm run test:ci:smoke:matrix
+        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke:matrix'
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
@@ -191,7 +171,7 @@ jobs:
 
   full-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'full'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -207,12 +187,6 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
@@ -222,8 +196,9 @@ jobs:
         run: pnpm run test:layout && pnpm run typecheck:tests
 
       - name: Run Playwright matrix project
-        working-directory: apps/web
-        run: PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project "${{ matrix.project }}"
+        run: >-
+          bash scripts/ci/run-in-playwright-container.sh apps/web
+          'PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project "${{ matrix.project }}"'
 
       - name: Upload full matrix Playwright artifacts
         if: always()
@@ -237,7 +212,7 @@ jobs:
 
   flake-repro:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'flake'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -249,15 +224,16 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
+      - name: Build web
         working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
+        run: pnpm build
 
       - name: Run flake repro lane
-        working-directory: apps/web
-        run: pnpm exec node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}" --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}" --json-summary test-results/runner/flake-repro-summary.json
+        run: >-
+          bash scripts/ci/run-in-playwright-container.sh apps/web
+          'pnpm exec node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}"
+          --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}"
+          --json-summary test-results/runner/flake-repro-summary.json'
 
       - name: Upload flake repro Playwright artifacts
         if: always()

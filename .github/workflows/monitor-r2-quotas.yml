@@ -3,7 +3,7 @@ name: Monitor R2 Quotas (prod)
 on:
   schedule:
     # Daily R2 quota check (09:30 UTC)
-    - cron: '30 9 * * *'
+    - cron: '0 10 * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,14 +11,14 @@ permissions:
   issues: write
 
 concurrency:
-  group: monitor-r2-quotas
-  cancel-in-progress: true
+  group: nuc-scheduled-monitors
+  cancel-in-progress: false
 
 jobs:
   check:
     environment:
       name: production
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     steps:
       - name: Precheck production API URL
         id: precheck
@@ -78,9 +78,10 @@ jobs:
       - name: Ensure jq is installed
         if: steps.precheck.outputs.skip != 'true'
         run: |
-          if ! command -v jq >/dev/null 2>&1; then
-            sudo apt-get update -y && sudo apt-get install -y jq
-          fi
+          command -v jq >/dev/null 2>&1 || {
+            echo "jq is required on the NUC runner host (no sudo in CI)." >&2
+            exit 1
+          }
       - name: Check storage status
         id: status
         env:

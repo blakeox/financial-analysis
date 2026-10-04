@@ -23,10 +23,16 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  TRUSTED_PR: >-
+    ${{ github.event_name != 'pull_request' ||
+    github.event.pull_request.head.repo.full_name == github.repository }}
+
 jobs:
   gate:
     name: CI gate
-    runs-on: ubuntu-latest
+    if: env.TRUSTED_PR == 'true'
+    runs-on: [self-hosted, nuc, financial-analysis]
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
       code_changed: ${{ steps.code.outputs.code }}
@@ -72,7 +78,8 @@ jobs:
   build-and-test:
     name: Build and test
     needs: gate
-    runs-on: ubuntu-latest
+    if: env.TRUSTED_PR == 'true'
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     steps:
       - name: CI skipped (skip-ci label)
@@ -128,18 +135,50 @@ jobs:
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
         run: pnpm test
 
-      - name: Install Playwright browsers
+      - name: Build web for Playwright smoke
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium
+        run: pnpm run build:libs && pnpm -C apps/web run build
 
       - name: Run Playwright smoke tests
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e == 'true'
-        working-directory: apps/web
-        run: pnpm test:e2e:smoke
+        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm test:e2e:smoke'
 
       - name: Playwright skipped (workers-only / no web paths)
         if: needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true' && needs.gate.outputs.run_e2e != 'true'
         run: echo "Skipping Playwright — no web-related paths changed (see .github/workflows/README.md)."
+
+  build-artifacts:
+    name: Build artifacts
+    needs: build-and-test
+    if: >-
+      env.TRUSTED_PR == 'true' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main' &&
+      needs.build-and-test.result == 'success'
+    runs-on: [self-hosted, nuc, financial-analysis]
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+
+      - name: Setup monorepo
+        uses: ./.github/actions/setup-monorepo
+
+      - name: Build shared packages
+        run: pnpm run build:libs
+
+      - name: Build all packages
+        run: |
+          pnpm -C apps/web run build
+          pnpm --filter @financial-analysis/web-worker run build
+          pnpm --filter @financial-analysis/api run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: build-artifacts
+          path: |
+            apps/web/dist/
+            workers/api/dist/
+            packages/*/dist/
+          retention-days: 30

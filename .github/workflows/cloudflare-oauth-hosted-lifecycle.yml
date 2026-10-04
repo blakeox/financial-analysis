@@ -20,7 +20,7 @@ concurrency:
 jobs:
   lifecycle:
     name: Hosted OAuth lifecycle (preview)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 15
     environment: preview
     env:

@@ -9,13 +9,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-budget-conformance-preview
-  cancel-in-progress: true
+  group: nuc-scheduled-monitors
+  cancel-in-progress: false
 
 jobs:
   preview:
     name: Preview D1 budget reservation
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 10
     environment: preview
     env:

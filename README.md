@@ -1,7 +1,6 @@
 # Financial Analysis Tooling
 
 ![CI](https://github.com/blakeox/financial-analysis/actions/workflows/ci.yml/badge.svg)
-![CI Pipeline](https://github.com/blakeox/financial-analysis/actions/workflows/ci-cd.yml/badge.svg)
 ![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/blakeox/financial-analysis/badge)
 ![License: MIT](https://img.shields.io/github/license/blakeox/financial-analysis)
 ![GitHub contributors](https://img.shields.io/github/contributors/blakeox/financial-analysis)
@@ -390,7 +389,7 @@ GitHub Actions:
 
 **On push to `main` only**
 
-- `.github/workflows/ci-cd.yml` — Build artifacts, CodeQL, security audit (avoids duplicating PR gates)
+- `.github/workflows/ci.yml` (**Build artifacts** job) — Web/worker/package artifacts after green CI on `main`
 
 **Scheduled**
 

@@ -9,13 +9,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-boundary-smoke
-  cancel-in-progress: true
+  group: nuc-scheduled-monitors
+  cancel-in-progress: false
 
 jobs:
   smoke:
     name: ${{ matrix.environment }} API boundary
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 10
     environment: ${{ matrix.environment }}
     strategy:

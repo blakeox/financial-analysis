@@ -27,7 +27,7 @@ concurrency:
 jobs:
   analysis:
     name: Scorecard analysis
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     permissions:
       security-events: write
       id-token: write

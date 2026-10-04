@@ -2,22 +2,25 @@
 
 ## Decision
 
-The controlled `automation` NUC is used for repository-specific certification,
-not as the default runner for every GitHub Actions job.
+All GitHub Actions jobs for this repository run on the self-hosted NUC runner
+with labels `self-hosted`, `nuc`, and `financial-analysis`. There are no
+GitHub-hosted (`ubuntu-latest`) jobs.
 
-- Hosted runners remain the portable baseline for ordinary pull requests,
-  forked changes, CodeQL, and supply-chain checks.
-- A separate repository runner is registered on the NUC with the labels
-  `self-hosted, linux, x64, nuc, financial-analysis`.
-- `.github/workflows/nuc-ci.yml` provides a weekly/manual runner smoke and a
-  controlled promotion certification lane.
-- Promotion certification only executes same-repository, non-draft PRs whose
-  branch starts with `feature/promote-nuc-` and targets `main`.
-- The NUC check is intentionally not a required branch-protection context until
-  the runner registration, smoke run, and one real certification are complete.
-
-This boundary prevents arbitrary fork code from executing on a private network
-host while still giving the project a durable, hardware-backed Linux gate.
+- Fork pull requests never execute on the NUC. Jobs use
+  `github.event.pull_request.head.repo.full_name == github.repository` (or skip
+  the workflow entirely for PR-only files).
+- Deploy and secret-bearing scheduled monitors run only from trusted triggers
+  (same-repository PRs, pushes to protected branches, or `workflow_dispatch`).
+- Playwright browser dependencies run inside
+  `mcr.microsoft.com/playwright:v1.63.0-jammy` via
+  `scripts/ci/run-in-playwright-container.sh` (`--user 1001:1001`, not
+  `--privileged`). Transient images are removed after each run.
+- Scheduled monitors share concurrency group `nuc-scheduled-monitors` so cron
+  jobs queue on the single runner instead of piling up.
+- `nuc-ci.yml` retains an optional promotion certification lane
+  (`feature/promote-nuc-*`, `pull_request_target`, `nuc-certification`
+  environment). The hosted availability heartbeat was removed when CI moved
+  entirely to the NUC.
 
 ## Register the separate runner
 
@@ -46,80 +49,37 @@ sudo /opt/actions-runner-financial-analysis/svc.sh install github-runner
 sudo systemctl enable --now actions.runner.blakeox-financial-analysis.automation-nuc-financial-analysis.service
 ```
 
-The runner must appear online in **Settings → Actions → Runners** before the
-smoke workflow is dispatched. The exact service unit name should be taken from
-`svc.sh` output rather than guessed.
+The runner must appear online in **Settings → Actions → Runners** before CI
+can execute. The exact service unit name should be taken from `svc.sh` output
+rather than guessed.
+
+## Host prerequisites (no sudo in jobs)
+
+- `github-runner` (uid **1001**) in the `docker` group for Playwright containers
+- `jq` on the host for monitor workflows (jobs fail fast if missing)
+- Node/pnpm via `setup-monorepo` or `/home/github-runner/.local/node-v24.18.0/bin`
+  for `nuc-ci.yml` smoke paths
 
 ## Operating model
 
-1. Dispatch `NUC CI` in `smoke` mode and confirm the runner name, host, Node,
-   pnpm, checkout, and disk report.
-2. Dispatch it in `verify` mode against `main` and retain the run URL as the
-   first NUC evidence receipt.
-3. Confirm the hosted `NUC / availability heartbeat` observes
-   `NUC / runner smoke` on `automation-nuc-financial-analysis` and reports a
-   successful completion.
-4. Create a clean promotion branch named
-   `feature/promote-nuc-<sha>` only when a maintainer wants the NUC
-   certification lane.
-5. Open a same-repository PR from that branch to `main` and confirm
-   the `nuc-certification` environment approval is granted before
-   `NUC / certified` tests the exact PR head SHA.
-6. Only after those gates pass should `NUC / certified` be added to
-   `.github/branch-protection.json` and synchronized to GitHub.
-
-The `nuc-certification` environment is configured with a required maintainer
-reviewer and a deployment branch policy matching `main`, because the
-`pull_request_target` workflow is evaluated from the protected base branch.
-The workflow itself admits only same-repository `feature/promote-nuc-*`
-candidate branches. Approval occurs before the certification job checks out
-candidate code.
-
-Promotion certification is a maintainer-controlled operation. The
-`feature/promote-nuc-*` prefix is an admission check, not a complete trust
-boundary: never use this lane for fork PRs or code that has not received the
-required maintainer review. Before making the check required for a public
-repository, add an approval environment or move candidate execution to an
-ephemeral/containerized runner so a compromised candidate cannot persist on
-the NUC host.
+1. Dispatch `NUC CI` in `smoke` mode and confirm runner identity.
+2. Dispatch `verify` against `main` for a full `pnpm run test:ci` receipt.
+3. Optional: open a same-repository `feature/promote-nuc-*` PR for
+   `NUC / certified` after enabling the `nuc-certification` environment.
 
 ## Security and failure controls
 
-- The NUC runner is repository-scoped and uses a dedicated directory and
-  service. It must never share the `whisperx-gui` runner checkout or labels.
-- No long-lived GitHub token, Cloudflare token, Clerk secret, or 1Password
-  credential is installed on the NUC. Actions uses its job-scoped token only
-  where needed.
-- `pull_request_target` loads the workflow from `main`; candidate code is
-  checked out only after the same-repository and branch-prefix boundary passes.
-- The `nuc-certification` environment approval is required before the
-  persistent NUC job can execute candidate code.
-- The promotion lane is deliberately not the ordinary fork-PR path. Its
-  persistent-host risk must be reduced with maintainer approval or an
-  ephemeral/containerized execution boundary before enforcement expands.
-- The most expensive failure is merging code that was not NUC-certified. The
-  mitigation is the exact-head checkout and the future required status.
-- The silent failure is an offline or mislabeled runner leaving the NUC job
-  pending. The hosted heartbeat watches the same run through the Actions API,
-  times out independently of the NUC, and the weekly scheduled verification
-  confirms the runner can still execute the repository gate; the owner must
-  restore the runner or remove the lane from branch protection.
-- Kill switch: disable `nuc-ci.yml` or stop only the
-  `automation-nuc-financial-analysis` service. Do not stop the existing
-  `whisperx-gui` runner.
+- Never run fork PR code on the NUC; required checks skip until a maintainer
+  approves workflow execution for outside contributors.
+- `pull_request_target` in `nuc-ci.yml` loads workflow from `main`; candidate
+  code is checked out only after same-repository and branch-prefix checks plus
+  environment approval.
+- Kill switch: stop `automation-nuc-financial-analysis` service only (not
+  `whisperx-gui`).
 
-## Acceptance evidence
+## CodeQL and OpenSSF Scorecard
 
-Record these values in the related GitHub issue or project item:
-
-- runner name and labels
-- workflow run URL and exact commit SHA
-- Node and pnpm versions
-- disk capacity at admission and completion
-- heartbeat, smoke, and verification conclusions
-- environment approval receipt for promotion certification
-- whether `NUC / certified` is required by branch protection
-
-The metric owner is the repository maintainer. Leading indicators are a
-healthy heartbeat and successful weekly verification; the lagging indicator is
-the count of regressions that escaped the hosted and NUC gates.
+These workflows run on the NUC for convenience but may fail if GitHub’s
+analysis tooling expects hosted-runner images or unavailable host packages.
+Treat failures as environmental until the NUC tool chain is validated; they do
+not block merges unless added to branch protection.
