@@ -5,6 +5,7 @@ set -euo pipefail
 IMAGE="${PLAYWRIGHT_DOCKER_IMAGE:-mcr.microsoft.com/playwright:v1.63.0-jammy}"
 WORKDIR="${1:?usage: $0 <workdir-relative-to-repo> <command>}"
 shift
+CMD="$*"
 
 docker pull "$IMAGE"
 cleanup() {
@@ -17,5 +18,6 @@ docker run --rm --user 1001:1001 \
   -w "/work/${WORKDIR}" \
   -e CI=true \
   -e HOME=/tmp/pw-home \
+  -e PATH="/work/${WORKDIR}/node_modules/.bin:/work/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
   "$IMAGE" \
-  bash -lc "$*"
+  bash -lc "$CMD"

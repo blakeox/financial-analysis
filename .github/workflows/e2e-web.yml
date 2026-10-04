@@ -93,9 +93,14 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Run web CI preflight (non-browser)
+        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        working-directory: apps/web
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
       - name: Run web smoke matrix lane
         if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke:matrix'
+        run: bash scripts/ci/playwright-docker-smoke.sh matrix
 
       - name: Upload smoke matrix Playwright artifacts
         if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
@@ -125,8 +130,12 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Run web CI preflight (non-browser)
+        working-directory: apps/web
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
       - name: Run web smoke lane
-        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke'
+        run: bash scripts/ci/playwright-docker-smoke.sh
 
       - name: Upload smoke Playwright artifacts
         if: always()
@@ -156,8 +165,12 @@ jobs:
         working-directory: apps/web
         run: pnpm build
 
+      - name: Run web CI preflight (non-browser)
+        working-directory: apps/web
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
       - name: Run web smoke matrix lane
-        run: bash scripts/ci/run-in-playwright-container.sh apps/web 'pnpm run test:ci:smoke:matrix'
+        run: bash scripts/ci/playwright-docker-smoke.sh matrix
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
@@ -198,7 +211,7 @@ jobs:
       - name: Run Playwright matrix project
         run: >-
           bash scripts/ci/run-in-playwright-container.sh apps/web
-          'PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project "${{ matrix.project }}"'
+          'PLAYWRIGHT_MATRIX=1 playwright test --project "${{ matrix.project }}"'
 
       - name: Upload full matrix Playwright artifacts
         if: always()
@@ -231,7 +244,7 @@ jobs:
       - name: Run flake repro lane
         run: >-
           bash scripts/ci/run-in-playwright-container.sh apps/web
-          'pnpm exec node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}"
+          'node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}"
           --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}"
           --json-summary test-results/runner/flake-repro-summary.json'
 
