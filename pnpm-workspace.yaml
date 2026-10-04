@@ -58,3 +58,13 @@ overrides:
   svgo: '>=4.0.2'
   sharp: '>=0.35.0'
   '@hono/node-server': '>=2.0.5'
+  '@ai-sdk/provider-utils': '>=4.0.33 <5'
+  http-cache-semantics: '>=4.3.0'
+
+# Transitive advisories with no npm fix yet (pnpm audit --audit-level moderate).
+auditConfig:
+  ignoreGhsas:
+    # GHSA-vfj7-8cjw-p6xm: braces stack-exhaustion DoS; npm latest is still 3.0.3.
+    # Dev-only path: astro-eslint-parser>fast-glob>micromatch>braces (eslint tooling).
+    # Re-review: 2026-04-04
+    - GHSA-vfj7-8cjw-p6xm
