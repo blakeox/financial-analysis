@@ -34,13 +34,19 @@ docker run --rm "${NETWORK_ARGS[@]}" --user 1001:1001 \
     export NPM_CONFIG_PREFIX="${HOME}/npm-global"
     export PATH="${NPM_CONFIG_PREFIX}/bin:${HOME}/corepack/shims:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
 
-    if ! command -v pnpm >/dev/null 2>&1; then
-      if command -v corepack >/dev/null 2>&1; then
-        corepack prepare pnpm@10.17.0 --activate 2>/dev/null || true
-      fi
+    PNPM_VERSION=10.17.0
+    if command -v corepack >/dev/null 2>&1; then
+      corepack prepare "pnpm@${PNPM_VERSION}" --activate 2>/dev/null || true
     fi
     if ! command -v pnpm >/dev/null 2>&1; then
-      npm install --prefix "${NPM_CONFIG_PREFIX}" pnpm@10.17.0
+      curl -fsSL -o "${HOME}/pnpm" \
+        "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64"
+      chmod +x "${HOME}/pnpm"
+      export PATH="${HOME}:${PATH}"
+    fi
+    if ! command -v pnpm >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+      npm install --prefix "${NPM_CONFIG_PREFIX}" "pnpm@${PNPM_VERSION}"
+      export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
     fi
     command -v pnpm >/dev/null 2>&1 || {
       echo "pnpm is required in the Playwright container but could not be installed under \$HOME" >&2
