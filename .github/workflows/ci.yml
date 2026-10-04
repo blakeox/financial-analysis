@@ -23,15 +23,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  TRUSTED_PR: >-
-    ${{ github.event_name != 'pull_request' ||
-    github.event.pull_request.head.repo.full_name == github.repository }}
-
 jobs:
   gate:
     name: CI gate
-    if: env.TRUSTED_PR == 'true'
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nuc, financial-analysis]
     outputs:
       skip_ci: ${{ steps.skip.outputs.skip_ci }}
@@ -78,7 +75,9 @@ jobs:
   build-and-test:
     name: Build and test
     needs: gate
-    if: env.TRUSTED_PR == 'true'
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     steps:
@@ -151,7 +150,6 @@ jobs:
     name: Build artifacts
     needs: build-and-test
     if: >-
-      env.TRUSTED_PR == 'true' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.ref == 'refs/heads/main' &&
       needs.build-and-test.result == 'success'
