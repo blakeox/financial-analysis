@@ -23,9 +23,17 @@ jobs:
       skip_ci: ${{ steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci || steps.policy.outputs.skip_ci }}
       code_changed: ${{ steps.policy.outputs.run == 'true' && steps.filter.outputs.code || steps.policy.outputs.code_changed }}
     steps:
+      - name: Checkout trusted workflow actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          path: trusted-actions
+
       - name: Resolve NUC execution policy
         id: policy
-        uses: ./.github/actions/nuc-policy
+        uses: ./trusted-actions/.github/actions/nuc-policy
 
       - name: Report NUC policy (no checkout)
         if: steps.policy.outputs.run != 'true'
