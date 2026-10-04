@@ -30,18 +30,19 @@ jobs:
       actions: read
       security-events: write
     steps:
-      - name: Checkout NUC policy script
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
-        with:
-          sparse-checkout: scripts/ci/nuc-execution-policy.sh
-          sparse-checkout-cone-mode: false
-
       - name: Resolve NUC execution policy
         id: policy
         shell: bash
         env:
           NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
-        run: bash scripts/ci/nuc-execution-policy.sh
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/scripts/ci/nuc-execution-policy.sh?ref=${{ github.sha }}" \
+            | jq -r .content | base64 -d > /tmp/nuc-execution-policy.sh
+          bash /tmp/nuc-execution-policy.sh
 
       - name: Report NUC policy (no checkout)
         if: steps.policy.outputs.run != 'true'
@@ -52,8 +53,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
-          sparse-checkout: ''
-          sparse-checkout-cone-mode: false
 
       - name: Detect skip-ci label
         if: steps.policy.outputs.run == 'true' && github.event_name == 'pull_request'
