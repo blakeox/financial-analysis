@@ -23,38 +23,6 @@ runs:
   steps:
     - id: policy
       shell: bash
-      run: |
-        set -euo pipefail
-        run=true
-        message=""
-        skip_ci=false
-        code_changed=false
-        run_e2e=false
-
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          if [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
-            run=false
-            message="External fork PR: the NUC intentionally does not run untrusted code. This check passes by policy; full CI runs after maintainer workflow approval (if enabled)."
-          elif [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
-            run=false
-            message="Dependabot PR: the NUC skips bot dependency PRs (same isolation as fork runs). Approve Dependabot workflows or merge manually after review."
-          fi
-        elif [[ "${{ github.event_name }}" == "schedule" ]]; then
-          :
-        elif [[ "${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          case "${{ github.actor }}" in
-            blakeox|github-actions[bot]) ;;
-            *)
-              run=false
-              message="Actor '${{ github.actor }}' is not in the NUC push/dispatch allowlist (blakeox, github-actions[bot])."
-              ;;
-          esac
-        fi
-
-        {
-          echo "run=${run}"
-          echo "message=${message}"
-          echo "skip_ci=${skip_ci}"
-          echo "code_changed=${code_changed}"
-          echo "run_e2e=${run_e2e}"
-        } >> "$GITHUB_OUTPUT"
+      env:
+        NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+      run: bash "$GITHUB_ACTION_PATH/../../../scripts/ci/nuc-execution-policy.sh"
