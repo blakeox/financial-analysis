@@ -18,6 +18,19 @@ docker run --rm --user 1001:1001 \
   -w "/work/${WORKDIR}" \
   -e CI=true \
   -e HOME=/tmp/pw-home \
-  -e PATH="/work/${WORKDIR}/node_modules/.bin:/work/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+  -e PLAYWRIGHT_CONTAINER_CMD="$CMD" \
   "$IMAGE" \
-  bash -lc "$CMD"
+  bash -lc '
+    set -euo pipefail
+    export HOME=/tmp/pw-home
+    mkdir -p "${HOME}/corepack" "${HOME}/pnpm"
+    export COREPACK_HOME="${HOME}/corepack"
+    export PNPM_HOME="${HOME}/pnpm"
+    export PATH="${PNPM_HOME}:/work/node_modules/.bin:/work/apps/web/node_modules/.bin:${PATH}"
+    if ! command -v pnpm >/dev/null 2>&1; then
+      corepack enable
+      corepack prepare pnpm@10.17.0 --activate
+    fi
+    cd "/work/'"${WORKDIR}"'"
+    eval "$PLAYWRIGHT_CONTAINER_CMD"
+  '
