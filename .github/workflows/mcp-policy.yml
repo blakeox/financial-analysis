@@ -53,6 +53,9 @@ jobs:
         run: |
           git sparse-checkout disable 2>/dev/null || true
           git checkout-index -a -f
+          git config --local --unset-all extensions.partialClone 2>/dev/null || true
+          git config --local --unset-all remote.origin.promisor 2>/dev/null || true
+          git config --local --unset-all remote.origin.partialclonefilter 2>/dev/null || true
           test -f .github/actions/pr-skip-ci/action.yml
 
       - name: Detect skip-ci label
