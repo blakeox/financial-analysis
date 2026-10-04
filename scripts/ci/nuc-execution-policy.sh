@@ -35,7 +35,7 @@ fi
 
 {
   echo "run=${run}"
-  echo "message=${message}"
+  echo "policy_message=${message}"
   echo "skip_ci=${skip_ci}"
   echo "code_changed=${code_changed}"
   echo "run_e2e=${run_e2e}"

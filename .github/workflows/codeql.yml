@@ -30,17 +30,18 @@ jobs:
       actions: read
       security-events: write
     steps:
-      - name: Checkout trusted workflow actions
+      - name: Checkout NUC policy script
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
-          ref: ${{ github.event.pull_request.base.sha || github.sha }}
-          sparse-checkout: .github/actions
+          sparse-checkout: scripts/ci/nuc-execution-policy.sh
           sparse-checkout-cone-mode: false
-          path: trusted-actions
 
       - name: Resolve NUC execution policy
         id: policy
-        uses: ./trusted-actions/.github/actions/nuc-policy
+        shell: bash
+        env:
+          NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: bash scripts/ci/nuc-execution-policy.sh
 
       - name: Report NUC policy (no checkout)
         if: steps.policy.outputs.run != 'true'
