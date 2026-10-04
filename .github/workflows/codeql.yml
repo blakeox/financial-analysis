@@ -54,6 +54,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Materialize full working tree (persistent NUC workspace)
+        if: steps.policy.outputs.run == 'true'
+        shell: bash
+        run: |
+          git sparse-checkout disable 2>/dev/null || true
+          git checkout-index -a -f
+          test -f .github/actions/pr-skip-ci/action.yml
+
       - name: Detect skip-ci label
         if: steps.policy.outputs.run == 'true' && github.event_name == 'pull_request'
         id: skip
