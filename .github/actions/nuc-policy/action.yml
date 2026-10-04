@@ -1,0 +1,28 @@
+name: NUC execution policy
+description: >-
+  Decide whether self-hosted NUC jobs may checkout or execute code for this
+  event (fork, Dependabot, and untrusted actors are policy-skipped, not failures).
+outputs:
+  run:
+    description: "'true' when trusted NUC execution is allowed"
+    value: ${{ steps.policy.outputs.run }}
+  policy_message:
+    description: Human-readable reason when run is false
+    value: ${{ steps.policy.outputs.message }}
+  skip_ci:
+    description: Gate-compatible skip flag when policy blocks execution
+    value: ${{ steps.policy.outputs.skip_ci }}
+  code_changed:
+    description: Gate-compatible code flag when policy blocks execution
+    value: ${{ steps.policy.outputs.code_changed }}
+  run_e2e:
+    description: Gate-compatible e2e flag when policy blocks execution
+    value: ${{ steps.policy.outputs.run_e2e }}
+runs:
+  using: composite
+  steps:
+    - id: policy
+      shell: bash
+      env:
+        NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+      run: bash "$GITHUB_ACTION_PATH/../../../scripts/ci/nuc-execution-policy.sh"
