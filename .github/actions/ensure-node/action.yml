@@ -1,14 +1,10 @@
-name: Setup monorepo
-description: Install pnpm, Node.js, and workspace dependencies for this repository
+name: Ensure Node.js
+description: Install Node on self-hosted NUC jobs that do not run setup-monorepo
 inputs:
   node-version:
     description: Node.js version
     required: false
     default: '22'
-  install-args:
-    description: Arguments passed to pnpm install
-    required: false
-    default: '--frozen-lockfile'
 runs:
   using: composite
   steps:
@@ -26,14 +22,3 @@ runs:
       uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
-        cache: pnpm
-        cache-dependency-path: pnpm-lock.yaml
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v6
-      with:
-        version: 10.17.0
-
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install ${{ inputs.install-args }}

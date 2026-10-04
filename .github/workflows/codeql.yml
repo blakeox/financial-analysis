@@ -56,6 +56,14 @@ jobs:
           )
         run: echo "CodeQL skipped — doc-only PR or skip-ci label."
 
+      - name: Ensure Node.js
+        if: |
+          github.event_name != 'pull_request' || (
+            steps.skip.outputs.skip_ci != 'true' &&
+            steps.paths.outputs.code == 'true'
+          )
+        uses: ./.github/actions/ensure-node
+
       - name: Initialize CodeQL
         if: |
           github.event_name != 'pull_request' || (
