@@ -52,7 +52,7 @@
     "test:ci:full": "pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:coverage && pnpm run test:e2e:matrix"
   },
   "dependencies": {
-    "@astrojs/react": "^6.0.6",
+    "@astrojs/react": "^7.0.1",
     "@astrojs/sitemap": "^3.7.4",
     "@cloudflare/ai-chat": "^0.9.1",
     "@financial-analysis/analysis": "workspace:*",
@@ -61,8 +61,8 @@
     "@financial-analysis/ui": "workspace:*",
     "agents": "^0.17.1",
     "ai": "^6.0.291",
-    "astro": "^7.3.3",
-    "lucide-react": "^1.47.0",
+    "astro": "^7.3.8",
+    "lucide-react": "^1.55.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3",
@@ -71,7 +71,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.3.0",
