@@ -82,7 +82,7 @@
     "baseline-browser-mapping": "^2.11.26",
     "eslint": "^10.11.0",
     "eslint-plugin-astro": "2.1.1",
-    "happy-dom": "^20.14.5",
+    "happy-dom": "^20.14.6",
     "postcss": "^8.5.28",
     "prettier": "^3.9.9",
     "prettier-plugin-astro": "^0.14.1",
