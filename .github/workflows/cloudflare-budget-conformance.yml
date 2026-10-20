@@ -29,6 +29,9 @@ jobs:
       - name: Checkout conformance harness
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
+      - name: Ensure Node.js
+        uses: ./.github/actions/ensure-node
+
       - name: Run hosted budget conformance
         run: node scripts/cloudflare-budget-conformance.mjs
 
