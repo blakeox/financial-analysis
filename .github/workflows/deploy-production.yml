@@ -313,7 +313,7 @@ jobs:
 
       - name: Upload production boundary receipt
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: cloudflare-boundary-production
           path: boundary-receipt-production.json
@@ -321,7 +321,7 @@ jobs:
 
       - name: Upload production promotion receipt
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: cloudflare-promotion-production
           path: promotion-receipt-production.json
