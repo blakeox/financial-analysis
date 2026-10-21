@@ -142,7 +142,7 @@ jobs:
 
       - name: Upload smoke matrix Playwright artifacts
         if: always() && steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-smoke-matrix-artifacts
           path: |
@@ -184,7 +184,7 @@ jobs:
 
       - name: Upload smoke Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-smoke-artifacts
           path: |
@@ -226,7 +226,7 @@ jobs:
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-smoke-matrix-artifacts
           path: |
@@ -277,7 +277,7 @@ jobs:
 
       - name: Upload full matrix Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-full-${{ matrix.project }}
           path: |
@@ -322,7 +322,7 @@ jobs:
 
       - name: Upload flake repro Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: playwright-flake-repro
           path: |
