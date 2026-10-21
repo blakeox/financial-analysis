@@ -29,9 +29,9 @@
     "format:check": "pnpm --recursive run format:check",
     "pretypecheck": "pnpm run build:libs",
     "typecheck": "pnpm --recursive run typecheck",
-    "test:ci": "pnpm run check:duplicates && pnpm run check:provider-utils-override && pnpm test:smoke && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm audit --audit-level moderate && pnpm test",
+    "test:ci": "pnpm run check:duplicates && pnpm run check:provider-utils-override && pnpm run test:dependency-mitigations && pnpm test:smoke && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm audit --audit-level moderate && pnpm test",
     "test:ci:full": "pnpm run test:ci && pnpm --filter @financial-analysis/web exec playwright install chromium && pnpm --filter @financial-analysis/web run test:e2e:smoke",
-    "verify": "pnpm run check:duplicates && pnpm run check:provider-utils-override && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
+    "verify": "pnpm run check:duplicates && pnpm run check:provider-utils-override && pnpm run test:dependency-mitigations && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test",
     "check:duplicates": "node scripts/check-repo-duplicates.mjs",
     "check:provider-utils-override": "node scripts/check-provider-utils-override.mjs",
     "check:openssf-badge": "node scripts/check-openssf-badge.mjs",
@@ -63,7 +63,8 @@
     "deploy:all": "pnpm run deploy:api:production && pnpm run deploy:web:production",
     "install:all": "pnpm install",
     "prepare": "lefthook install",
-    "test:e2e:hmr:web": "pnpm --filter @financial-analysis/web run test:e2e:hmr"
+    "test:e2e:hmr:web": "pnpm --filter @financial-analysis/web run test:e2e:hmr",
+    "test:dependency-mitigations": "node --test packages/sprintf-safe/sprintf.test.cjs scripts/dependency-mitigations.test.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.2",
@@ -85,7 +86,7 @@
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
     "undici": "^8.10.2",
-    "vite": "^8.3.1",
+    "vite": "^8.3.3",
     "vitest": "4.1.11",
     "wrangler": "^4.142.0"
   },
@@ -99,10 +100,10 @@
       "js-yaml": ">=4.3.1 <5",
       "nanoid": ">=3.3.17",
       "astro": ">=7.1.0",
-      "vite": ">=8.0.16",
+      "vite": ">=8.3.3 <9",
       "devalue": ">=5.9.3",
       "lodash": ">=4.18.0",
-      "hono": ">=4.13.5",
+      "hono": ">=4.13.11 <5",
       "rollup": ">=4.59.0",
       "fast-uri@<3.1.2": ">=3.1.2",
       "fast-uri": ">=4.1.5",
@@ -113,7 +114,7 @@
       "basic-ftp": ">=6.0.1",
       "postcss": ">=8.5.18",
       "yaml": ">=2.9.0",
-      "smol-toml": ">=1.7.1",
+      "smol-toml": ">=1.9.0 <2",
       "qs": ">=6.16.0",
       "minimatch": ">=10.2.3",
       "@typescript-eslint/typescript-estree>minimatch": ">=10.2.3",
@@ -138,10 +139,17 @@
       "astro-eslint-parser": "1.4.0",
       "ai": "^6.0.191",
       "svgo": ">=4.0.2",
-      "sharp": ">=0.35.0",
+      "sharp": ">=0.35.5 <0.36",
       "@hono/node-server": ">=2.0.5",
       "@ai-sdk/provider-utils": ">=4.0.33 <5",
-      "http-cache-semantics": ">=4.3.0"
+      "http-cache-semantics": ">=4.3.0",
+      "proxy-addr": ">=2.0.8 <3",
+      "shell-quote": ">=1.11.0 <2",
+      "source-map-js": ">=1.2.2 <2",
+      "postcss-selector-parser": ">=7.1.6 <8",
+      "launch-editor": ">=2.14.2 <3",
+      "@modelcontextprotocol/sdk": ">=1.32.0 <2",
+      "sprintf-js": "file:./packages/sprintf-safe"
     }
   }
 }
