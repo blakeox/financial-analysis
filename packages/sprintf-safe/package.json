@@ -10,6 +10,6 @@
     "format:check": "prettier --check package.json README.md sprintf.test.cjs"
   },
   "devDependencies": {
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.10"
   }
 }
