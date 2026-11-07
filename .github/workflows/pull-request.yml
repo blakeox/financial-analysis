@@ -16,7 +16,7 @@ jobs:
   gate:
     name: PR gate
     if: github.event_name == 'pull_request'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     outputs:
       nuc_run: ${{ steps.policy.outputs.run }}
       policy_message: ${{ steps.policy.outputs.policy_message }}
@@ -76,7 +76,7 @@ jobs:
     name: Duplicate file check
     needs: gate
     if: always() && needs.gate.result == 'success'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     steps:
       - name: NUC policy (no code execution)
         if: needs.gate.outputs.nuc_run != 'true'
@@ -113,7 +113,7 @@ jobs:
     name: Dependency review
     needs: gate
     if: always() && needs.gate.result == 'success'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     permissions:
       contents: read
       pull-requests: write
@@ -142,7 +142,8 @@ jobs:
     name: Secret scan
     needs: gate
     if: always() && needs.gate.result == 'success'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    # TruffleHog invokes Docker; keep on hosted runners until Dell runner is in the docker group.
+    runs-on: ubuntu-latest
     steps:
       - name: NUC policy (no code execution)
         if: needs.gate.outputs.nuc_run != 'true'

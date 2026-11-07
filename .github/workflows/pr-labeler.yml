@@ -11,7 +11,7 @@ permissions:
 jobs:
   label:
     if: github.event_name == 'pull_request'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     steps:
       - name: Resolve NUC execution policy
         id: policy

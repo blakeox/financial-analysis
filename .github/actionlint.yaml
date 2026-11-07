@@ -1,5 +1,5 @@
 # Repository-specific self-hosted labels used by the controlled NUC lane.
 self-hosted-runner:
   labels:
-    - nuc
+    - dell
     - financial-analysis
