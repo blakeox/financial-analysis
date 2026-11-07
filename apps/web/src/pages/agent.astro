@@ -18,6 +18,7 @@ const keywords =
   keywords={keywords}
   canonical={Astro.url.href}
   showChat={false}
+  showToolAnalysis={false}
 >
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Agent' }]} />
 
@@ -48,6 +49,30 @@ const keywords =
       </div>
 
       <SurfaceCard className="fa-surface-glow">
+        <div
+          id="agent-chat-fallback"
+          class="rounded-[1.35rem] border border-dashed border-violet-300/80 bg-violet-50/80 p-6 text-sm text-slate-700 dark:border-violet-800 dark:bg-violet-950/30 dark:text-slate-200"
+          role="status"
+          aria-live="polite"
+        >
+          <p
+            class="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-violet-700 dark:text-violet-300"
+          >
+            Agent workspace
+          </p>
+          <h2 class="mb-2 text-lg font-semibold text-slate-950 dark:text-white">
+            Loading the interactive agent…
+          </h2>
+          <p>
+            If the workspace does not appear, use the deterministic calculators or review the
+            developer API while the agent connection is unavailable.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <a href="/calculators" class="fa-button-secondary px-4 py-2 text-sm">Open calculators</a
+            >
+            <a href="/developers" class="fa-button-secondary px-4 py-2 text-sm">Developer docs</a>
+          </div>
+        </div>
         <AgentChatPanel client:only="react" />
       </SurfaceCard>
     </div>

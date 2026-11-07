@@ -26,7 +26,10 @@ describe('chat surface contracts', () => {
     const agentPage = readSource('src/pages/agent.astro');
 
     expect(agentPage).toContain('showChat={false}');
+    expect(agentPage).toContain('showToolAnalysis={false}');
     expect(agentPage).toContain('<AgentChatPanel client:only="react" />');
+    expect(agentPage).toContain('id="agent-chat-fallback"');
+    expect(agentPage).toContain('Open calculators');
   });
 
   it('keeps global and embedded chat labeled as different products', () => {
