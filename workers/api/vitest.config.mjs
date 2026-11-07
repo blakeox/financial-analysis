@@ -13,9 +13,11 @@ export default defineConfig({
       '**/.{git,cache,output,wrangler}/**',
       '**/*.d.ts',
     ],
-    // Reduce parallel execution to avoid KV database locking
+    // Wrangler unstable_dev fixtures share local workerd/KV resources. Serialize
+    // API files so OAuth and MCP lifecycle tests cannot contend across workers.
     pool: 'forks',
-    maxWorkers: 4,
+    fileParallelism: false,
+    maxWorkers: 1,
     // Retry flaky tests once before failing
     retry: 1,
     slowTestThreshold: 2000,

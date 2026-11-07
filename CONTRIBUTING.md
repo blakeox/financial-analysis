@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the `financial-analysis` project!
 
 ### Prerequisites
 
-- Node.js 22+ (see `.nvmrc`)
+- Node.js 22 LTS locally (see `.nvmrc` and `pnpm run check:runtime`; the controlled NUC may use Node 24 LTS)
 - pnpm 10+ (see `packageManager` in root `package.json`)
 - Cloudflare account (for Workers deployment)
 - Git
@@ -80,6 +80,7 @@ Future Extensions (optional):
 Run tests, typecheck, and lint across the monorepo:
 
 ```bash
+pnpm run check:runtime
 pnpm run build:libs  # Build analysis + ui (required before typecheck on fresh clone)
 pnpm run test:ci     # CI without Playwright: duplicates, smoke, typecheck, lint, format, audit, tests
 pnpm run test:ci:full  # test:ci + Playwright smoke (full CI for web changes)
