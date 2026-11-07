@@ -4,7 +4,8 @@ inputs:
   node-version:
     description: Node.js version
     required: false
-    default: '22'
+    # Astro 7.4+ requires Node >=22.23.4; keep CI on a matching LTS patch.
+    default: '22.23.4'
   install-args:
     description: Arguments passed to pnpm install
     required: false
