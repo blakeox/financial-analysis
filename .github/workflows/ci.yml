@@ -29,7 +29,7 @@ jobs:
     if: >-
       github.event_name == 'pull_request' ||
       (github.actor == 'blakeox' || github.actor == 'github-actions[bot]')
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     outputs:
       nuc_run: ${{ steps.policy.outputs.run }}
       policy_message: ${{ steps.policy.outputs.policy_message }}
@@ -116,7 +116,7 @@ jobs:
         github.event_name == 'pull_request' ||
         (github.actor == 'blakeox' || github.actor == 'github-actions[bot]')
       )
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 45
     steps:
       - name: NUC policy (no code execution)
@@ -215,7 +215,7 @@ jobs:
       github.ref == 'refs/heads/main' &&
       needs.build-and-test.result == 'success' &&
       (github.actor == 'blakeox' || github.actor == 'github-actions[bot]')
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 20
     steps:
       - name: Checkout code
