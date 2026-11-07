@@ -12,7 +12,7 @@ GitHub-hosted (`ubuntu-latest`) jobs.
 - Deploy and secret-bearing scheduled monitors run only from trusted triggers
   (same-repository PRs, pushes to protected branches, or `workflow_dispatch`).
 - Playwright browser dependencies run inside
-  `mcr.microsoft.com/playwright:v1.63.0-jammy` via
+  `mcr.microsoft.com/playwright:v1.65.0-jammy` via
   `scripts/ci/run-in-playwright-container.sh` (`--user 1001:1001`, not
   `--privileged`). Transient images are removed after each run.
 - Scheduled monitors share concurrency group `nuc-scheduled-monitors` so cron
