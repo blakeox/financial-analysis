@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Run a command in the official Playwright image on the NUC (uid 1001, no sudo).
+# Run a command in the official Playwright image as the host runner uid/gid so
+# bind-mounted workspaces stay writable (NUC github-runner=1001, Dell=1000).
 set -euo pipefail
 
 IMAGE="${PLAYWRIGHT_DOCKER_IMAGE:-mcr.microsoft.com/playwright:v1.65.0-jammy}"
 WORKDIR="${1:?usage: $0 <workdir-relative-to-repo> <command>}"
 shift
 CMD="$*"
+HOST_UID="${PLAYWRIGHT_CONTAINER_UID:-$(id -u)}"
+HOST_GID="${PLAYWRIGHT_CONTAINER_GID:-$(id -g)}"
 
 docker pull "$IMAGE"
 cleanup() {
@@ -18,7 +21,13 @@ if [[ "${PLAYWRIGHT_USE_HOST_NETWORK:-}" == '1' ]]; then
   NETWORK_ARGS=(--network host)
 fi
 
-docker run --rm "${NETWORK_ARGS[@]}" --user 1001:1001 \
+# Ensure Playwright can create report/result dirs before the container starts.
+mkdir -p "${GITHUB_WORKSPACE:-.}/${WORKDIR}/test-results" \
+  "${GITHUB_WORKSPACE:-.}/${WORKDIR}/playwright-report"
+chmod -R u+rwX "${GITHUB_WORKSPACE:-.}/${WORKDIR}/test-results" \
+  "${GITHUB_WORKSPACE:-.}/${WORKDIR}/playwright-report" 2>/dev/null || true
+
+docker run --rm "${NETWORK_ARGS[@]}" --user "${HOST_UID}:${HOST_GID}" \
   -v "${GITHUB_WORKSPACE}:/work" \
   -w "/work/${WORKDIR}" \
   -e CI=true \
