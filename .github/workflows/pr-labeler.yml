@@ -10,12 +10,44 @@ permissions:
 
 jobs:
   label:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    runs-on: [self-hosted, nuc, financial-analysis]
     steps:
+      - name: Resolve NUC execution policy
+        id: policy
+        shell: bash
+        env:
+          NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/scripts/ci/nuc-execution-policy.sh?ref=${{ github.sha }}" \
+            | jq -r .content | base64 -d > /tmp/nuc-execution-policy.sh
+          bash /tmp/nuc-execution-policy.sh
+
+      - name: Report NUC policy (no checkout)
+        if: steps.policy.outputs.run != 'true'
+        run: echo "${{ steps.policy.outputs.policy_message }}"
+
       - name: Checkout
+        if: steps.policy.outputs.run == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
+      - name: Materialize full working tree (persistent NUC workspace)
+        if: steps.policy.outputs.run == 'true'
+        shell: bash
+        run: |
+          git sparse-checkout disable 2>/dev/null || true
+          git checkout-index -a -f
+          git config --local --unset-all extensions.partialClone 2>/dev/null || true
+          git config --local --unset-all remote.origin.promisor 2>/dev/null || true
+          git config --local --unset-all remote.origin.partialclonefilter 2>/dev/null || true
+          test -f .github/actions/pr-path-labeler/action.yml
+
       - name: Apply path-based labels
+        if: steps.policy.outputs.run == 'true'
         uses: ./.github/actions/pr-path-labeler

@@ -20,6 +20,38 @@ updates:
     labels:
       - 'dependencies'
       - 'automated'
+    # Coordinated migrations only — weekly group PRs that include these fail E2E/typecheck
+    # (AI Agents stack: #620/#635; TS7/Vitest5: #632). Patch/minor still flow for packages
+    # that only list update-types. Lift ignores when the matching migration lands (#580).
+    # For 0.y Cloudflare/Agents packages, ignore ALL updates: Dependabot 0.x "majors" still
+    # slipped through semver-major ignores and broke Builds/E2E (#635).
+    ignore:
+      - dependency-name: 'ai'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'workers-ai-provider'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@cloudflare/workers-types'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'agents'
+      - dependency-name: '@cloudflare/ai-chat'
+      - dependency-name: '@cloudflare/think'
+      - dependency-name: '@cloudflare/codemode'
+      - dependency-name: '@cloudflare/workers-oauth-provider'
+      # Keep MCP SDK locked with agents: solo 1.29→1.30 leaves dual copies and breaks
+      # workers/mcp createMcpHandler typing (#646).
+      - dependency-name: '@modelcontextprotocol/sdk'
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/coverage-v8'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'eslint-plugin-astro'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'prettier-plugin-astro'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'astro-eslint-parser'
+        update-types: ['version-update:semver-major']
     groups:
       cloudflare-ai-runtime:
         # Keep Cloudflare Workers, AI, Agents, and MCP protocol upgrades together.

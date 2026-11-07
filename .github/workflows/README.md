@@ -11,7 +11,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 | [e2e-web.yml](./e2e-web.yml)                               | Every PR (Playwright when web paths change)                                     | **E2E smoke** — smoke-matrix on web PRs; fast pass otherwise                                                                                                      |
 | [codeql.yml](./codeql.yml)                                 | Every PR + push to `main`/`dev`                                                 | **CodeQL** — analysis when code changes; fast pass on doc-only PRs                                                                                                |
 | [mcp-policy.yml](./mcp-policy.yml)                         | Every PR + push to `main`/`dev`                                                 | **MCP policy** — focused OAuth, OIDC, capability, tenant-isolation, lifecycle, and interoperability checks; auth scripts/workflows are included in path detection |
-| [nuc-ci.yml](./nuc-ci.yml)                                 | Weekly/manual + controlled promotion PRs                                        | NUC runner smoke and same-repository `feature/promote-nuc-*` certification; not required until runner evidence is complete |
+| [nuc-ci.yml](./nuc-ci.yml)                                 | Weekly/manual + controlled promotion PRs                                        | NUC runner smoke and same-repository `feature/promote-nuc-*` certification (optional promotion lane) |
 | [dependabot-automerge.yml](./dependabot-automerge.yml)     | Dependabot PRs                                                                  | Auto-approve + squash auto-merge for **patch** and **minor** (majors need manual review)                                                                          |
 | [pr-labeler.yml](./pr-labeler.yml)                         | Every PR                                                                        | Path-based labels (`frontend`, `backend`, `analysis`, `tools`, `github-actions`)                                                                                  |
 | [sync-labels.yml](./sync-labels.yml)                       | Push to `main` when [labels.yml](../labels.yml) changes                         | Keeps GitHub labels in sync                                                                                                                                       |
@@ -25,7 +25,7 @@ Overview of CI/CD for the `financial-analysis` monorepo. All install jobs use [s
 
 | Workflow                     | Purpose                                                             |
 | ---------------------------- | ------------------------------------------------------------------- |
-| [ci-cd.yml](./ci-cd.yml)     | Quality, tests, build artifacts, CodeQL, audit                      |
+| [ci.yml](./ci.yml) (Build artifacts job) | `main` push after green **Build and test** | Uploads web/worker/package build artifacts |
 | [release.yml](./release.yml) | Changesets version PR when `.changeset/*.md` exist (no npm publish) |
 
 ## Scheduled / manual
@@ -83,6 +83,10 @@ Requires in **Settings → General**:
 Patch and minor Dependabot PRs are queued for squash auto-merge when **CI** passes (`dependabot-automerge.yml` runs on PR open and again after the CI workflow completes). No bot approval — branch protection has 0 required reviews. **Major** bumps require manual review.
 
 Dependabot uses a **single root** `npm` entry so `pnpm-lock.yaml` stays in sync; path labels come from `pr-labeler.yml`.
+
+**Ignored updates** (see [dependabot.yml](../dependabot.yml)): AI SDK 7 majors (`ai`, `workers-ai-provider`, `@cloudflare/workers-types`), **all** updates to 0.x Agents/Cloudflare packages and `@modelcontextprotocol/sdk` that break CI when moved without `agents` (`agents`, `@cloudflare/ai-chat` / `think` / `codemode` / `workers-oauth-provider`, MCP SDK), and toolchain majors (`typescript`, `vitest`, Astro ESLint/Prettier plugins) stay out of weekly group PRs until a coordinated migration lands (AI track: [#580](https://github.com/blakeox/financial-analysis/pull/580)). Other patch/minor still open and auto-merge.
+
+**`@ai-sdk/provider-utils`:** root `pnpm.overrides` must stay `>=4.0.33 <5`. A floor-only override (`>=4.0.33`) resolves to 5.x and breaks Astro/Vite (`createProviderToolFactoryWithOutputSchema` missing) — see [#618](https://github.com/blakeox/financial-analysis/pull/618).
 
 Optional: enable **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests** if you later require PR approvals for auto-merge.
 

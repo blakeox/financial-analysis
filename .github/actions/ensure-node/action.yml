@@ -1,0 +1,14 @@
+name: Ensure Node.js
+description: Install Node on self-hosted NUC jobs that do not run setup-monorepo
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '22'
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}

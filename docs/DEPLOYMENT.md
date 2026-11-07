@@ -114,8 +114,7 @@ sessions and abandoned objects remain an operational cleanup gate.
 
 ## Workflows
 
-- `.github/workflows/ci.yml` — lightweight CI (typecheck, lint, unit tests)
-- `.github/workflows/ci-cd.yml` — main/PR quality, tests, build, and security checks
+- `.github/workflows/ci.yml` — CI gate, build/test, and `main` build artifacts (self-hosted NUC runner)
 - `.github/workflows/deploy-preview.yml` — label-gated preview deployment using the preview token
 - `.github/workflows/deploy-production.yml` — manually confirmed production deployment from `main`; requires a successful matching preview run, a rollback SHA, and an approval reference
 
@@ -126,7 +125,7 @@ Worker during the rollout window. The current additive audit migration is
 `0008_mcp_audit_policy_receipt.sql`, which persists policy receipt fields
 without retaining prompts, documents, credentials, or tool arguments.
 
-Deploy guards in `ci-cd.yml`:
+Deploy guards in `deploy-preview.yml`:
 
 - Preview job runs only when PR has label `deploy-preview`.
 - The preview job exits before deployment when required Cloudflare secrets are absent.

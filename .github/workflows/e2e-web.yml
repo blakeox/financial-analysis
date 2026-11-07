@@ -50,61 +50,98 @@ jobs:
   e2e-smoke:
     name: E2E smoke
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
+      - name: Resolve NUC execution policy
+        id: policy
+        shell: bash
+        env:
+          NUC_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/scripts/ci/nuc-execution-policy.sh?ref=${{ github.sha }}" \
+            | jq -r .content | base64 -d > /tmp/nuc-execution-policy.sh
+          bash /tmp/nuc-execution-policy.sh
+
+      - name: Report NUC policy (no checkout)
+        if: steps.policy.outputs.run != 'true'
+        run: echo "${{ steps.policy.outputs.policy_message }}"
+
       - name: Checkout
+        if: steps.policy.outputs.run == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
         with:
           fetch-depth: 0
 
+      - name: Materialize full working tree (persistent NUC workspace)
+        if: steps.policy.outputs.run == 'true'
+        shell: bash
+        run: |
+          git sparse-checkout disable 2>/dev/null || true
+          git checkout-index -a -f
+          git config --local --unset-all extensions.partialClone 2>/dev/null || true
+          git config --local --unset-all remote.origin.promisor 2>/dev/null || true
+          git config --local --unset-all remote.origin.partialclonefilter 2>/dev/null || true
+          test -f .github/actions/pr-skip-ci/action.yml
+
       - name: Detect skip-ci label
+        if: steps.policy.outputs.run == 'true'
         id: skip
         uses: ./.github/actions/pr-skip-ci
         with:
           pr_labels: ${{ join(github.event.pull_request.labels.*.name, ',') }}
 
       - name: Detect path changes
+        if: steps.policy.outputs.run == 'true'
         id: paths
         uses: ./.github/actions/repo-path-filter
         with:
           filters-file: .github/path-filters.yml
 
       - name: Skipped (skip-ci label)
-        if: steps.skip.outputs.skip_ci == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci == 'true'
         run: echo "E2E skipped via skip-ci label."
 
       - name: Skipped (no web-related paths)
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web != 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web != 'true'
         run: echo "E2E skipped — no web-related paths changed."
 
       - name: Setup monorepo
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         uses: ./.github/actions/setup-monorepo
 
       - name: Build shared packages
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         working-directory: apps/web
         run: pnpm build
 
-      - name: Run web smoke matrix lane
-        if: steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+      - name: Run web CI preflight (non-browser)
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         working-directory: apps/web
-        run: pnpm run test:ci:smoke:matrix
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
+      - name: Start dev stack for Playwright
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
+      - name: Run web smoke matrix lane
+        if: steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: bash scripts/ci/playwright-docker-smoke.sh matrix
+
+      - name: Stop dev stack for Playwright
+        if: always() && steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke matrix Playwright artifacts
-        if: always() && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
+        if: always() && steps.policy.outputs.run == 'true' && steps.skip.outputs.skip_ci != 'true' && steps.paths.outputs.web == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-smoke-matrix-artifacts
@@ -115,7 +152,7 @@ jobs:
 
   smoke:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -127,19 +164,23 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
 
-      - name: Run web smoke lane
+      - name: Run web CI preflight (non-browser)
         working-directory: apps/web
-        run: pnpm run test:ci:smoke
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
+      - name: Run web smoke lane
+        run: bash scripts/ci/playwright-docker-smoke.sh
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke Playwright artifacts
         if: always()
@@ -153,7 +194,7 @@ jobs:
 
   smoke-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -165,19 +206,23 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
 
-      - name: Run web smoke matrix lane
+      - name: Run web CI preflight (non-browser)
         working-directory: apps/web
-        run: pnpm run test:ci:smoke:matrix
+        run: pnpm run test:layout && pnpm run typecheck:tests && pnpm run test:unit && pnpm run test:ui:status
+
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
+      - name: Run web smoke matrix lane
+        run: bash scripts/ci/playwright-docker-smoke.sh matrix
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload smoke matrix Playwright artifacts
         if: always()
@@ -191,7 +236,7 @@ jobs:
 
   full-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'full'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -207,12 +252,6 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
-        working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
-
       - name: Build web
         working-directory: apps/web
         run: pnpm build
@@ -221,9 +260,20 @@ jobs:
         working-directory: apps/web
         run: pnpm run test:layout && pnpm run typecheck:tests
 
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
+
       - name: Run Playwright matrix project
-        working-directory: apps/web
-        run: PLAYWRIGHT_MATRIX=1 pnpm exec playwright test --project "${{ matrix.project }}"
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          PLAYWRIGHT_USE_HOST_NETWORK: '1'
+        run: >-
+          bash scripts/ci/run-in-playwright-container.sh apps/web
+          'PLAYWRIGHT_MATRIX=1 playwright test --project "${{ matrix.project }}"'
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload full matrix Playwright artifacts
         if: always()
@@ -237,7 +287,7 @@ jobs:
 
   flake-repro:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'flake'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -249,15 +299,26 @@ jobs:
       - name: Build shared packages
         run: pnpm run build:libs
 
-      - name: Install Playwright Browsers
+      - name: Build web
         working-directory: apps/web
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: npx playwright install --with-deps chromium firefox webkit
+        run: pnpm build
+
+      - name: Start dev stack for Playwright
+        run: bash scripts/ci/start-dev-stack-for-playwright.sh
 
       - name: Run flake repro lane
-        working-directory: apps/web
-        run: pnpm exec node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}" --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}" --json-summary test-results/runner/flake-repro-summary.json
+        env:
+          PLAYWRIGHT_SKIP_WEBSERVER: '1'
+          PLAYWRIGHT_USE_HOST_NETWORK: '1'
+        run: >-
+          bash scripts/ci/run-in-playwright-container.sh apps/web
+          'node scripts/test-runner.mjs --playwright "${{ github.event.inputs.flake_target }}"
+          --project "${{ github.event.inputs.project }}" --repeat-each "${{ github.event.inputs.repeat_each }}"
+          --json-summary test-results/runner/flake-repro-summary.json'
+
+      - name: Stop dev stack for Playwright
+        if: always()
+        run: bash scripts/ci/stop-dev-stack-for-playwright.sh
 
       - name: Upload flake repro Playwright artifacts
         if: always()

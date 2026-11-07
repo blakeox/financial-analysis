@@ -11,12 +11,12 @@ permissions:
   issues: write
 
 concurrency:
-  group: monitor-workers-health
-  cancel-in-progress: true
+  group: nuc-scheduled-monitors
+  cancel-in-progress: false
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     env:
       ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       API_TOKEN: ${{ secrets.CLOUDFLARE_OBSERVABILITY_TOKEN }}
@@ -51,9 +51,10 @@ jobs:
       - name: Ensure jq is installed
         if: steps.precheck.outputs.skip != 'true'
         run: |
-          if ! command -v jq >/dev/null 2>&1; then
-            sudo apt-get update -y && sudo apt-get install -y jq
-          fi
+          command -v jq >/dev/null 2>&1 || {
+            echo "jq is required on the NUC runner host (no sudo in CI)." >&2
+            exit 1
+          }
       - name: Query Workers errors via GraphQL
         id: gq
         if: steps.precheck.outputs.skip != 'true'

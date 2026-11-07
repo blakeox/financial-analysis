@@ -39,13 +39,17 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  webServer: {
-    command: 'cd ../.. && pnpm run dev:all',
-    cwd: __dirname,
-    url: 'http://localhost:8788',
-    timeout: 240_000,
-    // Reuse existing server if available
-    reuseExistingServer: true,
-  },
+  ...(process.env.PLAYWRIGHT_SKIP_WEBSERVER === '1'
+    ? {}
+    : {
+        webServer: {
+          command: 'cd ../.. && pnpm run dev:all',
+          cwd: __dirname,
+          url: 'http://localhost:8788',
+          timeout: 240_000,
+          // Reuse existing server if available
+          reuseExistingServer: true,
+        },
+      }),
   projects,
 });

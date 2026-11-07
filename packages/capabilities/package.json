@@ -25,13 +25,13 @@
   },
   "dependencies": {
     "@financial-analysis/analysis": "workspace:*",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@financial-analysis/config": "workspace:*",
-    "eslint": "^10.6.0",
-    "prettier": "^3.9.1",
+    "eslint": "^10.11.0",
+    "prettier": "^3.9.9",
     "typescript": "^6.0.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.11"
   }
 }

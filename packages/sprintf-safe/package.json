@@ -1,0 +1,15 @@
+{
+  "name": "@financial-analysis/sprintf-safe",
+  "version": "1.1.3-fa.1",
+  "private": true,
+  "description": "Locally patched sprintf-js 1.1.3 with bounded numeric precision",
+  "license": "BSD-3-Clause",
+  "main": "sprintf.cjs",
+  "scripts": {
+    "test": "node --test sprintf.test.cjs",
+    "format:check": "prettier --check package.json README.md sprintf.test.cjs"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  }
+}

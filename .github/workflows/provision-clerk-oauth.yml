@@ -32,7 +32,7 @@ concurrency:
 jobs:
   reconcile:
     name: Reconcile Clerk OAuth (${{ inputs.environment }})
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nuc, financial-analysis]
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     steps:

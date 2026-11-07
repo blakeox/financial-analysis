@@ -17,8 +17,10 @@ jobs:
   deploy:
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.label.name == 'deploy-preview')
-    runs-on: ubuntu-latest
+      (github.event_name == 'pull_request' &&
+        github.event.label.name == 'deploy-preview' &&
+        github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: [self-hosted, nuc, financial-analysis]
     environment:
       name: preview
       url: https://fanalyx-api-preview.blakeoxford.workers.dev

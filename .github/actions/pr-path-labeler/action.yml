@@ -45,4 +45,11 @@ runs:
 
         joined=$(IFS=,; echo "${!labels[*]}")
         echo "Applying labels: $joined"
-        gh pr edit "$PR" --repo "${{ github.repository }}" --add-label "$joined"
+        labels_json=$(printf '%s\n' "${!labels[@]}" | jq -R . | jq -s .)
+        curl --fail-with-body --silent --show-error \
+          -X POST \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${PR}/labels" \
+          -d "${labels_json}"
