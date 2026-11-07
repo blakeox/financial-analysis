@@ -2,7 +2,7 @@
 # Run a command in the official Playwright image on the NUC (uid 1001, no sudo).
 set -euo pipefail
 
-IMAGE="${PLAYWRIGHT_DOCKER_IMAGE:-mcr.microsoft.com/playwright:v1.63.0-jammy}"
+IMAGE="${PLAYWRIGHT_DOCKER_IMAGE:-mcr.microsoft.com/playwright:v1.65.0-jammy}"
 WORKDIR="${1:?usage: $0 <workdir-relative-to-repo> <command>}"
 shift
 CMD="$*"
