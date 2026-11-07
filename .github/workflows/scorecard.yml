@@ -27,7 +27,7 @@ concurrency:
 jobs:
   analysis:
     name: Scorecard analysis
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     permissions:
       security-events: write
       id-token: write
