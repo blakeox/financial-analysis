@@ -45,7 +45,7 @@ concurrency:
 jobs:
   link:
     name: Link Clerk user email (${{ inputs.environment }})
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     steps:

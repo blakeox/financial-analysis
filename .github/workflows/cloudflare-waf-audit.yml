@@ -17,7 +17,7 @@ concurrency:
 jobs:
   audit:
     name: Read WAF entrypoints
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 10
     environment:
       name: production

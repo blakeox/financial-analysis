@@ -18,7 +18,7 @@ jobs:
   check:
     environment:
       name: production
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     steps:
       - name: Precheck production API URL
         id: precheck

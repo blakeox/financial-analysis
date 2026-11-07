@@ -50,7 +50,7 @@ jobs:
   e2e-smoke:
     name: E2E smoke
     if: github.event_name == 'pull_request'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Resolve NUC execution policy
@@ -152,7 +152,7 @@ jobs:
 
   smoke:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke')
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -194,7 +194,7 @@ jobs:
 
   smoke-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'smoke-matrix'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -236,7 +236,7 @@ jobs:
 
   full-matrix:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'full'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -287,7 +287,7 @@ jobs:
 
   flake-repro:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'flake'
-    runs-on: [self-hosted, nuc, financial-analysis]
+    runs-on: [self-hosted, dell, financial-analysis]
     timeout-minutes: 45
     steps:
       - name: Checkout
