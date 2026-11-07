@@ -142,7 +142,8 @@ jobs:
     name: Secret scan
     needs: gate
     if: always() && needs.gate.result == 'success'
-    runs-on: [self-hosted, dell, financial-analysis]
+    # TruffleHog invokes Docker; keep on hosted runners until Dell runner is in the docker group.
+    runs-on: ubuntu-latest
     steps:
       - name: NUC policy (no code execution)
         if: needs.gate.outputs.nuc_run != 'true'
