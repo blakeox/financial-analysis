@@ -25,6 +25,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
+      - name: Materialize full working tree (persistent NUC workspace)
+        shell: bash
+        run: |
+          git sparse-checkout disable 2>/dev/null || true
+          git checkout-index -a -f
+          git config --local --unset-all extensions.partialClone 2>/dev/null || true
+          git config --local --unset-all remote.origin.promisor 2>/dev/null || true
+          git config --local --unset-all remote.origin.partialclonefilter 2>/dev/null || true
+          test -f .github/actions/ensure-node/action.yml
+
+      - name: Ensure Node.js
+        uses: ./.github/actions/ensure-node
+
       - name: Verify WAF read credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WAF_READ_TOKEN }}
