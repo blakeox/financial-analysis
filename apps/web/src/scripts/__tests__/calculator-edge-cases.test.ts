@@ -722,14 +722,19 @@ describe('Performance Edge Cases', () => {
     });
 
     it('should handle recursive calculations without stack overflow', () => {
-      const fib = (n: number): number => {
+      const fib = (n: number, memo = new Map<number, number>()): number => {
         if (n <= 1) return n;
-        return fib(n - 1) + fib(n - 2);
+        const cached = memo.get(n);
+        if (cached !== undefined) return cached;
+        const result = fib(n - 1, memo) + fib(n - 2, memo);
+        memo.set(n, result);
+        return result;
       };
 
-      // Should handle reasonable recursion depth
+      // Keep the recursion depth without exponential work under V8 coverage.
       expect(fib(10)).toBe(55);
-      expect(() => fib(40)).not.toThrow(); // Slow but doesn't crash
+      expect(() => fib(40)).not.toThrow();
+      expect(fib(40)).toBe(102334155);
     });
   });
 });
