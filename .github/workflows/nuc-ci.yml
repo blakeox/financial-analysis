@@ -1,6 +1,6 @@
 name: NUC CI
 
-# Weekly/manual smoke on the repository NUC runner. Promotion certification uses
+# Weekly/manual smoke on the Dell self-hosted runner. Promotion certification uses
 # pull_request_target with maintainer environment approval (same-repo only).
 on:
   pull_request_target:
@@ -10,12 +10,12 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Git ref to validate on the controlled NUC
+        description: Git ref to validate on the controlled Dell runner
         required: true
         default: main
         type: string
       mode:
-        description: NUC validation depth
+        description: Dell validation depth
         required: true
         default: smoke
         type: choice
@@ -32,9 +32,6 @@ concurrency:
   group: nuc-ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  NUC_NODE_BIN: /home/github-runner/.local/node-v24.18.0/bin
-
 jobs:
   runner-smoke:
     name: NUC / runner smoke
@@ -48,15 +45,22 @@ jobs:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
           persist-credentials: false
 
+      - name: Materialize full working tree (persistent runner workspace)
+        shell: bash
+        run: |
+          git sparse-checkout disable 2>/dev/null || true
+          git checkout-index -a -f
+          git config --local --unset-all extensions.partialClone 2>/dev/null || true
+          git config --local --unset-all remote.origin.promisor 2>/dev/null || true
+          git config --local --unset-all remote.origin.partialclonefilter 2>/dev/null || true
+          test -f .github/actions/setup-monorepo/action.yml
+
       - name: Report runner identity
         run: |
           set -euo pipefail
-          export PATH="$NUC_NODE_BIN:$PATH"
           printf 'runner=%s\n' "${RUNNER_NAME:-unknown}"
           printf 'host=%s\n' "$(hostname)"
           printf 'platform=%s\n' "$(uname -a)"
-          printf 'node=%s\n' "$(node --version)"
-          printf 'pnpm=%s\n' "$(pnpm --version)"
           df -h /
           test "${RUNNER_NAME:-}" = "automation-dell-financial-analysis"
 
@@ -67,13 +71,14 @@ jobs:
           test -f pnpm-lock.yaml
           git status --short
 
+      - name: Setup monorepo
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'verify')
+        uses: ./.github/actions/setup-monorepo
+
       - name: Run bounded verification
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'verify')
         run: |
           set -euo pipefail
-          export PATH="$NUC_NODE_BIN:$PATH"
-          pnpm install --frozen-lockfile
-          pnpm run check:runtime
           timeout --signal=TERM --kill-after=30s 12m pnpm run test:ci
 
   promotion-certification:
@@ -119,14 +124,15 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Report NUC identity and capacity
+      - name: Ensure Node.js (from trusted control tree)
+        uses: ./control/.github/actions/ensure-node
+
+      - name: Report Dell identity and capacity
         run: |
           set -euo pipefail
-          export PATH="$NUC_NODE_BIN:$PATH"
           printf 'runner=%s\n' "${RUNNER_NAME:-unknown}"
           printf 'host=%s\n' "$(hostname)"
           printf 'node=%s\n' "$(node --version)"
-          printf 'pnpm=%s\n' "$(pnpm --version)"
           df -h /
           test "${RUNNER_NAME:-}" = "automation-dell-financial-analysis"
 
@@ -134,7 +140,9 @@ jobs:
         working-directory: source
         run: |
           set -euo pipefail
-          export PATH="$NUC_NODE_BIN:$PATH"
+          corepack enable
+          corepack prepare pnpm@10.17.0 --activate
+          printf 'pnpm=%s\n' "$(pnpm --version)"
           pnpm install --frozen-lockfile
           pnpm run check:runtime
 
@@ -142,5 +150,4 @@ jobs:
         working-directory: source
         run: |
           set -euo pipefail
-          export PATH="$NUC_NODE_BIN:$PATH"
           timeout --signal=TERM --kill-after=30s 12m pnpm run test:ci
