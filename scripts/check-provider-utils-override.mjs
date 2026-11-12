@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Guard against regressing the @ai-sdk/provider-utils pnpm override.
- * Floor-only (>=4.0.33) resolves to 5.x and breaks Astro/Vite builds
+ * Must stay on 4.0.65: Dependabot/pnpm cannot resolve floating 4.0.66+,
+ * and 5.x breaks Astro/Vite builds
  * (MISSING_EXPORT createProviderToolFactoryWithOutputSchema via @ai-sdk/gateway).
  * See https://github.com/blakeox/financial-analysis/pull/618
  */
@@ -9,16 +10,25 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const root = process.cwd();
-const expected = '>=4.0.33 <5';
+const expected = '4.0.65';
 
 const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 const override = pkg?.pnpm?.overrides?.['@ai-sdk/provider-utils'];
+const workspace = await readFile(join(root, 'pnpm-workspace.yaml'), 'utf8');
+const wsMatch = workspace.match(/'@ai-sdk\/provider-utils':\s*'([^']+)'/);
+const wsOverride = wsMatch?.[1];
+if (wsOverride !== expected) {
+  console.error(
+    `pnpm-workspace.yaml @ai-sdk/provider-utils override must be exactly "${expected}" (got ${JSON.stringify(wsOverride)}).`
+  );
+  process.exit(1);
+}
 
 if (override !== expected) {
   console.error(
     `@ai-sdk/provider-utils pnpm override must be exactly "${expected}" (got ${JSON.stringify(override)}).`
   );
-  console.error('A floor-only override allows 5.x and breaks the Astro/Vite build.');
+  console.error('Override must stay exact 4.0.65 (not 5.x; avoid Dependabot resolve flakes on newer 4.0.x).');
   process.exit(1);
 }
 

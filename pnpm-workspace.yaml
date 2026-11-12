@@ -60,7 +60,7 @@ overrides:
   svgo: '>=4.0.2'
   sharp: '>=0.35.5 <0.36'
   '@hono/node-server': '>=2.1.6'
-  '@ai-sdk/provider-utils': '>=4.0.33 <5'
+  '@ai-sdk/provider-utils': '4.0.65'
   http-cache-semantics: '>=4.3.0'
 
   proxy-addr: '>=2.0.8 <3'
