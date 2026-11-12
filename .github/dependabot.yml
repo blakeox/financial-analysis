@@ -4,6 +4,8 @@ updates:
   # Path labels (frontend, backend, etc.) come from pr-labeler.yml on each PR.
   - package-ecosystem: 'npm'
     directory: '/'
+    # Prefer caret floors below the locked latest so Dependabot/pnpm can resolve
+    # when floor==latest (ERR_PNPM_NO_MATCHING_VERSION on ^X.Y.Z == latest).
     versioning-strategy: increase
     schedule:
       interval: 'weekly'
