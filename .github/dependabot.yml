@@ -4,9 +4,10 @@ updates:
   # Path labels (frontend, backend, etc.) come from pr-labeler.yml on each PR.
   - package-ecosystem: 'npm'
     directory: '/'
-    # Prefer caret floors below the locked latest so Dependabot/pnpm can resolve
-    # when floor==latest (ERR_PNPM_NO_MATCHING_VERSION on ^X.Y.Z == latest).
-    versioning-strategy: increase
+    # lockfile-only: Dependabot/pnpm fails resolving some caret ranges in this
+    # monorepo (ERR_PNPM_NO_MATCHING_VERSION on prettier). Keep package.json
+    # ranges human-owned; Dependabot only refreshes pnpm-lock.yaml.
+    versioning-strategy: lockfile-only
     schedule:
       interval: 'weekly'
       day: 'monday'
@@ -54,6 +55,14 @@ updates:
       - dependency-name: 'prettier-plugin-astro'
         update-types: ['version-update:semver-major']
       - dependency-name: 'astro-eslint-parser'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@astrojs/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@ai-sdk/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'jsdom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'chokidar'
         update-types: ['version-update:semver-major']
     groups:
       cloudflare-ai-runtime:
