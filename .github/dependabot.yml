@@ -7,6 +7,9 @@ updates:
     # lockfile-only for pnpm monorepo reliability. prettier is pinned to 3.9.10
     # and ignored: Dependabot cannot resolve prettier@3.10.x at all
     # (ERR_PNPM_NO_MATCHING_VERSION even for exact 3.10.1).
+    # @ai-sdk/provider-utils is pinned via pnpm-workspace.yaml override (4.0.65);
+    # Dependabot lockfile updates previously failed resolving 4.0.66
+    # (ERR_PNPM_NO_MATCHING_VERSION while bumping peers like astro).
     versioning-strategy: lockfile-only
     schedule:
       interval: 'weekly'
@@ -61,6 +64,9 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@ai-sdk/react'
         update-types: ['version-update:semver-major']
+      # Override target only — keep pnpm-workspace.yaml pin; do not let Dependabot
+      # chase dist-tag/ai-v6-only builds that break lockfile resolution.
+      - dependency-name: '@ai-sdk/provider-utils'
       - dependency-name: 'jsdom'
         update-types: ['version-update:semver-major']
       - dependency-name: 'chokidar'
