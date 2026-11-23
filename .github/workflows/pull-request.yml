@@ -133,7 +133,7 @@ jobs:
 
       - name: Dependency review
         if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true' && needs.gate.outputs.code_changed == 'true'
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
+        uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5
         with:
           fail-on-severity: high
           comment-summary-in-pr: always
@@ -171,6 +171,6 @@ jobs:
 
       - name: TruffleHog OSS
         if: needs.gate.outputs.nuc_run == 'true' && needs.gate.outputs.skip_ci != 'true'
-        uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb # v3.99.8
+        uses: trufflesecurity/trufflehog@d232362a64a09a9e7d58267b8f5acef00ae90e23 # v3.100.0
         with:
           extra_args: --only-verified
